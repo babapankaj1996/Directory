@@ -1,0 +1,125 @@
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import morgan from 'morgan';
+import { fileURLToPath } from 'url';
+import path from 'path';
+import { prisma } from './lib/prisma.js';
+import authRoutes from './routes/auth.js';
+import countryRoutes from './routes/countries.js';
+import cityRoutes from './routes/cities.js';
+import categoryRoutes from './routes/categories.js';
+import profileRoutes from './routes/profiles.js';
+import dashboardRoutes from './routes/dashboard.js';
+import adminListingRoutes from './routes/admin-listings.js';
+import adminGalleryRoutes from './routes/admin-gallery.js';
+import adminReviewRoutes from './routes/admin-reviews.js';
+import adminInsightRoutes from './routes/admin-insights.js';
+import adminQuoteRoutes from './routes/admin-quotes.js';
+import adminBillingRoutes from './routes/admin-billing.js';
+import uploadRoutes from './routes/uploads.js';
+import blogRoutes from './routes/blog.js';
+import seoRoutes from './routes/seo.js';
+import { optionalAuth, requireAdmin, requireAuth } from './utils/auth.js';
+import { asyncHandler } from './utils/async-handler.js';
+import { slugify } from './utils/helpers.js';
+
+const app = express();
+const port = Number(process.env.PORT || 4000);
+const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+const uploadsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../uploads');
+const corsOrigins = new Set([
+  frontendUrl,
+  'http://127.0.0.1:3000',
+  ...String(process.env.CORS_ORIGINS || '').split(',').map((origin) => origin.trim()).filter(Boolean)
+]);
+if (process.env.NODE_ENV !== 'production') {
+  corsOrigins.add('http://localhost:3001');
+  corsOrigins.add('http://127.0.0.1:3001');
+}
+
+app.use(cors({ origin: [...corsOrigins], credentials: true }));
+app.use(express.json({ limit: '2mb' }));
+app.use(morgan('dev'));
+app.use('/uploads', express.static(uploadsDir));
+
+app.get('/api/health', async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: 'ok', database: 'connected', time: new Date().toISOString() });
+  } catch (error) {
+    res.status(500).json({ status: 'error', database: 'not connected', message: error.message });
+  }
+});
+
+app.use('/api/auth', authRoutes);
+app.use('/api/countries', countryRoutes);
+app.use('/api/cities', cityRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/profiles', profileRoutes);
+app.get('/api/dashboard/saved-profiles/:profileId/status', optionalAuth, asyncHandler(async (req, res) => {
+  const profile = await prisma.profile.findFirst({
+    where: {
+      status: 'APPROVED',
+      OR: [{ id: req.params.profileId }, { slug: slugify(req.params.profileId) }]
+    },
+    select: { id: true }
+  });
+  if (!profile) return res.status(404).json({ error: 'Profile not found' });
+
+  if (!req.authUser) {
+    return res.json({ data: { profileId: profile.id, saved: false, authenticated: false } });
+  }
+
+  const saved = await prisma.profileSave.findUnique({
+    where: {
+      profileId_userId: {
+        profileId: profile.id,
+        userId: req.authUser.id
+      }
+    }
+  });
+  res.json({ data: { profileId: profile.id, saved: Boolean(saved), authenticated: true } });
+}));
+app.use('/api/dashboard', requireAuth, dashboardRoutes);
+app.use('/api/admin/listings', requireAdmin, adminListingRoutes);
+app.use('/api/admin/gallery', requireAdmin, adminGalleryRoutes);
+app.use('/api/admin/reviews', requireAdmin, adminReviewRoutes);
+app.use('/api/admin/insights', requireAdmin, adminInsightRoutes);
+app.use('/api/admin/quotes', requireAdmin, adminQuoteRoutes);
+app.use('/api/admin/billing', requireAdmin, adminBillingRoutes);
+app.use('/api/uploads', uploadRoutes);
+app.use('/api/blog', blogRoutes);
+app.use('/api/seo', seoRoutes);
+
+app.use('/api', (_req, res) => {
+  res.status(404).json({ error: 'API endpoint not found' });
+});
+
+app.use((error, _req, res, _next) => {
+  const status = error.statusCode || 500;
+  if (status >= 500) {
+    console.error(error);
+  } else {
+    console.warn(`[request:${status}] ${error.message}`);
+  }
+  res.status(status).json({
+    error: status === 500 ? 'Internal server error' : error.message,
+    detail: process.env.NODE_ENV === 'development' ? error.message : undefined
+  });
+});
+
+const server = app.listen(port, () => {
+  console.log(`Backend API running at http://localhost:${port}`);
+});
+
+async function shutdown() {
+  console.log('Shutting down backend...');
+  server.close(async () => {
+    await prisma.$disconnect();
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);

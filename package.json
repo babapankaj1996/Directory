@@ -1,0 +1,48 @@
+{
+  "name": "luxury-directory-fullstack-postgres-prisma",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint app components lib tests middleware.ts next.config.ts playwright.config.ts tailwind.config.ts",
+    "test:smoke": "playwright test",
+    "test:api": "node tests/backend-api-smoke.mjs",
+    "test:site-audit": "node tests/site-audit.mjs",
+    "backend:install": "npm install --prefix backend",
+    "backend:dev": "npm run dev --prefix backend",
+    "backend:start": "npm run start --prefix backend",
+    "backend:setup": "npm run prisma:generate --prefix backend && npm run prisma:migrate --prefix backend && npm run seed --prefix backend",
+    "backend:generate": "npm run prisma:generate --prefix backend",
+    "backend:migrate": "npm run prisma:migrate --prefix backend",
+    "backend:seed": "npm run seed --prefix backend",
+    "backend:studio": "npm run prisma:studio --prefix backend"
+  },
+  "dependencies": {
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "autoprefixer": "^10.4.20",
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.18.2",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.6",
+    "postcss": "^8.5.14",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@playwright/test": "^1.59.1",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.6"
+  },
+  "overrides": {
+    "postcss": "^8.5.14"
+  }
+}
