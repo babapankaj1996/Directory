@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { CategoryListingPage } from "@/components/category-listing-page";
-import { getCitiesForCountry, publicCountries } from "@/lib/data";
 import { buildCategorySeoContent } from "@/lib/category-seo";
+import { getActiveCitiesForCountry, getActiveLocation } from "@/lib/locations";
 import { getPublicCategories, getPublicCategory, getPublicProfiles } from "@/lib/profiles";
 import { breadcrumbJsonLd, categoryCollectionJsonLd, categoryItemListJsonLd, faqJsonLd } from "@/lib/seo-schema";
 import { formatRouteName } from "@/lib/utils";
@@ -80,17 +80,19 @@ export default async function CategoryPage({
   const { country, city, category } = await params;
   const { search, page } = await searchParams;
   const categoryData = await getPublicCategory(category);
+  const location = await getActiveLocation(country, city);
 
-  if (!publicCountries.some((item) => item.code === country) || !getCitiesForCountry(country).some((item) => item.slug === city) || !categoryData) {
+  if (!location || !categoryData) {
     notFound();
   }
 
   const path = `/${country}/${city}/${category}`;
-  const [profiles, activeCategories] = await Promise.all([
+  const [profiles, activeCategories, activeCities] = await Promise.all([
     getPublicProfiles({ country, city, category, search, placementPath: path }),
-    getPublicCategories({ includeAdult: true })
+    getPublicCategories({ includeAdult: true }),
+    getActiveCitiesForCountry(country)
   ]);
-  const seo = buildCategorySeoContent({ country, city, category: categoryData, categoryOptions: activeCategories, listings: profiles });
+  const seo = buildCategorySeoContent({ country, city, category: categoryData, activeCities, categoryOptions: activeCategories, listings: profiles });
 
   if (page) {
     redirect(cleanPageHref(path, parsePage(page), search));

@@ -1,4 +1,4 @@
-import { getCitiesForCountry, publicCountries, type Category, type Listing } from "@/lib/data";
+import { type Category, type Listing } from "@/lib/data";
 import { formatRouteName } from "@/lib/utils";
 
 type CopyVars = {
@@ -340,13 +340,24 @@ export function categoryKeywordExamples(category: Category, city?: string) {
   });
 }
 
-export function activeCityLinks(country: string, listings: Listing[], limit = 8) {
-  const cities = getCitiesForCountry(country);
+type ActiveCitySource = {
+  slug: string;
+  name: string;
+  countryCode?: string;
+};
+
+type GlobalCitySource = {
+  country: string;
+  city: string;
+  cityName: string;
+};
+
+export function activeCityLinks(country: string, listings: Listing[], activeCities: ActiveCitySource[] = [], limit = 8) {
   const counts = new Map<string, number>();
   listings.forEach((listing) => {
     if (listing.country === country) counts.set(listing.city, (counts.get(listing.city) || 0) + 1);
   });
-  return cities
+  return activeCities
     .map((city) => ({ ...city, count: counts.get(city.slug) || 0 }))
     .sort((first, second) => second.count - first.count || first.name.localeCompare(second.name))
     .slice(0, limit)
@@ -357,7 +368,8 @@ export function activeCityLinks(country: string, listings: Listing[], limit = 8)
     }));
 }
 
-export function globalCategoryCityLinks(category: Category, listings: Listing[], limit = 8) {
+export function globalCategoryCityLinks(category: Category, listings: Listing[], activeCities: GlobalCitySource[] = [], limit = 8) {
+  const activeKeys = new Set(activeCities.map((city) => `${city.country}/${city.city}`));
   const listingKeys = new Set<string>();
   const fromListings = listings
     .filter((listing) => listing.categorySlug === category.slug)
@@ -369,22 +381,17 @@ export function globalCategoryCityLinks(category: Category, listings: Listing[],
     }))
     .filter((item) => {
       const key = `${item.country}/${item.city}`;
+      if (!activeKeys.has(key)) return false;
       if (listingKeys.has(key)) return false;
       listingKeys.add(key);
       return true;
     });
 
-  const fallbackCities = publicCountries.flatMap((country) =>
-    getCitiesForCountry(country.code).map((city) => ({
-      country: country.code,
-      city: city.slug,
-      cityName: city.name,
-      count: 0
-    }))
-  );
-
   const emitted = new Set<string>();
-  return [...fromListings, ...fallbackCities]
+  return [
+    ...fromListings,
+    ...activeCities.map((city) => ({ ...city, count: 0 }))
+  ]
     .filter((item) => {
       const key = `${item.country}/${item.city}`;
       if (emitted.has(key)) return false;

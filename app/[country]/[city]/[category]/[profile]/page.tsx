@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProfileDetail } from "@/components/profile-detail";
 import { getListingUrl, type Listing } from "@/lib/data";
+import { getActiveCitiesForCountry } from "@/lib/locations";
 import { buildProfileSeoContent } from "@/lib/profile-seo";
 import { getProfileGallery, getPublicProfileByPath } from "@/lib/profiles";
 import { breadcrumbJsonLd, faqJsonLd, profileJsonLd, profileServiceJsonLd } from "@/lib/seo-schema";
@@ -21,7 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
     return { title: "Profile Not Found" };
   }
 
-  const seo = buildProfileSeoContent(listing);
+  const activeCities = await getActiveCitiesForCountry(country);
+  const seo = buildProfileSeoContent(listing, listing.gallery?.length || 0, activeCities);
   const description = profileDescription(listing, seo.description);
   const title = listing.seoTitle || seo.title;
 
@@ -56,8 +58,11 @@ export default async function ProfilePage({ params }: { params: Promise<{ countr
     notFound();
   }
 
-  const gallery = listing.gallery?.length ? listing.gallery : await getProfileGallery(listing.id || listing.slug);
-  const seo = buildProfileSeoContent(listing, gallery.length);
+  const [gallery, activeCities] = await Promise.all([
+    listing.gallery?.length ? Promise.resolve(listing.gallery) : getProfileGallery(listing.id || listing.slug),
+    getActiveCitiesForCountry(country)
+  ]);
+  const seo = buildProfileSeoContent(listing, gallery.length, activeCities);
 
   const path = getListingUrl(listing);
   const jsonLd = [

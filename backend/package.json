@@ -11,12 +11,14 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:studio": "prisma studio",
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.js",
+    "locations:import": "node prisma/import-locations.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "country-state-city": "^3.2.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "morgan": "^1.10.0",

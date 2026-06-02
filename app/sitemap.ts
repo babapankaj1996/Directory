@@ -30,7 +30,7 @@ function route(url: string, priority: number, changeFrequency: MetadataRoute.Sit
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [countries, cities, categories, profiles, adultProfiles] = await Promise.all([
     apiList<Country>("/api/countries?status=ACTIVE"),
-    apiList<City>("/api/cities?status=ACTIVE"),
+    apiList<City>("/api/cities?status=ACTIVE&limit=500"),
     apiList<Category>("/api/categories"),
     apiList<unknown>("/api/profiles"),
     apiList<unknown>("/api/profiles?adult=true")
@@ -42,6 +42,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
   const categorySource = categories.length ? categories : fallbackSitemapCategories;
   const activeCategories = categorySource.filter((category) => (category.status || "ACTIVE") === "ACTIVE" && category.indexable !== false);
+  const activeCountryCodes = new Set(countries.map((country) => country.code));
+  const activeCities = cities.filter((city) => activeCountryCodes.has(city.countryCode));
   const listings = [...profiles, ...adultProfiles]
     .map(normalizeProfile)
     .filter((listing, index, all) => listing.status === "approved" && all.findIndex((item) => item.slug === listing.slug && item.country === listing.country && item.city === listing.city) === index);
@@ -53,8 +55,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     route("/blog", 0.7, "weekly"),
     ...activeCategories.map((category) => route(`/${category.slug}`, 0.82, "daily", category.updatedAt)),
     ...countries.map((country) => route(`/${country.code}`, 0.75, "weekly", country.updatedAt)),
-    ...cities.map((city) => route(`/${city.countryCode}/${city.slug}`, 0.78, "weekly", city.updatedAt)),
-    ...cities.flatMap((city) => activeCategories.map((category) => route(`/${city.countryCode}/${city.slug}/${category.slug}`, 0.8, "daily", category.updatedAt))),
+    ...activeCities.map((city) => route(`/${city.countryCode}/${city.slug}`, 0.78, "weekly", city.updatedAt)),
+    ...activeCities.flatMap((city) => activeCategories.map((category) => route(`/${city.countryCode}/${city.slug}/${category.slug}`, 0.8, "daily", category.updatedAt))),
     ...listings.map((listing) => route(getListingUrl(listing), isFeaturedActive(listing) ? 0.95 : 0.9, "weekly", listing.updatedAt))
   ];
 }

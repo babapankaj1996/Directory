@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ChevronLeft, ChevronRight, MapPin, RotateCcw, Search, SlidersHorizontal } from "lucide-react";
 import { ListingCard } from "@/components/listing-card";
 import { GlassCard } from "@/components/ui/glass-card";
-import { countryNames, getCitiesForCountry, isFeaturedActive, isIdVerifiedListing, publicCountries, sortByFeaturedVisibility, type Category, type Listing } from "@/lib/data";
+import { countryNames, isFeaturedActive, isIdVerifiedListing, sortByFeaturedVisibility, type Category, type Listing } from "@/lib/data";
+import { useActiveLocationOptions } from "@/lib/use-active-locations";
 
 const perPage = 20;
 
@@ -45,14 +46,15 @@ export function CategoryListingExplorer({ category, listings, initialPage = 1 }:
     setPage(initialPage);
   }, [initialPage]);
 
-  const cityOptions = country === "ALL" ? [] : getCitiesForCountry(country);
+  const { countries, cities: cityOptions, loadingCountries, loadingCities } = useActiveLocationOptions(country === "ALL" ? undefined : country);
   const placementPath = country !== "ALL" && city !== "ALL" ? `/${country}/${city}/${category.slug}` : `/${category.slug}`;
   const selectedCityName = cityOptions.find((item) => item.slug === city)?.name;
+  const selectedCountryName = countries.find((item) => item.code === country)?.name || countryNames[country] || country.toUpperCase();
   const scopeLabel = selectedCityName
-    ? `${selectedCityName}, ${countryNames[country] || country.toUpperCase()}`
+    ? `${selectedCityName}, ${selectedCountryName}`
     : country === "ALL"
       ? "all countries"
-      : countryNames[country] || country.toUpperCase();
+      : selectedCountryName;
 
   const filteredListings = useMemo(() => {
     const filtered = listings.filter((listing) => {
@@ -85,6 +87,24 @@ export function CategoryListingExplorer({ category, listings, initialPage = 1 }:
     scopeLabel,
     sort !== "latest" ? sortLabel : undefined
   ].filter(Boolean).join(" / ") || "Search and filters";
+
+  useEffect(() => {
+    if (loadingCountries) return;
+    if (country === "ALL") return;
+    if (!countries.length || !countries.some((item) => item.code === country)) {
+      setCountry("ALL");
+      setCity("ALL");
+      setPage(1);
+    }
+  }, [countries, country, loadingCountries]);
+
+  useEffect(() => {
+    if (country === "ALL" || city === "ALL" || loadingCities) return;
+    if (!cityOptions.some((item) => item.slug === city)) {
+      setCity("ALL");
+      setPage(1);
+    }
+  }, [city, cityOptions, country, loadingCities]);
 
   function pageHref(targetPage: number) {
     return targetPage <= 1 ? `/${category.slug}` : `/${category.slug}/page/${targetPage}`;
@@ -160,10 +180,11 @@ export function CategoryListingExplorer({ category, listings, initialPage = 1 }:
                   setCity("ALL");
                   setPage(1);
                 }}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-ink outline-none transition focus:border-champagne focus:ring-4 focus:ring-amber-100"
+                disabled={loadingCountries}
+                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-ink outline-none transition focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <option value="ALL">All countries</option>
-                {publicCountries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+                {countries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
               </select>
             </label>
 
@@ -178,7 +199,7 @@ export function CategoryListingExplorer({ category, listings, initialPage = 1 }:
                 }}
                 className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-ink outline-none transition focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <option value="ALL">{country === "ALL" ? "Select country first" : "All cities"}</option>
+                <option value="ALL">{country === "ALL" ? "Select country first" : loadingCities ? "Loading cities..." : "All cities"}</option>
                 {cityOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
               </select>
             </label>

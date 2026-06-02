@@ -3,10 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CheckCircle2, HelpCircle, MapPin, ShieldCheck, Sparkles } from "lucide-react";
 import {
-  countryNames,
-  getCitiesForCountry,
   isFeaturedActive,
-  publicCountries,
   sortByFeaturedVisibility,
   type Category
 } from "@/lib/data";
@@ -16,6 +13,7 @@ import { ListingCard } from "@/components/listing-card";
 import { PageHeading } from "@/components/page-heading";
 import { GlassCard } from "@/components/ui/glass-card";
 import { activeCityLinks, getCategorySearchContent, globalCategoryCityLinks } from "@/lib/seo-content";
+import { getActiveCitiesForCountry, getActiveCountries, getActiveCountry, type PublicCity, type PublicCountry } from "@/lib/locations";
 import { getPublicCategories, getPublicCategory, getPublicProfiles, withCategoryCounts } from "@/lib/profiles";
 import { breadcrumbJsonLd, categoryItemListJsonLd, faqJsonLd } from "@/lib/seo-schema";
 
@@ -67,9 +65,9 @@ function globalCategoryFaq(category: Category) {
 
 export async function generateMetadata({ params }: CountryRouteProps): Promise<Metadata> {
   const { country: segment } = await params;
-  const countryData = publicCountries.find((item) => item.code === segment);
+  const countryData = await getActiveCountry(segment);
   if (countryData) {
-    const countryName = countryNames[segment] || segment.toUpperCase();
+    const countryName = countryData.name;
     const title = `${countryName} Service Directory | Verified Local Profiles`;
     const description = `Find trusted service providers in ${countryName}. Explore verified professionals, local experts, consultants and businesses across major cities. Compare ratings, services, pricing, availability and profile details before you connect or book.`;
     return {
@@ -105,8 +103,8 @@ export async function generateMetadata({ params }: CountryRouteProps): Promise<M
 
 export default async function CountryPage({ params, searchParams }: CountryRouteProps) {
   const { country: segment } = await params;
-  const countryData = publicCountries.find((item) => item.code === segment);
-  if (countryData) return <CountryDirectoryPage country={segment} />;
+  const countryData = await getActiveCountry(segment);
+  if (countryData) return <CountryDirectoryPage countryData={countryData} />;
 
   const category = await getPublicCategory(segment);
   if (!category) notFound();
@@ -119,9 +117,10 @@ export default async function CountryPage({ params, searchParams }: CountryRoute
   return <GlobalCategoryPage category={category} initialPage={1} />;
 }
 
-async function CountryDirectoryPage({ country }: { country: string }) {
-  const countryName = countryNames[country] || country.toUpperCase();
-  const cities = getCitiesForCountry(country);
+async function CountryDirectoryPage({ countryData }: { countryData: PublicCountry }) {
+  const country = countryData.code;
+  const countryName = countryData.name;
+  const cities = await getActiveCitiesForCountry(country);
   const path = `/${country}`;
   const [countryListings, activeCategories] = await Promise.all([
     getPublicProfiles({ country, placementPath: path }),
@@ -190,9 +189,16 @@ async function CountryDirectoryPage({ country }: { country: string }) {
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-champagne">Country categories</p>
           <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">Approved profiles by category</h2>
         </div>
-        <CategoryGrid items={withCategoryCounts(activeCategories, countryListings)} country={country} city={cities[0]?.slug || "delhi"} />
+        {cities.length ? (
+          <CategoryGrid items={withCategoryCounts(activeCategories, countryListings)} country={country} city={cities[0].slug} />
+        ) : (
+          <GlassCard>
+            <h3 className="text-xl font-semibold text-ink">No active city pages yet</h3>
+            <p className="mt-2 text-sm text-muted">Activate at least one city for this country before linking country category cards to local pages.</p>
+          </GlassCard>
+        )}
       </section>
-      <CountrySeoSection country={country} countryName={countryName} listings={countryListings} categories={activeCategories} faq={faq} />
+      <CountrySeoSection country={country} countryName={countryName} listings={countryListings} cities={cities} categories={activeCategories} faq={faq} />
     </main>
   );
 }
@@ -204,7 +210,10 @@ async function GlobalCategoryPage({
   category: Category;
   initialPage?: number;
 }) {
-  const listings = await getPublicProfiles({ category: category.slug, placementPath: `/${category.slug}` });
+  const [listings, activeCityPaths] = await Promise.all([
+    getPublicProfiles({ category: category.slug, placementPath: `/${category.slug}` }),
+    getActiveCityPaths()
+  ]);
   const totalPages = Math.max(Math.ceil(listings.length / categoryPerPage), 1);
 
   if (initialPage > totalPages) {
@@ -239,25 +248,40 @@ async function GlobalCategoryPage({
         </div>
       </div>
       <CategoryListingExplorer category={category} listings={listings} initialPage={initialPage} />
-      <GlobalCategorySeoSection category={category} listings={listings} faq={faq} />
+      <GlobalCategorySeoSection category={category} listings={listings} activeCityPaths={activeCityPaths} faq={faq} />
     </main>
   );
+}
+
+async function getActiveCityPaths() {
+  const countries = await getActiveCountries();
+  const cityGroups = await Promise.all(countries.map(async (country) => {
+    const cities = await getActiveCitiesForCountry(country.code);
+    return cities.map((city) => ({
+      country: country.code,
+      city: city.slug,
+      cityName: city.name
+    }));
+  }));
+  return cityGroups.flat();
 }
 
 function CountrySeoSection({
   country,
   countryName,
   listings,
+  cities,
   categories,
   faq
 }: {
   country: string;
   countryName: string;
   listings: Awaited<ReturnType<typeof getPublicProfiles>>;
+  cities: PublicCity[];
   categories: Awaited<ReturnType<typeof getPublicCategories>>;
   faq: ReturnType<typeof countryFaq>;
 }) {
-  const cityLinks = activeCityLinks(country, listings);
+  const cityLinks = activeCityLinks(country, listings, cities);
   const standardCategories = categories.filter((category) => !category.isAdult).slice(0, 8);
   const adultCount = categories.filter((category) => category.isAdult).length;
 
@@ -317,14 +341,16 @@ function CountrySeoSection({
 function GlobalCategorySeoSection({
   category,
   listings,
+  activeCityPaths,
   faq
 }: {
   category: Category;
   listings: Awaited<ReturnType<typeof getPublicProfiles>>;
+  activeCityPaths: Awaited<ReturnType<typeof getActiveCityPaths>>;
   faq: ReturnType<typeof globalCategoryFaq>;
 }) {
   const content = getCategorySearchContent(category);
-  const cityLinks = globalCategoryCityLinks(category, listings);
+  const cityLinks = globalCategoryCityLinks(category, listings, activeCityPaths);
 
   return (
     <section className="mt-12 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_0.9fr]" aria-label={`${category.name} category guide`}>

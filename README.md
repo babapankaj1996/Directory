@@ -60,6 +60,22 @@ Backend:
 http://localhost:4000/api/health
 ```
 
+## Import Countries And Cities
+
+The normal seed keeps the demo data small. To import the maintained `country-state-city` location dataset into the database, run:
+
+```bash
+npm run backend:locations:import
+```
+
+New countries and cities are created as `DRAFT` by default, while existing statuses are preserved. This keeps thousands of empty public city/category URLs out of the sitemap until an admin activates the needed locations. Useful options:
+
+```bash
+npm run backend:locations:import --dry-run
+npm run backend:locations:import -- --countries=IN,US
+npm run backend:locations:import -- --country-status=ACTIVE --city-status=DRAFT
+```
+
 Admin Listing Manager:
 
 ```txt

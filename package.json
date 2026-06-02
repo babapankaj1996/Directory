@@ -18,6 +18,7 @@
     "backend:generate": "npm run prisma:generate --prefix backend",
     "backend:migrate": "npm run prisma:migrate --prefix backend",
     "backend:seed": "npm run seed --prefix backend",
+    "backend:locations:import": "npm run locations:import --prefix backend",
     "backend:studio": "npm run prisma:studio --prefix backend"
   },
   "dependencies": {

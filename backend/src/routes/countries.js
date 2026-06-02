@@ -5,6 +5,12 @@ import { slugify } from '../utils/helpers.js';
 import { requireAdmin } from '../utils/auth.js';
 
 const router = Router();
+const validStatuses = new Set(['ACTIVE', 'DRAFT']);
+
+function normalizeStatus(value) {
+  const status = String(value || '').trim().toUpperCase();
+  return validStatuses.has(status) ? status : '';
+}
 
 router.get('/', asyncHandler(async (req, res) => {
   const and = [];
@@ -29,6 +35,25 @@ router.get('/', asyncHandler(async (req, res) => {
     include: { _count: { select: { cities: true, profiles: true } } }
   });
   res.json({ data: countries });
+}));
+
+router.patch('/status', requireAdmin, asyncHandler(async (req, res) => {
+  const codes = Array.isArray(req.body.codes)
+    ? req.body.codes.map((code) => String(code || '').toLowerCase().trim()).filter(Boolean)
+    : [];
+  const status = normalizeStatus(req.body.status);
+  if (!codes.length || !status) return res.status(400).json({ error: 'codes and valid status are required' });
+
+  await prisma.country.updateMany({
+    where: { code: { in: codes } },
+    data: { status }
+  });
+  const countries = await prisma.country.findMany({
+    where: { code: { in: codes } },
+    orderBy: { name: 'asc' },
+    include: { _count: { select: { cities: true, profiles: true } } }
+  });
+  res.json({ data: countries, updated: countries.length });
 }));
 
 router.get('/:code', asyncHandler(async (req, res) => {

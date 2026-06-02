@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, SlidersHorizontal, X } from "lucide-react";
-import { categories as fallbackCategories, getCitiesForCountry, publicCountries, type Category } from "@/lib/data";
+import { categories as fallbackCategories, type Category } from "@/lib/data";
 import { cleanListingsRouteForFilters } from "@/lib/listings-routes";
 import { GlassCard } from "@/components/ui/glass-card";
+import { useActiveLocationOptions } from "@/lib/use-active-locations";
 
 export type ListingsFilters = {
   search?: string;
@@ -23,9 +24,9 @@ export function ListingsFilterPanel({ filters, total, categories = fallbackCateg
   const [category, setCategory] = useState(filters.category || "");
   const [featured, setFeatured] = useState(Boolean(filters.featured));
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const cityOptions = country ? getCitiesForCountry(country) : [];
+  const { countries, cities: cityOptions, loadingCountries, loadingCities } = useActiveLocationOptions(country);
   const hasFilters = Boolean(search.trim() || country || city || category || featured);
-  const selectedCountry = publicCountries.find((item) => item.code === country)?.name;
+  const selectedCountry = countries.find((item) => item.code === country)?.name;
   const selectedCity = cityOptions.find((item) => item.slug === city)?.name;
   const selectedCategory = categories.find((item) => item.slug === category)?.name;
   const filterSummary = [
@@ -35,6 +36,22 @@ export function ListingsFilterPanel({ filters, total, categories = fallbackCateg
     selectedCategory,
     featured ? "Featured" : undefined
   ].filter(Boolean).join(" / ") || "Search and filters";
+
+  useEffect(() => {
+    if (loadingCountries) return;
+    if (!country) return;
+    if (!countries.length || !countries.some((item) => item.code === country)) {
+      setCountry("");
+      setCity("");
+    }
+  }, [countries, country, loadingCountries]);
+
+  useEffect(() => {
+    if (!country || !city || loadingCities) return;
+    if (!cityOptions.some((item) => item.slug === city)) {
+      setCity("");
+    }
+  }, [city, cityOptions, country, loadingCities]);
 
   function applyFilters() {
     const cleanRoute = cleanListingsRouteForFilters({ search, country, city, category, featured });
@@ -104,10 +121,11 @@ export function ListingsFilterPanel({ filters, total, categories = fallbackCateg
               setCountry(event.target.value);
               setCity("");
             }}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100"
+            disabled={loadingCountries}
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <option value="">All countries</option>
-            {publicCountries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+            {countries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
           </select>
         </label>
 
@@ -119,7 +137,7 @@ export function ListingsFilterPanel({ filters, total, categories = fallbackCateg
             onChange={(event) => setCity(event.target.value)}
             className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            <option value="">{country ? "All cities" : "Choose country first"}</option>
+            <option value="">{country ? loadingCities ? "Loading cities..." : "All cities" : "Choose country first"}</option>
             {cityOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
           </select>
         </label>

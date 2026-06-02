@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { MapPin } from "lucide-react";
 import { CategoryListingExplorer } from "@/components/category-listing-explorer";
-import { PageHeading } from "@/components/page-heading";
-import { publicCountries } from "@/lib/data";
+import { getActiveCountry } from "@/lib/locations";
 import { getPublicCategory, getPublicProfiles } from "@/lib/profiles";
 
 const perPage = 20;
@@ -19,7 +18,7 @@ function parsePage(value?: string) {
 
 export async function generateMetadata({ params }: CategoryRouteProps): Promise<Metadata> {
   const { country: segment, page } = await params;
-  if (publicCountries.some((item) => item.code === segment)) notFound();
+  if (await getActiveCountry(segment)) notFound();
   const category = await getPublicCategory(segment);
   if (!category) notFound();
   const pageNumber = parsePage(page);
@@ -45,7 +44,7 @@ export async function generateMetadata({ params }: CategoryRouteProps): Promise<
 
 export default async function CleanGlobalCategoryPage({ params }: CategoryRouteProps) {
   const { country: segment, page: pageParam } = await params;
-  if (publicCountries.some((item) => item.code === segment)) notFound();
+  if (await getActiveCountry(segment)) notFound();
   const category = await getPublicCategory(segment);
   if (!category) notFound();
   const page = parsePage(pageParam);

@@ -7,8 +7,9 @@ import { CategoryGrid } from "@/components/category-card";
 import { PageHeading } from "@/components/page-heading";
 import { SearchBar } from "@/components/search-bar";
 import { GlassCard } from "@/components/ui/glass-card";
-import { getCitiesForCountry, isFeaturedActive, publicCountries, sortByFeaturedVisibility } from "@/lib/data";
+import { isFeaturedActive, sortByFeaturedVisibility } from "@/lib/data";
 import { buildCitySeoContent, type CitySeoContent } from "@/lib/city-seo";
+import { getActiveLocation } from "@/lib/locations";
 import { getPublicCategories, getPublicProfiles, withCategoryCounts } from "@/lib/profiles";
 import { breadcrumbJsonLd, cityCollectionJsonLd, faqJsonLd } from "@/lib/seo-schema";
 import { formatRouteName } from "@/lib/utils";
@@ -52,7 +53,8 @@ export default async function CityPage({
   searchParams: Promise<{ search?: string }>;
 }) {
   const { country, city } = await params;
-  if (!publicCountries.some((item) => item.code === country) || !getCitiesForCountry(country).some((item) => item.slug === city)) notFound();
+  const location = await getActiveLocation(country, city);
+  if (!location) notFound();
   const { search } = await searchParams;
   const path = `/${country}/${city}`;
   const [allCityListings, results, activeCategories] = await Promise.all([

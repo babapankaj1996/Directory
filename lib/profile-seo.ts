@@ -1,4 +1,4 @@
-import { getCitiesForCountry, getListingUrl, isFeaturedActive, isIdVerifiedListing, type Listing } from "@/lib/data";
+import { getListingUrl, isFeaturedActive, isIdVerifiedListing, type Listing } from "@/lib/data";
 import { getCategorySearchContent, localizeCategoryContent } from "@/lib/seo-content";
 
 export type SeoFaq = {
@@ -52,7 +52,7 @@ function cleanServiceLines(listing: Listing) {
     .slice(0, 5);
 }
 
-export function buildProfileSeoContent(listing: Listing, galleryCount = listing.gallery?.length || 0): ProfileSeoContent {
+export function buildProfileSeoContent(listing: Listing, galleryCount = listing.gallery?.length || 0, activeCities: Array<{ slug: string; name: string }> = []): ProfileSeoContent {
   const serviceArea = listing.cityName || listing.location;
   const serviceName = `${listing.category} in ${serviceArea}`;
   const primaryKeyword = `${listing.name} - ${serviceName}`;
@@ -144,7 +144,7 @@ export function buildProfileSeoContent(listing: Listing, galleryCount = listing.
       }
     ];
 
-  const nearbyCity = getCitiesForCountry(listing.country)
+  const nearbyCity = activeCities
     .filter((item) => item.slug !== listing.city)
     .slice(0, 3)
     .map((item) => ({

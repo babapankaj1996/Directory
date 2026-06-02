@@ -1,18 +1,10 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { categories, getCitiesForCountry, publicCountries, resolveLocation, type Category } from "@/lib/data";
-
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .trim()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+import { categories, type Category } from "@/lib/data";
+import { useActiveLocationOptions } from "@/lib/use-active-locations";
 
 function normalizeText(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -40,8 +32,8 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
   const [category, setCategory] = useState("ALL");
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const cityOptions = useMemo(() => getCitiesForCountry(country), [country]);
-  const selectedCountry = publicCountries.find((item) => item.code === country)?.name;
+  const { countries, cities: cityOptions, loadingCountries, loadingCities } = useActiveLocationOptions(country);
+  const selectedCountry = countries.find((item) => item.code === country)?.name;
   const selectedCity = cityOptions.find((item) => item.slug === city)?.name;
   const selectedCategory = categoryOptions.find((item) => item.slug === category)?.name;
   const filterSummary = [
@@ -51,12 +43,38 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
     selectedCategory || "Auto category"
   ].filter(Boolean).join(" / ");
 
+  useEffect(() => {
+    if (loadingCountries) return;
+    if (!countries.length) {
+      if (country || city) {
+        setCountry("");
+        setCity("");
+      }
+      return;
+    }
+    if (!countries.some((item) => item.code === country)) {
+      setCountry(countries[0].code);
+      setCity("");
+    }
+  }, [city, countries, country, loadingCountries]);
+
+  useEffect(() => {
+    if (!country || loadingCities) return;
+    if (!cityOptions.length) {
+      setCity("");
+      return;
+    }
+    if (!cityOptions.some((item) => item.slug === city)) {
+      setCity(cityOptions[0].slug);
+    }
+  }, [city, cityOptions, country, loadingCities]);
+
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const resolved = resolveLocation(query, { country, city });
-    const countrySlug = country || resolved.country || "in";
-    const citySlug = city || resolved.city || getCitiesForCountry(countrySlug)[0]?.slug || slugify("delhi");
+    const countrySlug = countries.some((item) => item.code === country) ? country : countries[0]?.code || "";
+    const citySlug = cityOptions.some((item) => item.slug === city) ? city : cityOptions[0]?.slug || "";
+    if (!countrySlug || !citySlug) return;
     const categorySlug = category !== "ALL" ? category : findCategory(query, categoryOptions)?.slug;
     const searchParam = query.trim() ? `?search=${encodeURIComponent(query.trim())}` : "";
     const path = categorySlug ? `/${countrySlug}/${citySlug}/${categorySlug}${searchParam}` : `/${countrySlug}/${citySlug}${searchParam}`;
@@ -99,11 +117,13 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
             onChange={(event) => {
               const nextCountry = event.target.value;
               setCountry(nextCountry);
-              setCity(getCitiesForCountry(nextCountry)[0]?.slug || "");
+              setCity("");
             }}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100"
+            disabled={loadingCountries}
+            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {publicCountries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+            {countries.length === 0 ? <option value="">{loadingCountries ? "Loading countries..." : "No active countries"}</option> : null}
+            {countries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
           </select>
         </label>
 
@@ -115,6 +135,7 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
             className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100"
           >
             {cityOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
+            {cityOptions.length === 0 ? <option value="">{loadingCities ? "Loading cities..." : "No active cities"}</option> : null}
           </select>
         </label>
 
@@ -130,7 +151,7 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
           </select>
         </label>
 
-        <button className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass">
+        <button disabled={!country || !city || loadingCountries || loadingCities} className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass disabled:cursor-not-allowed disabled:opacity-50">
           Search
         </button>
       </div>

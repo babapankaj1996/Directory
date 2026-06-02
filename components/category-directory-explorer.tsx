@@ -1,16 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { CategoryGrid } from "@/components/category-card";
 import { GlassCard } from "@/components/ui/glass-card";
 import {
   categories as fallbackCategories,
-  getCitiesForCountry,
-  publicCountries,
   type Category,
   type Listing
 } from "@/lib/data";
+import { useActiveLocationOptions } from "@/lib/use-active-locations";
 
 export function CategoryDirectoryExplorer({ listings, categories = fallbackCategories }: { listings: Listing[]; categories?: Category[] }) {
   const router = useRouter();
@@ -19,7 +18,7 @@ export function CategoryDirectoryExplorer({ listings, categories = fallbackCateg
   const [category, setCategory] = useState("ALL");
   const selectableCategories = categories;
 
-  const cityOptions = country === "ALL" ? [] : getCitiesForCountry(country);
+  const { countries, cities: cityOptions, loadingCountries, loadingCities } = useActiveLocationOptions(country === "ALL" ? undefined : country);
   const scopedListings = useMemo(() => listings.filter((listing) => {
     const countryMatch = country === "ALL" || listing.country === country;
     const cityMatch = city === "ALL" || listing.city === city;
@@ -45,6 +44,22 @@ export function CategoryDirectoryExplorer({ listings, categories = fallbackCateg
     if (city === "ALL") return `/${categorySlug}`;
     return `/${country}/${city}/${categorySlug}`;
   }
+
+  useEffect(() => {
+    if (loadingCountries) return;
+    if (country === "ALL") return;
+    if (!countries.length || !countries.some((item) => item.code === country)) {
+      setCountry("ALL");
+      setCity("ALL");
+    }
+  }, [countries, country, loadingCountries]);
+
+  useEffect(() => {
+    if (country === "ALL" || city === "ALL" || loadingCities) return;
+    if (!cityOptions.some((item) => item.slug === city)) {
+      setCity("ALL");
+    }
+  }, [city, cityOptions, country, loadingCities]);
 
   function openSelectedUrl() {
     if (category !== "ALL") {
@@ -74,10 +89,11 @@ export function CategoryDirectoryExplorer({ listings, categories = fallbackCateg
                 setCountry(event.target.value);
                 setCity("ALL");
               }}
-              className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100"
+              disabled={loadingCountries}
+              className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="ALL">All countries</option>
-              {publicCountries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+              {countries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
             </select>
           </label>
           <label>
@@ -88,7 +104,7 @@ export function CategoryDirectoryExplorer({ listings, categories = fallbackCateg
               disabled={country === "ALL"}
               className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <option value="ALL">{country === "ALL" ? "Choose country first" : "All cities"}</option>
+              <option value="ALL">{country === "ALL" ? "Choose country first" : loadingCities ? "Loading cities..." : "All cities"}</option>
               {cityOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
             </select>
           </label>
@@ -111,7 +127,7 @@ export function CategoryDirectoryExplorer({ listings, categories = fallbackCateg
       <CategoryGrid
         items={countedCategories}
         country={country === "ALL" ? "in" : country}
-        city={city === "ALL" ? getCitiesForCountry(country === "ALL" ? "in" : country)[0]?.slug || "delhi" : city}
+        city={city === "ALL" ? cityOptions[0]?.slug || "delhi" : city}
         hrefForCategory={(item) => categoryHref(item.slug)}
       />
     </div>

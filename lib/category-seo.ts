@@ -1,4 +1,4 @@
-import { getCitiesForCountry, publicCountries, type Category, type Listing } from "@/lib/data";
+import { publicCountries, type Category, type Listing } from "@/lib/data";
 import { getCategorySearchContent, localizeCategoryContent } from "@/lib/seo-content";
 import { formatRouteName } from "@/lib/utils";
 
@@ -37,6 +37,7 @@ type CategorySeoInput = {
   country: string;
   city: string;
   category: Category;
+  activeCities?: Array<{ slug: string; name: string }>;
   categoryOptions?: Category[];
   listings?: Listing[];
 };
@@ -63,6 +64,7 @@ export function buildCategorySeoContent({
   country,
   city,
   category,
+  activeCities = [],
   categoryOptions = [],
   listings = []
 }: CategorySeoInput): CategorySeoContent {
@@ -87,7 +89,7 @@ export function buildCategorySeoContent({
     ? `Browse approved ${lower(categoryName)} in ${cityName} with ${intentContent.profileFields.slice(0, 5).join(", ")} and direct contact options. This age-restricted directory page is for adults 18+ only.`
     : `Browse approved ${lower(categoryName)} in ${cityName} with ${intentContent.profileFields.slice(0, 5).join(", ")} and direct contact options.`;
 
-  const relatedCityLinks = getCitiesForCountry(country)
+  const relatedCityLinks = activeCities
     .filter((item) => item.slug !== city)
     .slice(0, 6)
     .map((item) => ({

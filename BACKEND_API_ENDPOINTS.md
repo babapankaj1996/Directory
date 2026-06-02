@@ -43,11 +43,14 @@ POST /countries/:code/cities
 ```http
 GET /cities
 GET /cities?countryCode=in
+GET /cities?status=ACTIVE&search=delhi&limit=50&page=1
 GET /cities/:id
 POST /cities
 PUT /cities/:id
 DELETE /cities/:id
 ```
+
+`GET /cities` is paginated and returns `meta.page`, `meta.perPage`, `meta.total`, and `meta.totalPages`. The default page size is 200 and the API caps one response at 500 rows.
 
 ## Categories
 

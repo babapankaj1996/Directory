@@ -66,7 +66,11 @@ function expandedTokens(search) {
 }
 
 function publicWhereFromQuery(query) {
-  const and = [{ status: 'APPROVED' }];
+  const and = [
+    { status: 'APPROVED' },
+    { country: { status: 'ACTIVE' } },
+    { city: { status: 'ACTIVE' } }
+  ];
 
   if (query.country) and.push({ countryId: String(query.country).toLowerCase() });
   if (query.city) and.push({ city: { slug: slugify(query.city) } });
@@ -114,6 +118,8 @@ async function findApprovedProfileByIdOrSlug(idOrSlug, select = { id: true, owne
   return prisma.profile.findFirst({
     where: {
       status: 'APPROVED',
+      country: { status: 'ACTIVE' },
+      city: { status: 'ACTIVE' },
       OR: [{ id: idOrSlug }, { slug: slugify(idOrSlug) }]
     },
     select
@@ -161,6 +167,8 @@ router.post('/:profileId/leads', leadLimiter, optionalAuth, asyncHandler(async (
   const profile = await prisma.profile.findFirst({
     where: {
       status: 'APPROVED',
+      country: { status: 'ACTIVE' },
+      city: { status: 'ACTIVE' },
       OR: [{ id: req.params.profileId }, { slug: slugify(req.params.profileId) }]
     },
     include: { country: true, city: true, category: true }
@@ -373,6 +381,8 @@ router.get('/:profileId/gallery', asyncHandler(async (req, res) => {
   const profile = await prisma.profile.findFirst({
     where: {
       status: 'APPROVED',
+      country: { status: 'ACTIVE' },
+      city: { status: 'ACTIVE' },
       OR: [{ id: req.params.profileId }, { slug: slugify(req.params.profileId) }]
     },
     select: {
@@ -391,6 +401,8 @@ router.post('/:profileId/view', asyncHandler(async (req, res) => {
   const existing = await prisma.profile.findFirst({
     where: {
       status: 'APPROVED',
+      country: { status: 'ACTIVE' },
+      city: { status: 'ACTIVE' },
       OR: [{ id: req.params.profileId }, { slug: slugify(req.params.profileId) }]
     },
     select: { id: true }
@@ -416,6 +428,8 @@ router.post('/:profileId/insights', asyncHandler(async (req, res) => {
   const existing = await prisma.profile.findFirst({
     where: {
       status: 'APPROVED',
+      country: { status: 'ACTIVE' },
+      city: { status: 'ACTIVE' },
       OR: [{ id: req.params.profileId }, { slug: slugify(req.params.profileId) }]
     },
     select: { id: true, slug: true }
@@ -432,7 +446,8 @@ async function publicProfileByPath(params) {
     where: {
       status: 'APPROVED',
       countryId: params.country.toLowerCase(),
-      city: { slug: slugify(params.city) },
+      country: { status: 'ACTIVE' },
+      city: { slug: slugify(params.city), status: 'ACTIVE' },
       categoryId: slugify(params.category),
       slug: slugify(params.profile)
     },

@@ -7,11 +7,9 @@ import { CheckCircle2, ChevronLeft, ChevronRight, HelpCircle, MapPin, Search, Sh
 import {
   categories,
   getCategory,
-  getCitiesForCountry,
   getListingsByCategory,
   isFeaturedActive,
   isIdVerifiedListing,
-  publicCountries,
   type Category,
   type Listing
 } from "@/lib/data";
@@ -20,6 +18,7 @@ import { ListingCard } from "@/components/listing-card";
 import { PageHeading } from "@/components/page-heading";
 import { GlassCard } from "@/components/ui/glass-card";
 import { formatRouteName } from "@/lib/utils";
+import { useActiveLocationOptions } from "@/lib/use-active-locations";
 
 const perPage = 20;
 
@@ -114,8 +113,8 @@ export function CategoryListingPage({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [rotationMinute, setRotationMinute] = useState(initialRotationMinute);
   const [page, setPage] = useState(initialPage);
-  const selectedCityOptions = getCitiesForCountry(selectedCountry);
-  const selectedCountryName = publicCountries.find((item) => item.code === selectedCountry)?.name || selectedCountry.toUpperCase();
+  const { countries, cities: selectedCityOptions, loadingCountries, loadingCities } = useActiveLocationOptions(selectedCountry);
+  const selectedCountryName = countries.find((item) => item.code === selectedCountry)?.name || selectedCountry.toUpperCase();
   const selectedCityName = selectedCityOptions.find((item) => item.slug === selectedCity)?.name || formatRouteName(selectedCity);
   const selectedCategoryName = selectableCategories.find((item) => item.slug === selectedCategory)?.name || formatRouteName(selectedCategory);
   const filterSummary = [
@@ -140,6 +139,26 @@ export function CategoryListingPage({
   useEffect(() => {
     setPage(initialPage);
   }, [initialPage]);
+
+  useEffect(() => {
+    if (loadingCountries) return;
+    if (!countries.length) return;
+    if (!countries.some((item) => item.code === selectedCountry)) {
+      setSelectedCountry(countries[0].code);
+      setSelectedCity("");
+    }
+  }, [countries, loadingCountries, selectedCountry]);
+
+  useEffect(() => {
+    if (!selectedCountry || loadingCities) return;
+    if (!selectedCityOptions.length) {
+      setSelectedCity("");
+      return;
+    }
+    if (!selectedCityOptions.some((item) => item.slug === selectedCity)) {
+      setSelectedCity(selectedCityOptions[0].slug);
+    }
+  }, [loadingCities, selectedCity, selectedCityOptions, selectedCountry]);
 
   const results = useMemo(() => {
     const tokens = normalize(search).split(/\s+/).filter(Boolean);
@@ -199,6 +218,7 @@ export function CategoryListingPage({
   }
 
   function openSelectedUrl() {
+    if (!selectedCountry || !selectedCity || !selectedCategory) return;
     const query = search.trim() ? `?search=${encodeURIComponent(search.trim())}` : "";
     router.push(`/${selectedCountry}/${selectedCity}/${selectedCategory}${query}`);
   }
@@ -256,18 +276,19 @@ export function CategoryListingPage({
               value={selectedCountry}
               onChange={(event) => {
                 const nextCountry = event.target.value;
-                const firstCity = getCitiesForCountry(nextCountry)[0]?.slug || selectedCity;
                 setSelectedCountry(nextCountry);
-                setSelectedCity(firstCity);
+                setSelectedCity("");
               }}
-              className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100"
+              disabled={loadingCountries}
+              className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {publicCountries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
+              {countries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
             </select>
           </label>
           <label>
             <span className="mb-2 block text-sm font-semibold text-ink">City</span>
             <select value={selectedCity} onChange={(event) => setSelectedCity(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100">
+              {selectedCityOptions.length === 0 ? <option value="">{loadingCities ? "Loading cities..." : "No active cities"}</option> : null}
               {selectedCityOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
             </select>
           </label>
@@ -277,7 +298,7 @@ export function CategoryListingPage({
               {selectableCategories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
             </select>
           </label>
-          <button type="button" onClick={openSelectedUrl} className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass">
+          <button type="button" onClick={openSelectedUrl} disabled={!selectedCountry || !selectedCity || !selectedCategory} className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass disabled:cursor-not-allowed disabled:opacity-50">
             Open URL
           </button>
         </div>

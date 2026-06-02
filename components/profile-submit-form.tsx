@@ -7,7 +7,6 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
-  FileText,
   FileVideo,
   ImagePlus,
   Loader2,
@@ -23,8 +22,9 @@ import { Button } from "@/components/ui/button";
 import { UploadField } from "@/components/upload-field";
 import { CategoryProfileAssist } from "@/components/category-profile-assist";
 import { adminFetch, authFetch, getCurrentUser } from "@/lib/admin-auth";
-import { categories, getCitiesForCountry, publicCountries, type Category, type Listing } from "@/lib/data";
+import { categories, type Category, type Listing } from "@/lib/data";
 import { getApiBase, normalizeProfile } from "@/lib/profiles";
+import { useActiveLocationOptions } from "@/lib/use-active-locations";
 
 type ProfileFormState = {
   name: string;
@@ -336,14 +336,15 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
   const [draftListing, setDraftListing] = useState<Listing | null>(null);
   const [notice, setNotice] = useState("");
   const [createdSlug, setCreatedSlug] = useState("");
+  const { countries, cities: activeCities, loadingCountries, loadingCities } = useActiveLocationOptions(form.countryId);
 
   const countryOptions = useMemo<Option[]>(
-    () => publicCountries.map((item) => ({ value: item.code, label: item.name, meta: item.code.toUpperCase() })),
-    []
+    () => countries.map((item) => ({ value: item.code, label: item.name, meta: item.code.toUpperCase() })),
+    [countries]
   );
   const cityOptions = useMemo<Option[]>(
-    () => getCitiesForCountry(form.countryId).map((item) => ({ value: item.slug, label: item.name, meta: item.slug })),
-    [form.countryId]
+    () => activeCities.map((item) => ({ value: item.slug, label: item.name, meta: item.slug })),
+    [activeCities]
   );
   const categoryOptions = useMemo<Option[]>(
     () => availableCategories.map((item) => ({ value: item.slug, label: item.name, meta: `${item.isAdult ? "18+ category - " : ""}${item.description}` })),
@@ -361,6 +362,21 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
   );
   const selectedCategory = useMemo(() => availableCategories.find((item) => item.slug === form.categoryId), [availableCategories, form.categoryId]);
   const isAdultCategory = Boolean(selectedCategory?.isAdult);
+
+  useEffect(() => {
+    if (loadingCountries) return;
+    if (!form.countryId) return;
+    if (!countries.length || !countries.some((item) => item.code === form.countryId)) {
+      setForm((current) => current.countryId === form.countryId ? { ...current, countryId: "", citySlug: "" } : current);
+    }
+  }, [countries, form.countryId, loadingCountries]);
+
+  useEffect(() => {
+    if (!form.citySlug || loadingCities) return;
+    if (!activeCities.some((item) => item.slug === form.citySlug)) {
+      setForm((current) => current.citySlug === form.citySlug ? { ...current, citySlug: "" } : current);
+    }
+  }, [activeCities, form.citySlug, loadingCities]);
 
   useEffect(() => {
     let mounted = true;
