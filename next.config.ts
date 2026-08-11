@@ -23,7 +23,6 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
-  agentRules: false,
   turbopack: {
     root: process.cwd()
   },

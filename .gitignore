@@ -14,3 +14,5 @@ playwright-report
 tsconfig.tsbuildinfo
 .DS_Store
 npm-debug.log*
+AGENTS.md
+CLAUDE.md
