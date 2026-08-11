@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CheckCircle2, Compass, MapPin, Route, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { CategoryGrid } from "@/components/category-card";
@@ -56,26 +57,26 @@ const routeShortcuts = [
 
 const trendTones = {
   blue: {
-    panel: "bg-blue-50/80 ring-blue-100",
-    header: "from-blue-600 to-cyan-500",
-    rank: "bg-blue-100 text-blue-700",
-    row: "hover:bg-blue-50"
+    panel: "bg-cyan-50/80 ring-cyan-100",
+    header: "from-cyan-500 to-blue-600",
+    rank: "bg-cyan-100 text-cyan-800",
+    row: "hover:bg-cyan-50"
   },
   emerald: {
     panel: "bg-emerald-50/80 ring-emerald-100",
-    header: "from-emerald-600 to-teal-500",
+    header: "from-emerald-500 to-teal-600",
     rank: "bg-emerald-100 text-emerald-700",
     row: "hover:bg-emerald-50"
   },
   amber: {
     panel: "bg-amber-50/80 ring-amber-100",
-    header: "from-amber-500 to-yellow-500",
+    header: "from-amber-400 to-orange-500",
     rank: "bg-amber-100 text-amber-800",
     row: "hover:bg-amber-50"
   },
   rose: {
     panel: "bg-rose-50/80 ring-rose-100",
-    header: "from-rose-500 to-pink-500",
+    header: "from-rose-500 to-pink-600",
     rank: "bg-rose-100 text-rose-700",
     row: "hover:bg-rose-50"
   }
@@ -160,81 +161,116 @@ export default async function HomePage() {
   const idVerifiedCount = approvedListings.filter((listing) => isIdVerifiedListing(listing)).length;
   const trending = topTrendingGroups(approvedListings);
   const heroImage = spotlight?.coverImage || spotlight?.image || "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1800&q=85";
+  const spotlightHref = spotlight ? `/${spotlight.country}/${spotlight.city}/${spotlight.categorySlug}/${spotlight.slug}` : "/listings";
   const jsonLd = [websiteJsonLd(), organizationJsonLd(), faqJsonLd(homeFaq)];
 
   return (
     <main>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <section
-        className="relative overflow-hidden px-4 pb-12 pt-12 md:pb-16 md:pt-16"
-        style={{
-          backgroundImage: `linear-gradient(90deg, rgba(247,248,255,0.97), rgba(247,248,255,0.9) 50%, rgba(247,248,255,0.42)), url("${heroImage}")`,
-          backgroundPosition: "center",
-          backgroundSize: "cover"
-        }}
-      >
+      <section className="relative isolate overflow-hidden border-b border-cyan-200/70 bg-ink px-4 py-10 text-white md:py-16">
+        <Image
+          src={heroImage}
+          alt=""
+          fill
+          priority
+          className="absolute inset-0 -z-30 object-cover opacity-45 saturate-125"
+          sizes="100vw"
+        />
+        <div className="absolute inset-0 -z-20 bg-[linear-gradient(116deg,rgba(11,16,32,0.98),rgba(8,47,73,0.88)_38%,rgba(217,119,6,0.54)_68%,rgba(225,29,72,0.36))]" />
+        <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-ink to-transparent" />
         <div className="mx-auto max-w-7xl">
-          <div className="max-w-5xl">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-champagne shadow-sm ring-1 ring-slate-200 backdrop-blur-xl">
-              <Compass className="h-4 w-4" /> Global expert directory
-            </div>
-            <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-[1.02] text-ink md:text-7xl">
-              Discover verified service providers worldwide.
-            </h1>
-            <p className="mt-6 max-w-3xl text-lg leading-8 text-muted">
-              Compare local experts and online professionals by country, city, category, rating, experience, pricing, availability, gallery, reviews and verification status before you call, chat, request a booking or hire.
-            </p>
-          </div>
-
-          <div className="mt-8 max-w-6xl">
-            <SearchBar compact categoryOptions={activeCategories} />
-          </div>
-
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <Button href="/listings" variant="gold">Explore All Listings</Button>
-            <AddProfileSignupLink variant="ghost" className="bg-white/90 text-ink hover:bg-white" />
-          </div>
-
-          <div className="mt-8 grid gap-3 sm:grid-cols-3">
-            {[
-              [`${approvedListings.length.toLocaleString()}+`, "approved listings", <ShieldCheck key="approved" className="h-4 w-4 text-emerald-600" />],
-              [`${cityCount || 1}`, "cities with professionals", <MapPin key="cities" className="h-4 w-4 text-champagne" />],
-              [`${idVerifiedCount.toLocaleString()}`, "ID verified profiles", <BadgeCheck key="verified" className="h-4 w-4 text-blue-500" />]
-            ].map(([value, label, icon]) => (
-              <div key={String(label)} className="rounded-2xl bg-white/80 px-4 py-3 shadow-sm ring-1 ring-slate-200 backdrop-blur-xl">
-                <p className="flex items-center gap-2 text-2xl font-semibold text-ink">{icon}{value}</p>
-                <p className="mt-1 text-sm font-medium text-muted">{label}</p>
+          <div className="grid gap-9 lg:grid-cols-[minmax(0,1.04fr)_minmax(360px,0.72fr)] lg:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/[.12] px-4 py-2 text-sm font-semibold text-cyan-50 ring-1 ring-white/20 backdrop-blur">
+                <Compass className="h-4 w-4 text-cyan-300" /> Global expert directory
               </div>
-            ))}
+              <h1 className="mt-6 max-w-4xl text-4xl font-bold leading-[1.02] text-white md:text-6xl">
+                Discover <span className="bg-[linear-gradient(100deg,#67e8f9,#facc15_48%,#fb7185)] bg-clip-text text-transparent">verified</span> service providers worldwide.
+              </h1>
+              <p className="mt-5 max-w-3xl text-base leading-8 text-white/80 md:text-lg">
+                Search by service, city or provider. Compare ratings, reviews, availability, verification, pricing notes and contact options in one fast directory.
+              </p>
+
+              <div className="mt-8 max-w-6xl">
+                <SearchBar compact categoryOptions={activeCategories} />
+              </div>
+
+              <div className="mt-7 flex flex-wrap items-center gap-3">
+                <Button href="/listings" variant="gold">Explore All Listings</Button>
+                <AddProfileSignupLink variant="ghost" className="bg-white/[.12] text-white ring-white/25 hover:bg-white hover:text-ink" />
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {[
+                  [`${approvedListings.length.toLocaleString()}+`, "approved listings", <ShieldCheck key="approved" className="h-4 w-4 text-emerald-300" />],
+                  [`${cityCount || 1}`, "cities with professionals", <MapPin key="cities" className="h-4 w-4 text-amber-300" />],
+                  [`${idVerifiedCount.toLocaleString()}`, "ID verified profiles", <BadgeCheck key="verified" className="h-4 w-4 text-cyan-300" />]
+                ].map(([value, label, icon]) => (
+                  <div key={String(label)} className="rounded-lg bg-white/[.12] px-4 py-3 ring-1 ring-white/20 backdrop-blur">
+                    <p className="flex items-center gap-2 text-2xl font-bold text-white">{icon}{value}</p>
+                    <p className="mt-1 text-sm font-medium text-white/75">{label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {spotlight ? (
+              <Link href={spotlightHref} className="group relative hidden overflow-hidden rounded-lg border border-white/20 bg-white/10 p-3 shadow-2xl shadow-cyan-950/30 ring-1 ring-white/20 backdrop-blur lg:block">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-slate-900">
+                  <Image
+                    src={spotlight.coverImage || spotlight.image}
+                    alt={spotlight.name}
+                    fill
+                    priority
+                    className="object-cover transition duration-500 group-hover:scale-[1.04]"
+                    sizes="420px"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-5">
+                    <p className="inline-flex rounded-full bg-white/[.18] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-cyan-100 ring-1 ring-white/20 backdrop-blur">
+                      Spotlight provider
+                    </p>
+                    <h2 className="mt-3 line-clamp-2 text-2xl font-bold text-white">{spotlight.name}</h2>
+                    <p className="mt-1 text-sm font-semibold text-amber-100">{spotlight.category} - {spotlight.cityName}</p>
+                    <div className="mt-4 flex items-center justify-between gap-3 rounded-lg bg-white/[.14] px-4 py-3 ring-1 ring-white/20 backdrop-blur">
+                      <span className="text-sm font-semibold text-white">{spotlight.rating} rating</span>
+                      <span className="text-sm font-semibold text-cyan-100">{spotlight.reviews} reviews</span>
+                      <ArrowRight className="h-4 w-4 text-amber-200 transition group-hover:translate-x-1" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ) : null}
           </div>
         </div>
       </section>
 
-      <section className="border-y border-slate-200/80 bg-white/75 px-4 py-5">
+      <section className="border-b border-cyan-100 bg-white px-4 py-4">
         <div className="mx-auto grid max-w-7xl gap-3 md:grid-cols-4">
           {visibleRouteShortcuts.map((item) => (
-            <Link key={item.href} href={item.href} className="group flex items-center justify-between gap-3 rounded-2xl bg-white px-4 py-4 text-sm font-semibold text-ink shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-glass">
+            <Link key={item.href} href={item.href} className="group flex items-center justify-between gap-3 rounded-lg border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/70 px-4 py-3 text-sm font-semibold text-ink shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-950/10">
               <span>
-                <span className="block text-xs font-bold uppercase tracking-[0.18em] text-champagne">{item.place}</span>
+                <span className="block text-xs font-bold uppercase tracking-[0.14em] text-coral">{item.place}</span>
                 {item.label}
               </span>
-              <Route className="h-4 w-4 text-muted transition group-hover:text-champagne" />
+              <Route className="h-4 w-4 text-muted transition group-hover:text-cyan-700" />
             </Link>
           ))}
         </div>
       </section>
 
       {featuredListings.length ? (
-        <section className="mx-auto max-w-7xl px-4 py-12" aria-label="Featured providers on homepage">
+        <section className="border-y border-cyan-100 bg-[linear-gradient(180deg,#effcff_0%,#ffffff_100%)] px-4 py-14" aria-label="Featured providers on homepage">
+          <div className="mx-auto max-w-7xl">
           <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
             <div>
-              <p className="flex items-center gap-2 text-sm font-semibold text-champagne"><Sparkles className="h-4 w-4" /> Featured placement</p>
-              <h2 className="mt-2 text-3xl font-semibold text-ink md:text-4xl">Featured service providers</h2>
+              <p className="flex items-center gap-2 text-sm font-semibold text-cyan-700"><Sparkles className="h-4 w-4 text-coral" /> Featured placement</p>
+              <h2 className="mt-2 text-3xl font-bold text-ink md:text-4xl">Featured service providers</h2>
               <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">
                 These profiles have active homepage featured campaigns. Compare services, verification status, reviews, gallery media, rates and direct contact options before opening a profile.
               </p>
             </div>
-            <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-champagne">
+            <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-coral">
               View featured listings <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -250,16 +286,18 @@ export default async function HomePage() {
               />
             ))}
           </div>
+          </div>
         </section>
       ) : null}
 
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="bg-ink px-4 py-14 text-white">
+        <div className="mx-auto max-w-7xl">
         <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="flex items-center gap-2 text-sm font-semibold text-champagne"><TrendingUp className="h-4 w-4" /> Trending now</p>
-            <h2 className="mt-2 text-3xl font-semibold text-ink md:text-4xl">Top 5 country, city, category and profile pages</h2>
+            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-200"><TrendingUp className="h-4 w-4 text-amber-300" /> Trending now</p>
+            <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">Top 5 country, city, category and profile pages</h2>
           </div>
-          <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-champagne">
+          <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-amber-200">
             Browse all listings <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
@@ -269,29 +307,32 @@ export default async function HomePage() {
           <TrendingPanel title="Categories" items={trending.categories} tone="amber" />
           <TrendingPanel title="Profiles" items={trending.profiles} tone="rose" />
         </div>
+        </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-10">
+      <section className="border-y border-orange-100 bg-[linear-gradient(135deg,#fff7ed_0%,#ecfeff_48%,#fff1f2_100%)] px-4 py-14">
+        <div className="mx-auto max-w-7xl">
         <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-semibold text-champagne">Popular categories</p>
-            <h2 className="mt-2 text-3xl font-semibold text-ink md:text-4xl">Browse {categoryCount} active service categories</h2>
+            <p className="text-sm font-semibold text-coral">Popular categories</p>
+            <h2 className="mt-2 text-3xl font-bold text-ink md:text-4xl">Browse {categoryCount} active service categories</h2>
           </div>
-          <Link href="/categories" className="inline-flex items-center gap-2 text-sm font-semibold text-champagne">
+          <Link href="/categories" className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-700">
             View all categories <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
         <CategoryGrid items={standardCategories} hrefForCategory={(category) => `/${category.slug}`} />
         <AdultCategoryGate listings={adultListings} categories={categoryItems} />
+        </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-12">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_0.9fr]">
-          <div className="rounded-[1.7rem] bg-white/80 p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
-            <p className="inline-flex items-center gap-2 rounded-full bg-champagne/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-champagne">
+          <div className="rounded-lg border border-cyan-100 bg-white p-6 shadow-xl shadow-cyan-950/10 md:p-8">
+            <p className="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-700">
               <Sparkles className="h-4 w-4" /> How the directory helps
             </p>
-            <h2 className="mt-4 text-3xl font-semibold tracking-tight text-ink">Find the right provider faster.</h2>
+            <h2 className="mt-4 text-3xl font-bold tracking-tight text-ink">Find the right provider faster.</h2>
             <p className="mt-4 text-sm leading-7 text-muted md:text-base">
               Start with a service need, location or provider name. Then compare real profile details such as services offered, rating, reviews, portfolio galleries, pricing notes, availability, verification badges and response methods before you contact anyone.
             </p>
@@ -301,8 +342,8 @@ export default async function HomePage() {
                 ["Trust signals", "Use reviews, verified badges, galleries and profile details to build confidence."],
                 ["Contact and booking", "Request a service, call, message, book or start an online consultation where available."]
               ].map(([title, copy]) => (
-                <div key={title} className="rounded-2xl bg-cloud p-4">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <div key={title} className="rounded-lg bg-gradient-to-br from-cyan-50 to-white p-4 ring-1 ring-cyan-100">
+                  <CheckCircle2 className="h-5 w-5 text-coral" />
                   <h3 className="mt-3 text-base font-semibold text-ink">{title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted">{copy}</p>
                 </div>
@@ -310,9 +351,9 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="rounded-[1.7rem] bg-ink p-6 text-white shadow-glass md:p-8">
-            <ShieldCheck className="h-9 w-9 text-champagne" />
-            <h2 className="mt-4 text-3xl font-semibold">What makes a profile worth opening?</h2>
+          <div className="rounded-lg bg-[linear-gradient(135deg,#0b1020,#0f766e_52%,#d97706)] p-6 text-white shadow-2xl shadow-cyan-950/20 md:p-8">
+            <ShieldCheck className="h-9 w-9 text-amber-200" />
+            <h2 className="mt-4 text-3xl font-bold">What makes a profile worth opening?</h2>
             <div className="mt-5 grid gap-3">
               {[
                 "Clear service details and location fit.",
@@ -320,8 +361,8 @@ export default async function HomePage() {
                 "Gallery media, rates or pricing notes, and availability.",
                 "Direct call, WhatsApp, chat, video consultation, website or booking request options when available."
               ].map((item) => (
-                <p key={item} className="flex gap-3 text-sm leading-6 text-white/82">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-champagne" />
+                <p key={item} className="flex gap-3 text-sm leading-6 text-white/80">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
                   {item}
                 </p>
               ))}
@@ -330,24 +371,24 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-slate-200/80 bg-white/70 px-4 py-12">
+      <section className="border-y border-cyan-100 bg-[linear-gradient(100deg,#0b1020,#155e75_48%,#f97316)] px-4 py-12 text-white">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 md:flex-row md:items-center">
           <div>
-            <p className="flex items-center gap-2 text-sm font-semibold text-champagne"><Sparkles className="h-4 w-4" /> For business owners</p>
-            <h2 className="mt-2 text-3xl font-semibold text-ink">Create one profile and reach users looking for your service.</h2>
-            <p className="mt-3 max-w-3xl leading-7 text-muted">
+            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-100"><Sparkles className="h-4 w-4 text-amber-200" /> For business owners</p>
+            <h2 className="mt-2 text-3xl font-bold text-white">Create one profile and reach users looking for your service.</h2>
+            <p className="mt-3 max-w-3xl leading-7 text-white/80">
               Add your services, gallery, prices, availability, contact options and verification details. After review, your profile can appear on relevant country, city, category and listing discovery pages.
             </p>
           </div>
-          <AddProfileSignupLink variant="gold">Add Your Profile</AddProfileSignupLink>
+          <AddProfileSignupLink variant="gold" className="shadow-2xl shadow-orange-950/20">Add Your Profile</AddProfileSignupLink>
         </div>
       </section>
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <div className="rounded-[1.7rem] bg-white/80 p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
-          <h2 className="text-3xl font-semibold tracking-tight text-ink">Questions people ask before hiring</h2>
+        <div className="rounded-lg border border-cyan-100 bg-white p-6 shadow-xl shadow-slate-950/10 md:p-8">
+          <h2 className="text-3xl font-bold tracking-tight text-ink">Questions people ask before hiring</h2>
           <div className="mt-6 grid gap-3 md:grid-cols-2">
             {homeFaq.map((item) => (
-              <details key={item.question} className="rounded-2xl bg-cloud px-4 py-3">
+              <details key={item.question} className="rounded-lg bg-gradient-to-br from-cyan-50 to-white px-4 py-3 ring-1 ring-cyan-100">
                 <summary className="cursor-pointer text-sm font-semibold text-ink">{item.question}</summary>
                 <p className="mt-2 text-sm leading-6 text-muted">{item.answer}</p>
               </details>
@@ -362,14 +403,14 @@ export default async function HomePage() {
 function TrendingPanel({ title, items, tone }: { title: string; items: TrendItem[]; tone: TrendTone }) {
   const toneClasses = trendTones[tone];
   return (
-    <div className={`min-w-0 overflow-hidden rounded-[1.5rem] p-1 shadow-sm ring-1 transition duration-300 hover:-translate-y-1 hover:shadow-glow ${toneClasses.panel}`}>
-      <div className={`rounded-[1.25rem] bg-gradient-to-br px-4 py-4 text-white ${toneClasses.header}`}>
+    <div className={`min-w-0 overflow-hidden rounded-lg p-1 shadow-sm ring-1 transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${toneClasses.panel}`}>
+      <div className={`rounded-md bg-gradient-to-br px-4 py-4 text-white ${toneClasses.header}`}>
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Top 5</p>
         <h3 className="mt-1 text-xl font-semibold">{title}</h3>
       </div>
       <div className="space-y-2 p-3">
         {items.length ? items.map((item, index) => (
-          <Link key={`${title}-${item.href}`} href={item.href} className={`group flex items-center gap-3 rounded-2xl bg-white/80 px-3 py-3 ring-1 ring-white/80 transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${toneClasses.row}`}>
+          <Link key={`${title}-${item.href}`} href={item.href} className={`group flex items-center gap-3 rounded-lg bg-white/80 px-3 py-3 ring-1 ring-white/80 transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${toneClasses.row}`}>
             <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${toneClasses.rank}`}>{index + 1}</span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold text-ink group-hover:text-champagne">{item.label}</span>
@@ -377,7 +418,7 @@ function TrendingPanel({ title, items, tone }: { title: string; items: TrendItem
             </span>
           </Link>
         )) : (
-          <p className="rounded-2xl bg-white/80 px-3 py-3 text-sm font-semibold text-muted ring-1 ring-white/80">No trending data yet</p>
+          <p className="rounded-lg bg-white/80 px-3 py-3 text-sm font-semibold text-muted ring-1 ring-white/80">No trending data yet</p>
         )}
       </div>
     </div>

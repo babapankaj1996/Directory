@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -38,7 +39,20 @@ if (process.env.NODE_ENV !== 'production') {
   corsOrigins.add('http://127.0.0.1:3001');
 }
 
+app.set('trust proxy', 1);
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  contentSecurityPolicy: false
+}));
 app.use(cors({ origin: [...corsOrigins], credentials: true }));
+app.use((req, res, next) => {
+  if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return next();
+  const origin = req.get('origin');
+  if (origin && !corsOrigins.has(origin)) {
+    return res.status(403).json({ error: 'Request origin is not allowed.' });
+  }
+  return next();
+});
 app.use(express.json({ limit: '2mb' }));
 app.use(morgan('dev'));
 app.use('/uploads', express.static(uploadsDir));

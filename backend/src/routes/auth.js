@@ -11,6 +11,9 @@ const router = Router();
 const loginLimiter = rateLimit({ scope: 'auth-login', windowMs: 15 * 60 * 1000, max: 20 });
 const signupLimiter = rateLimit({ scope: 'auth-signup', windowMs: 60 * 60 * 1000, max: 8 });
 const passwordLimiter = rateLimit({ scope: 'auth-password', windowMs: 60 * 60 * 1000, max: 6 });
+const SESSION_COOKIE = 'session_token';
+const ADMIN_COOKIE = 'admin_token';
+const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
 
 function publicUser(user) {
   return {
@@ -41,6 +44,51 @@ function includeDevLink(mailResult, url) {
   return mailResult?.actionUrl || url;
 }
 
+function sessionCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: SESSION_TTL_MS
+  };
+}
+
+function clearCookieOptions() {
+  const { maxAge: _maxAge, ...options } = sessionCookieOptions();
+  return options;
+}
+
+function cookieOnly(req) {
+  return String(req.get('x-auth-mode') || '').toLowerCase() === 'cookie';
+}
+
+function setSessionCookies(res, user, sessionToken) {
+  const options = sessionCookieOptions();
+  res.cookie(SESSION_COOKIE, sessionToken, options);
+  if (user.role === 'ADMIN') {
+    res.cookie(ADMIN_COOKIE, sessionToken, options);
+  } else {
+    res.clearCookie(ADMIN_COOKIE, clearCookieOptions());
+  }
+}
+
+function clearSessionCookies(res) {
+  const options = clearCookieOptions();
+  res.clearCookie(SESSION_COOKIE, options);
+  res.clearCookie(ADMIN_COOKIE, options);
+}
+
+function authResponse(req, res, user, extras = {}) {
+  const sessionToken = createSessionToken(user);
+  setSessionCookies(res, user, sessionToken);
+  return {
+    data: publicUser(user),
+    ...(cookieOnly(req) ? {} : { token: sessionToken }),
+    ...extras
+  };
+}
+
 router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'email and password are required' });
@@ -52,10 +100,7 @@ router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
   if (!valid) return res.status(401).json({ error: 'Invalid email or password' });
   if (user.status !== 'ACTIVE') return res.status(403).json({ error: 'Account access denied' });
 
-  res.json({
-    data: publicUser(user),
-    token: createSessionToken(user)
-  });
+  res.json(authResponse(req, res, user));
 }));
 
 router.post('/signup', signupLimiter, asyncHandler(async (req, res) => {
@@ -88,13 +133,11 @@ router.post('/signup', signupLimiter, asyncHandler(async (req, res) => {
   const verifyUrl = `${frontendUrl()}/login?verify=${emailVerifyToken}`;
   const mailResult = await sendVerificationEmail({ to: user.email, name: user.name, verifyUrl });
 
-  res.status(201).json({
-    data: publicUser(user),
-    token: createSessionToken(user),
+  res.status(201).json(authResponse(req, res, user, {
     verificationRequired: true,
     verificationLink: includeDevLink(mailResult, verifyUrl),
     mail: publicMailStatus(mailResult)
-  });
+  }));
 }));
 
 router.post('/forgot-password', passwordLimiter, asyncHandler(async (req, res) => {
@@ -199,5 +242,10 @@ router.get('/me', optionalAuth, asyncHandler(async (req, res) => {
   if (!req.authUser) return res.json({ data: null, authenticated: false });
   res.json({ data: req.authUser, authenticated: true });
 }));
+
+router.post('/logout', (_req, res) => {
+  clearSessionCookies(res);
+  res.json({ message: 'Logged out.' });
+});
 
 export default router;

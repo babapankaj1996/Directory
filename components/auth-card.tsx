@@ -122,13 +122,14 @@ export function AuthCard({
       const addProfileIntent = hasOwnerAddProfileIntent();
       const response = await fetch(`${getApiBase()}/api/auth/${isSignup ? "signup" : "login"}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        headers: { "Content-Type": "application/json", "X-Auth-Mode": "cookie" },
         body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role })
       });
       const payload = await response.json() as { data?: AuthUser; token?: string; error?: string; verificationRequired?: boolean; verificationLink?: string; mail?: MailStatus };
-      if (!response.ok || !payload.token || !payload.data) throw new Error(payload.error || "Authentication failed.");
+      if (!response.ok || !payload.data) throw new Error(payload.error || "Authentication failed.");
 
-      saveAuthSession(payload.token, payload.data);
+      saveAuthSession(payload.data);
       if (payload.verificationRequired || payload.data.emailVerified === false) {
         if (payload.data.role !== "OWNER") clearSignupIntent();
         setPendingEmail(payload.data.email || form.email);

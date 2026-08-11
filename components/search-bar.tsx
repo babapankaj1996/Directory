@@ -82,25 +82,26 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
   }
 
   return (
-    <form onSubmit={submitSearch} className="glass-strong rounded-[2rem] p-4 shadow-glass md:p-5">
+    <form onSubmit={submitSearch} className="rounded-lg bg-[linear-gradient(135deg,#22d3ee,#f59e0b_48%,#fb7185)] p-[1px] shadow-2xl shadow-cyan-950/20">
+      <div className="rounded-lg bg-white/95 p-3 backdrop-blur md:p-4">
       <button
         type="button"
         onClick={() => setFiltersOpen((current) => !current)}
         aria-expanded={filtersOpen}
-        className="flex w-full items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 text-left shadow-sm ring-1 ring-slate-200 md:hidden"
+        className="flex w-full items-center justify-between gap-3 rounded-lg bg-cyan-50/70 px-4 py-3 text-left ring-1 ring-cyan-100 md:hidden"
       >
         <span className="flex min-w-0 items-center gap-3">
-          <Search className="h-4 w-4 shrink-0 text-champagne" />
+          <Search className="h-4 w-4 shrink-0 text-aqua" />
           <span className="block min-w-0 truncate text-sm font-semibold text-ink">{filterSummary}</span>
         </span>
-        <SlidersHorizontal className="h-4 w-4 shrink-0 text-muted" />
+        <SlidersHorizontal className="h-4 w-4 shrink-0 text-coral" />
       </button>
 
-      <div className={`${filtersOpen ? "mt-4 grid" : "hidden"} gap-4 md:mt-0 md:grid ${compact ? "xl:grid-cols-[minmax(0,1.35fr)_1fr_1fr_1fr_auto]" : "xl:grid-cols-[minmax(0,1.35fr)_1fr_1fr_1fr_auto]"} xl:items-end`}>
+      <div className={`${filtersOpen ? "mt-4 grid" : "hidden"} gap-3 md:mt-0 md:grid ${compact ? "xl:grid-cols-[minmax(0,1.35fr)_1fr_1fr_1fr_auto]" : "xl:grid-cols-[minmax(0,1.35fr)_1fr_1fr_1fr_auto]"} xl:items-end`}>
         <label>
           <span className="mb-2 block text-sm font-semibold text-ink">Search</span>
-          <span className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3">
-            <Search className="h-4 w-4 text-champagne" />
+          <span className="flex items-center gap-3 rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 transition focus-within:border-aqua focus-within:bg-white focus-within:ring-4 focus-within:ring-cyan-100">
+            <Search className="h-4 w-4 text-aqua" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
@@ -120,7 +121,7 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
               setCity("");
             }}
             disabled={loadingCountries}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className="w-full rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-aqua focus:bg-white focus:ring-4 focus:ring-cyan-100 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {countries.length === 0 ? <option value="">{loadingCountries ? "Loading countries..." : "No active countries"}</option> : null}
             {countries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
@@ -132,7 +133,7 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
           <select
             value={city}
             onChange={(event) => setCity(event.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100"
+            className="w-full rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-aqua focus:bg-white focus:ring-4 focus:ring-cyan-100"
           >
             {cityOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
             {cityOptions.length === 0 ? <option value="">{loadingCities ? "Loading cities..." : "No active cities"}</option> : null}
@@ -144,16 +145,17 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
           <select
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100"
+            className="w-full rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-aqua focus:bg-white focus:ring-4 focus:ring-cyan-100"
           >
             <option value="ALL">Auto detect</option>
             {categoryOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
           </select>
         </label>
 
-        <button disabled={!country || !city || loadingCountries || loadingCities} className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass disabled:cursor-not-allowed disabled:opacity-50">
+        <button disabled={!country || !city || loadingCountries || loadingCities} className="rounded-lg bg-[linear-gradient(135deg,#0b1020,#0ea5e9_55%,#f97316)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-900/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">
           Search
         </button>
+      </div>
       </div>
     </form>
   );

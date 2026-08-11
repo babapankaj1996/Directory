@@ -70,7 +70,7 @@ async function fetchActiveCities(countryCode: string) {
 }
 
 export function useActiveCountries() {
-  const [countries, setCountries] = useState<ActiveCountryOption[]>([]);
+  const [countries, setCountries] = useState<ActiveCountryOption[]>(fallbackCountries);
   const [loadingCountries, setLoadingCountries] = useState(true);
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export function useActiveCountries() {
 
 export function useActiveLocationOptions(countryCode?: string) {
   const { countries, loadingCountries } = useActiveCountries();
-  const [cities, setCities] = useState<ActiveCityOption[]>([]);
+  const [cities, setCities] = useState<ActiveCityOption[]>(() => countryCode ? fallbackCities(countryCode) : []);
   const [loadingCities, setLoadingCities] = useState(Boolean(countryCode));
   const requestId = useRef(0);
 
@@ -110,7 +110,6 @@ export function useActiveLocationOptions(countryCode?: string) {
       return;
     }
 
-    setCities([]);
     setLoadingCities(true);
     fetchActiveCities(normalized)
       .then((items) => {

@@ -5,5 +5,5 @@ export function GlassCard({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("glass luxury-border min-w-0 rounded-[2rem] p-5 md:p-7", className)} {...props}>{children}</div>;
+  return <div className={cn("min-w-0 rounded-lg border border-slate-200 bg-white p-5 shadow-sm md:p-6", className)} {...props}>{children}</div>;
 }

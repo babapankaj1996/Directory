@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
 function adminSecret() {
-  return process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET || "local-development-admin-secret";
+  const value = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
+  if (value) return value;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("ADMIN_JWT_SECRET or JWT_SECRET must be configured in production.");
+  }
+  return "local-development-admin-secret";
 }
 
 function decodeBase64Url(value: string) {
@@ -30,6 +35,15 @@ async function signPayload(encodedPayload: string) {
   return encodeBase64Url(new Uint8Array(signature));
 }
 
+function timingSafeEqual(a: string, b: string) {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let index = 0; index < a.length; index += 1) {
+    result |= a.charCodeAt(index) ^ b.charCodeAt(index);
+  }
+  return result === 0;
+}
+
 async function getUsableTokenPayload(token?: string, requiredRole?: "ADMIN") {
   if (!token) return null;
   try {
@@ -38,7 +52,7 @@ async function getUsableTokenPayload(token?: string, requiredRole?: "ADMIN") {
     if (parts.length !== 2) return null;
     const [payloadPart, signaturePart] = parts;
     if (!payloadPart || !signaturePart) return null;
-    if (await signPayload(payloadPart) !== signaturePart) return null;
+    if (!timingSafeEqual(await signPayload(payloadPart), signaturePart)) return null;
 
     const payload = JSON.parse(decodeBase64Url(payloadPart)) as {
       role?: string;

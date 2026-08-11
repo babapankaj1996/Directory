@@ -13,10 +13,10 @@ type ButtonProps = {
 
 export function Button({ children, href, className, variant = "primary", type = "button", onClick, disabled = false }: ButtonProps) {
   const classes = cn(
-    "inline-flex items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition duration-300 focus:outline-none focus:ring-4 focus:ring-amber-200/70",
-    variant === "primary" && "bg-ink text-white shadow-glass hover:-translate-y-0.5",
-    variant === "gold" && "bg-gradient-to-r from-[#ead39a] to-[#d8aa5b] text-ink shadow-glow hover:-translate-y-0.5",
-    variant === "ghost" && "bg-white text-ink shadow-sm ring-1 ring-slate-200 hover:bg-cloud",
+    "inline-flex items-center justify-center rounded-lg px-5 py-3 text-sm font-semibold transition duration-200 focus:outline-none focus:ring-4 focus:ring-cyan-200/70",
+    variant === "primary" && "bg-[linear-gradient(135deg,#0b1020,#164e63)] text-white shadow-sm hover:shadow-lg hover:shadow-cyan-950/20",
+    variant === "gold" && "bg-[linear-gradient(135deg,#f59e0b,#f97316_55%,#e11d48)] text-white shadow-sm hover:shadow-lg hover:shadow-orange-500/25",
+    variant === "ghost" && "bg-white text-ink shadow-sm ring-1 ring-cyan-100 hover:bg-cyan-50/70 hover:text-cyan-800",
     disabled && "cursor-not-allowed opacity-60 hover:translate-y-0",
     className
   );

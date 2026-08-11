@@ -69,19 +69,19 @@ export function Header() {
   const ctaLabel = user?.role === "ADMIN" ? "Listings" : user?.role === "OWNER" ? "My Profile" : user?.role === "USER" ? "Explore" : "Add Profile";
 
   return (
-    <header className="sticky top-0 z-50 px-3 py-3 md:px-4 md:py-4">
-      <div className="glass-strong luxury-border mx-auto max-w-7xl rounded-[1.6rem] px-3 py-3 shadow-sm md:rounded-full md:px-6">
+    <header className="sticky top-0 z-50 border-b border-cyan-100/80 bg-white/[.86] px-3 py-2.5 shadow-[0_12px_42px_rgba(15,23,42,0.08)] backdrop-blur-xl md:px-4">
+      <div className="mx-auto max-w-7xl">
         <div className="flex items-center justify-between gap-3">
           <Link href="/" onClick={closeMenu} className="flex min-w-0 items-center gap-3">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white text-champagne shadow-glow">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[linear-gradient(135deg,#06b6d4,#f59e0b_52%,#e11d48)] text-white shadow-lg shadow-cyan-900/20">
               <Diamond className="h-5 w-5" />
             </span>
-            <span className="truncate text-lg font-semibold tracking-tight text-ink">Directory</span>
+            <span className="truncate text-lg font-bold tracking-tight text-ink">Directory</span>
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm font-medium text-muted lg:flex">
+          <nav className="hidden items-center gap-1 rounded-lg bg-white p-1 text-sm font-semibold text-muted shadow-sm ring-1 ring-cyan-100/80 lg:flex">
             {nav.map((item) => (
-              <Link key={item.href} href={item.href} className={`transition hover:text-ink ${pathname === item.href ? "text-ink" : ""}`}>
+              <Link key={item.href} href={item.href} className={`rounded-md px-4 py-2 transition hover:bg-cyan-50 hover:text-cyan-800 ${pathname === item.href ? "bg-ink text-white shadow-sm" : ""}`}>
                 {item.label}
               </Link>
             ))}
@@ -89,27 +89,27 @@ export function Header() {
 
           <div className="hidden items-center gap-3 md:flex">
             {sessionLoaded && user ? (
-              <Link href={dashboardHref} className="rounded-full px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-white/70">
+              <Link href={dashboardHref} className="rounded-lg px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-cyan-50 hover:text-cyan-800">
                 {dashboardLabel}
               </Link>
             ) : null}
             {!sessionLoaded ? (
-              <span className="h-10 w-20 rounded-full bg-white/55" aria-hidden="true" />
+              <span className="h-10 w-20 rounded-lg bg-slate-100" aria-hidden="true" />
             ) : user ? (
               <button
                 type="button"
                 onClick={logout}
-                className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-white/70"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-cyan-50 hover:text-cyan-800"
               >
-                <UserRound className="h-4 w-4 text-champagne" /> {accountLabel}
+                <UserRound className="h-4 w-4 text-aqua" /> {accountLabel}
                 <LogOut className="h-4 w-4 text-rose-500" />
               </button>
             ) : (
-              <Link href="/login" className="rounded-full px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-white/70">
+              <Link href="/login" className="rounded-lg px-4 py-2.5 text-sm font-semibold text-ink transition hover:bg-cyan-50 hover:text-cyan-800">
                 Login
               </Link>
             )}
-            <Link href={ctaHref} onClick={rememberOwnerSignupIntent} className="inline-flex items-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white shadow-glass transition hover:-translate-y-0.5">
+            <Link href={ctaHref} onClick={rememberOwnerSignupIntent} className="inline-flex items-center gap-2 rounded-lg bg-[linear-gradient(135deg,#0ea5e9,#2563eb_48%,#f97316)] px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-900/20 transition hover:-translate-y-0.5 hover:shadow-xl">
               {user?.role === "ADMIN" ? <LayoutDashboard className="h-4 w-4" /> : user?.role === "OWNER" ? <UserRound className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {ctaLabel}
             </Link>
           </div>
@@ -117,7 +117,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => setOpen((current) => !current)}
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-white/75 text-ink shadow-sm md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-lg bg-cyan-50 text-ink shadow-sm ring-1 ring-cyan-100 md:hidden"
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
           >
@@ -126,35 +126,35 @@ export function Header() {
         </div>
 
         {open ? (
-          <div className="mt-3 grid gap-2 border-t border-white/70 pt-3 md:hidden">
+          <div className="mt-3 grid gap-2 border-t border-slate-200 pt-3 md:hidden">
             {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={closeMenu}
-                className={`rounded-2xl px-4 py-3 text-sm font-semibold transition ${pathname === item.href ? "bg-ink text-white" : "bg-white/65 text-muted hover:bg-white hover:text-ink"}`}
+                className={`rounded-lg px-4 py-3 text-sm font-semibold transition ${pathname === item.href ? "bg-ink text-white" : "bg-cyan-50 text-muted hover:bg-white hover:text-cyan-800"}`}
               >
                 {item.label}
               </Link>
             ))}
             <div className={`grid gap-2 pt-1 ${sessionLoaded && user ? "grid-cols-3" : "grid-cols-2"}`}>
               {sessionLoaded && user ? (
-                <Link href={dashboardHref} onClick={closeMenu} className="rounded-2xl bg-white/70 px-3 py-3 text-center text-sm font-semibold text-ink">
+                <Link href={dashboardHref} onClick={closeMenu} className="rounded-lg bg-cyan-50 px-3 py-3 text-center text-sm font-semibold text-ink">
                   {dashboardLabel}
                 </Link>
               ) : null}
               {!sessionLoaded ? (
-                <span className="rounded-2xl bg-white/50 px-4 py-3" aria-hidden="true" />
+                <span className="rounded-lg bg-cyan-50 px-4 py-3" aria-hidden="true" />
               ) : user ? (
-                <button type="button" onClick={logout} className="rounded-2xl bg-white/70 px-4 py-3 text-center text-sm font-semibold text-rose-600">
+                <button type="button" onClick={logout} className="rounded-lg bg-cyan-50 px-4 py-3 text-center text-sm font-semibold text-rose-600">
                   Logout
                 </button>
               ) : (
-                <Link href="/login" onClick={closeMenu} className="rounded-2xl bg-white/70 px-4 py-3 text-center text-sm font-semibold text-ink">
+                <Link href="/login" onClick={closeMenu} className="rounded-lg bg-cyan-50 px-4 py-3 text-center text-sm font-semibold text-ink">
                   Login
                 </Link>
               )}
-              <Link href={ctaHref} onClick={handleMobileCtaClick} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white">
+              <Link href={ctaHref} onClick={handleMobileCtaClick} className="inline-flex items-center justify-center gap-2 rounded-lg bg-[linear-gradient(135deg,#0ea5e9,#2563eb_48%,#f97316)] px-4 py-3 text-sm font-semibold text-white">
                 {user?.role === "ADMIN" ? <LayoutDashboard className="h-4 w-4" /> : user?.role === "OWNER" ? <UserRound className="h-4 w-4" /> : <Plus className="h-4 w-4" />} {user?.role === "ADMIN" ? "Listings" : user?.role === "OWNER" ? "Profile" : user?.role === "USER" ? "Explore" : "Add"}
               </Link>
             </div>

@@ -4,7 +4,12 @@ import { prisma } from '../lib/prisma.js';
 const TOKEN_TTL_SECONDS = 60 * 60 * 8;
 
 function secret() {
-  return process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET || 'local-development-admin-secret';
+  const value = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
+  if (value) return value;
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('ADMIN_JWT_SECRET or JWT_SECRET must be configured in production.');
+  }
+  return 'local-development-admin-secret';
 }
 
 function base64url(input) {
@@ -68,9 +73,27 @@ export function verifyAdminToken(token) {
   return payload;
 }
 
+function parseCookies(header = '') {
+  return String(header || '').split(';').reduce((cookies, part) => {
+    const [rawName, ...rawValue] = part.trim().split('=');
+    if (!rawName || rawValue.length === 0) return cookies;
+    try {
+      cookies[rawName] = decodeURIComponent(rawValue.join('='));
+    } catch {
+      cookies[rawName] = rawValue.join('=');
+    }
+    return cookies;
+  }, {});
+}
+
 function bearerToken(req) {
   const header = req.get('authorization') || '';
-  return header.startsWith('Bearer ') ? header.slice(7) : req.get('x-admin-token') || req.get('x-session-token');
+  if (header.startsWith('Bearer ')) return header.slice(7);
+  const cookies = parseCookies(req.get('cookie'));
+  return req.get('x-admin-token') ||
+    req.get('x-session-token') ||
+    cookies.admin_token ||
+    cookies.session_token;
 }
 
 function sessionUser(user) {

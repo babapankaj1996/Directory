@@ -49,7 +49,7 @@ export function AdultCategoryGate({ listings, categories, country = "in", city =
           </p>
         </div>
         {confirmed ? (
-          <button type="button" onClick={resetAdult} className="inline-flex w-fit items-center gap-2 rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-ink ring-1 ring-slate-200">
+          <button type="button" onClick={resetAdult} className="inline-flex w-fit items-center gap-2 rounded-lg bg-white px-4 py-3 text-sm font-semibold text-ink ring-1 ring-slate-200">
             <X className="h-4 w-4" /> Hide 18+
           </button>
         ) : (
@@ -71,8 +71,8 @@ export function AdultPageGate({ enabled }: { enabled?: boolean }) {
 
   return (
     <div className="fixed inset-0 z-[120] flex items-center justify-center bg-ink/55 px-4 backdrop-blur-sm">
-      <div className="glass-strong w-full max-w-lg rounded-[2rem] p-6 shadow-glass">
-        <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-amber-800 ring-1 ring-amber-200">
+      <div className="w-full max-w-lg rounded-lg border border-slate-200 bg-white p-6 shadow-xl">
+        <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-amber-800 ring-1 ring-amber-200">
           <ShieldCheck className="h-4 w-4" /> 18+ age confirmation
         </div>
         <h2 className="mt-5 text-3xl font-semibold tracking-tight text-ink">Confirm you are 18 or older</h2>

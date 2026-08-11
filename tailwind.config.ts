@@ -9,15 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        pearl: "#f7f8ff",
-        champagne: "#9f6b1f",
-        ink: "#172033",
-        muted: "#465166",
-        cloud: "#edf2ff"
+        pearl: "#f6f8fb",
+        champagne: "#d97706",
+        ink: "#0b1020",
+        muted: "#526074",
+        cloud: "#eef6ff",
+        aqua: "#06b6d4",
+        coral: "#f97316",
+        mint: "#10b981",
+        berry: "#e11d48"
       },
       boxShadow: {
-        glass: "0 24px 70px rgba(72, 87, 128, 0.16)",
-        glow: "0 16px 60px rgba(216, 170, 91, 0.20)"
+        glass: "0 24px 70px rgba(15, 23, 42, 0.14)",
+        glow: "0 18px 70px rgba(6, 182, 212, 0.24)"
       },
       borderRadius: {
         glass: "28px"

@@ -3,7 +3,7 @@
 import { MouseEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Heart, Loader2 } from "lucide-react";
-import { authFetch, clearAdminSession, getSessionToken } from "@/lib/admin-auth";
+import { authFetch, clearAdminSession } from "@/lib/admin-auth";
 import { getApiBase } from "@/lib/profiles";
 
 export function SaveProfileButton({
@@ -25,9 +25,7 @@ export function SaveProfileButton({
   const [hasSession, setHasSession] = useState(false);
 
   useEffect(() => {
-    const token = getSessionToken();
-    setHasSession(Boolean(token));
-    if (!token || !profileId) return;
+    if (!profileId) return;
 
     let mounted = true;
     authFetch(`${getApiBase()}/api/dashboard/saved-profiles/${profileId}/status`)
@@ -35,6 +33,7 @@ export function SaveProfileButton({
       .then((payload: { data?: { authenticated?: boolean; saved?: boolean } } | undefined) => {
         if (!mounted) return;
         setSaved(Boolean(payload?.data?.saved));
+        setHasSession(Boolean(payload?.data?.authenticated));
         if (payload?.data?.authenticated === false) {
           clearAdminSession();
           setHasSession(false);

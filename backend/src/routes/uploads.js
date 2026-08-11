@@ -115,7 +115,7 @@ router.post('/image', requireAuth, upload.single('image'), asyncHandler(async (r
   const webpPath = path.join(imageRoot, `${baseName}.webp`);
   const avifPath = path.join(imageRoot, `${baseName}.avif`);
 
-  const pipeline = sharp(req.file.buffer)
+  const pipeline = sharp(req.file.buffer, { failOn: 'none' })
     .rotate()
     .resize({
       width: profile.width,
@@ -163,7 +163,7 @@ router.post('/verification-document', requireAuth, upload.single('image'), async
   const id = `${Date.now()}-${crypto.randomBytes(10).toString('hex')}`;
   const fileName = `${type}-${id}.webp`;
   const filePath = path.join(privateDocumentRoot, fileName);
-  const info = await sharp(req.file.buffer)
+  const info = await sharp(req.file.buffer, { failOn: 'none' })
     .rotate()
     .resize({ width: 2000, height: 2000, fit: 'inside', withoutEnlargement: true })
     .webp({ quality: 88, effort: 5 })
