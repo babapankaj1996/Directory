@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
-const apiOrigin = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_API_URL || "http://localhost:4000";
+const apiOrigin = process.env.NEXT_PUBLIC_API_URL ||
+  process.env.BACKEND_API_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "http://localhost:4000";
 const apiUrl = new URL(apiOrigin);
 const contentSecurityPolicy = [
   "default-src 'self'",

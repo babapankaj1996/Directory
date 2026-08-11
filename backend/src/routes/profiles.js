@@ -252,7 +252,7 @@ router.post('/:profileId/leads', leadLimiter, optionalAuth, asyncHandler(async (
     return saved;
   });
 
-  const frontendBase = (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+  const frontendBase = (process.env.FRONTEND_URL || process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, '');
   const dashboardUrl = `${frontendBase}/dashboard`;
   const adminQuotesUrl = `${frontendBase}/admin/quotes`;
   const ownerEmail = profile.ownerEmail;

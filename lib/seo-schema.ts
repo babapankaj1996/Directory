@@ -4,7 +4,7 @@ import type { CitySeoContent } from "@/lib/city-seo";
 import type { ProfileSeoContent, SeoFaq } from "@/lib/profile-seo";
 
 export function siteUrl() {
-  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+  return (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 }
 
 export function profileJsonLd(listing: Listing) {

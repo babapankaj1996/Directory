@@ -35,7 +35,7 @@ function tokenExpiry(hours = 24) {
 }
 
 function frontendUrl() {
-  return (process.env.FRONTEND_URL || 'http://localhost:3000').replace(/\/$/, '');
+  return (process.env.FRONTEND_URL || process.env.APP_PUBLIC_URL || 'http://localhost:3000').replace(/\/$/, '');
 }
 
 function includeDevLink(mailResult, url) {

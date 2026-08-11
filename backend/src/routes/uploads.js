@@ -40,7 +40,7 @@ const imageProfiles = {
 };
 
 function uploadBaseUrl(req) {
-  return (process.env.BACKEND_PUBLIC_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
+  return (process.env.BACKEND_PUBLIC_URL || process.env.APP_PUBLIC_URL || `${req.protocol}://${req.get('host')}`).replace(/\/$/, '');
 }
 
 function safeType(value) {

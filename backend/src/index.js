@@ -27,7 +27,8 @@ import { slugify } from './utils/helpers.js';
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
-const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+const appPublicUrl = process.env.APP_PUBLIC_URL || '';
+const frontendUrl = process.env.FRONTEND_URL || appPublicUrl || 'http://localhost:3000';
 const uploadsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../uploads');
 const corsOrigins = new Set([
   frontendUrl,
