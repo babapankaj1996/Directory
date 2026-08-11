@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileVideo, ImageUp, Loader2 } from "lucide-react";
+import { readApiJson } from "@/lib/api-response";
 import { adminFetch, authFetch } from "@/lib/admin-auth";
 import { getApiBase } from "@/lib/profiles";
 
@@ -89,7 +90,7 @@ export function UploadField({ label, type, value, admin = false, onUploaded, hel
         method: "POST",
         body: form
       });
-      const payload = await response.json() as { data?: UploadedImage; error?: string };
+      const payload = await readApiJson<{ data?: UploadedImage; error?: string }>(response, "upload");
       if (!response.ok || !payload.data?.url) throw new Error(payload.error || "Upload failed.");
       onUploaded(payload.data.url, payload.data);
       setPreviewMediaType(payload.data.mediaType === "video" ? "video" : "image");

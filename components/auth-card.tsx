@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Apple, Chrome, Diamond, Eye, EyeOff } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
+import { readApiJson } from "@/lib/api-response";
 import { saveAuthSession } from "@/lib/admin-auth";
 import { getApiBase } from "@/lib/profiles";
 
@@ -100,15 +101,22 @@ export function AuthCard({
 
     if (isForgot) {
       const endpoint = resetToken ? "reset-password" : "forgot-password";
-      const response = await fetch(`${getApiBase()}/api/auth/${endpoint}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(resetToken ? { token: resetToken, password: form.password } : { email: form.email })
-      });
-      const payload = await response.json() as { message?: string; error?: string; resetLink?: string; mail?: MailStatus };
-      setMailStatus(payload.mail || null);
-      if (payload.resetLink) setVerificationLink(payload.resetLink);
-      setStatus(response.ok ? payload.message || "Request handled." : payload.error || "Password request failed.");
+      setLoading(true);
+      try {
+        const response = await fetch(`${getApiBase()}/api/auth/${endpoint}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(resetToken ? { token: resetToken, password: form.password } : { email: form.email })
+        });
+        const payload = await readApiJson<{ message?: string; error?: string; resetLink?: string; mail?: MailStatus }>(response, "password request");
+        setMailStatus(payload.mail || null);
+        if (payload.resetLink) setVerificationLink(payload.resetLink);
+        setStatus(response.ok ? payload.message || "Request handled." : payload.error || "Password request failed.");
+      } catch (error) {
+        setStatus(error instanceof Error ? error.message : "Password request failed.");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -126,7 +134,7 @@ export function AuthCard({
         headers: { "Content-Type": "application/json", "X-Auth-Mode": "cookie" },
         body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role })
       });
-      const payload = await response.json() as { data?: AuthUser; token?: string; error?: string; verificationRequired?: boolean; verificationLink?: string; mail?: MailStatus };
+      const payload = await readApiJson<{ data?: AuthUser; token?: string; error?: string; verificationRequired?: boolean; verificationLink?: string; mail?: MailStatus }>(response, isSignup ? "signup" : "login");
       if (!response.ok || !payload.data) throw new Error(payload.error || "Authentication failed.");
 
       saveAuthSession(payload.data);
@@ -168,7 +176,7 @@ export function AuthCard({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
       });
-      const payload = await response.json() as { message?: string; error?: string; verificationLink?: string; mail?: MailStatus };
+      const payload = await readApiJson<{ message?: string; error?: string; verificationLink?: string; mail?: MailStatus }>(response, "verification email request");
       setVerificationLink(payload.verificationLink || "");
       setMailStatus(payload.mail || null);
       setStatus(response.ok ? payload.message || "Verification request handled." : payload.error || "Could not resend verification.");

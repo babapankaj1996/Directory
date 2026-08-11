@@ -1,5 +1,6 @@
 "use client";
 
+import { readApiJson } from "@/lib/api-response";
 import { getApiBase } from "@/lib/profiles";
 
 const ADMIN_TOKEN_KEY = "admin_token";
@@ -67,19 +68,27 @@ export function clearAdminSession() {
 }
 
 export async function getCurrentAdmin() {
-  const response = await adminFetch(`${getApiBase()}/api/auth/me`, { cache: "no-store" });
-  if (!response.ok) return undefined;
-  const payload = await response.json() as { data?: unknown };
-  return payload.data;
+  try {
+    const response = await adminFetch(`${getApiBase()}/api/auth/me`, { cache: "no-store" });
+    if (!response.ok) return undefined;
+    const payload = await readApiJson<{ data?: unknown }>(response, "admin session check");
+    return payload.data;
+  } catch {
+    return undefined;
+  }
 }
 
 export async function getCurrentUser() {
-  const response = await authFetch(`${getApiBase()}/api/auth/me`, { cache: "no-store" });
-  if (!response.ok) return undefined;
-  const payload = await response.json() as { authenticated?: boolean; data?: unknown };
-  if (payload.authenticated === false || !payload.data) {
-    clearAdminSession();
+  try {
+    const response = await authFetch(`${getApiBase()}/api/auth/me`, { cache: "no-store" });
+    if (!response.ok) return undefined;
+    const payload = await readApiJson<{ authenticated?: boolean; data?: unknown }>(response, "session check");
+    if (payload.authenticated === false || !payload.data) {
+      clearAdminSession();
+      return undefined;
+    }
+    return payload.data;
+  } catch {
     return undefined;
   }
-  return payload.data;
 }

@@ -7,6 +7,20 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL ||
   process.env.NEXT_PUBLIC_SITE_URL ||
   "http://localhost:4000";
 const apiUrl = new URL(apiOrigin);
+const publicOrigin = process.env.NEXT_PUBLIC_API_URL ||
+  process.env.NEXT_PUBLIC_APP_URL ||
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  "";
+const backendRewriteOrigin = process.env.BACKEND_API_URL || "";
+const shouldProxyBackend = (() => {
+  if (!backendRewriteOrigin) return false;
+  if (!publicOrigin) return true;
+  try {
+    return new URL(backendRewriteOrigin).origin !== new URL(publicOrigin).origin;
+  } catch {
+    return false;
+  }
+})();
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -38,6 +52,19 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           ...(isProduction ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : [])
         ]
+      }
+    ];
+  },
+  async rewrites() {
+    if (!shouldProxyBackend) return [];
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${backendRewriteOrigin.replace(/\/$/, "")}/api/:path*`
+      },
+      {
+        source: "/uploads/:path*",
+        destination: `${backendRewriteOrigin.replace(/\/$/, "")}/uploads/:path*`
       }
     ];
   },
