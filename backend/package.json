@@ -10,6 +10,7 @@
     "syntax-check": "node --check src/index.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "seed": "node prisma/seed.js",
     "locations:import": "node prisma/import-locations.js"
