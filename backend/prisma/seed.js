@@ -16,9 +16,24 @@ function gallery(imageUrl, category, title, sortOrder) {
 }
 
 async function main() {
-  const adminPasswordHash = await bcrypt.hash('Admin@12345', 10);
-  const ownerPasswordHash = await bcrypt.hash('Owner@12345', 10);
-  const reviewerPasswordHash = await bcrypt.hash('Review@12345', 10);
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_PRODUCTION_SEED !== 'true') {
+    throw new Error('Production seeding is disabled. Set ALLOW_PRODUCTION_SEED=true only for an intentional demo-data import.');
+  }
+
+  const adminEmail = String(process.env.SEED_ADMIN_EMAIL || 'admin@example.com').trim().toLowerCase();
+  const ownerEmail = String(process.env.SEED_OWNER_EMAIL || 'owner@example.com').trim().toLowerCase();
+  const reviewerEmail = String(process.env.SEED_REVIEWER_EMAIL || 'reviewer@example.com').trim().toLowerCase();
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD || 'Admin@12345';
+  const ownerPassword = process.env.SEED_OWNER_PASSWORD || 'Owner@12345';
+  const reviewerPassword = process.env.SEED_REVIEWER_PASSWORD || 'Review@12345';
+
+  if (process.env.NODE_ENV === 'production' && [adminPassword, ownerPassword, reviewerPassword].some((value) => ['Admin@12345', 'Owner@12345', 'Review@12345'].includes(value))) {
+    throw new Error('Production demo accounts require custom SEED_ADMIN_PASSWORD, SEED_OWNER_PASSWORD and SEED_REVIEWER_PASSWORD values.');
+  }
+
+  const adminPasswordHash = await bcrypt.hash(adminPassword, 12);
+  const ownerPasswordHash = await bcrypt.hash(ownerPassword, 12);
+  const reviewerPasswordHash = await bcrypt.hash(reviewerPassword, 12);
 
   await prisma.profile.deleteMany({
     where: {
@@ -40,11 +55,11 @@ async function main() {
   });
 
   await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
+    where: { email: adminEmail },
     update: { passwordHash: adminPasswordHash, role: 'ADMIN', status: 'ACTIVE', emailVerified: true },
     create: {
       name: 'Directory Admin',
-      email: 'admin@example.com',
+      email: adminEmail,
       passwordHash: adminPasswordHash,
       role: 'ADMIN',
       status: 'ACTIVE',
@@ -53,11 +68,11 @@ async function main() {
   });
 
   const ownerUser = await prisma.user.upsert({
-    where: { email: 'owner@example.com' },
+    where: { email: ownerEmail },
     update: { passwordHash: ownerPasswordHash, role: 'OWNER', status: 'ACTIVE', emailVerified: true },
     create: {
       name: 'Demo Business Owner',
-      email: 'owner@example.com',
+      email: ownerEmail,
       passwordHash: ownerPasswordHash,
       role: 'OWNER',
       status: 'ACTIVE',
@@ -66,11 +81,11 @@ async function main() {
   });
 
   const reviewerUser = await prisma.user.upsert({
-    where: { email: 'reviewer@example.com' },
+    where: { email: reviewerEmail },
     update: { passwordHash: reviewerPasswordHash, role: 'USER', status: 'ACTIVE', emailVerified: true },
     create: {
       name: 'Demo Review User',
-      email: 'reviewer@example.com',
+      email: reviewerEmail,
       passwordHash: reviewerPasswordHash,
       role: 'USER',
       status: 'ACTIVE',
@@ -775,9 +790,9 @@ async function main() {
   }
 
   console.log('Seed completed successfully.');
-  console.log('Admin login: admin@example.com / Admin@12345');
-  console.log('Business owner login: owner@example.com / Owner@12345');
-  console.log('Review user login: reviewer@example.com / Review@12345');
+  console.log(`Demo admin email: ${adminEmail}`);
+  console.log(`Demo business owner email: ${ownerEmail}`);
+  console.log(`Demo review user email: ${reviewerEmail}`);
 }
 
 main()

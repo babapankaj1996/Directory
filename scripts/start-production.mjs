@@ -8,6 +8,15 @@ const backendUrl = process.env.BACKEND_API_URL || `http://127.0.0.1:${backendPor
 const children = new Set();
 let shuttingDown = false;
 
+function isLocalBackend(rawUrl) {
+  try {
+    const hostname = new URL(rawUrl).hostname;
+    return hostname === "127.0.0.1" || hostname === "localhost" || hostname === "[::1]";
+  } catch {
+    return false;
+  }
+}
+
 function startProcess(name, command, args, options = {}) {
   const child = spawn(command, args, {
     stdio: "inherit",
@@ -64,34 +73,30 @@ async function waitForBackend() {
 process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
 
-if (!process.env.DATABASE_URL) {
-  console.warn("DATABASE_URL is not set. Backend health and auth will fail until it is configured.");
+if (isLocalBackend(backendUrl)) {
+  startProcess("backend", process.execPath, ["scripts/start-backend.mjs"], {
+    env: {
+      ...process.env,
+      NODE_ENV: process.env.NODE_ENV || "production",
+      BACKEND_PORT: backendPort,
+      PORT: backendPort,
+      APP_PUBLIC_URL: process.env.APP_PUBLIC_URL || publicUrl,
+      FRONTEND_URL: process.env.FRONTEND_URL || publicUrl,
+      CORS_ORIGINS: process.env.CORS_ORIGINS || publicUrl
+    }
+  });
+
+  await waitForBackend();
+} else {
+  console.log(`Using external backend at ${backendUrl}`);
 }
-
-if (!process.env.ADMIN_JWT_SECRET) {
-  console.warn("ADMIN_JWT_SECRET is not set. Set a long random secret before using production auth.");
-}
-
-startProcess("backend", process.execPath, ["backend/src/index.js"], {
-  env: {
-    ...process.env,
-    NODE_ENV: process.env.NODE_ENV || "production",
-    PORT: backendPort,
-    BACKEND_PORT: backendPort,
-    DOTENV_CONFIG_PATH: process.env.DOTENV_CONFIG_PATH || "backend/.env",
-    APP_PUBLIC_URL: process.env.APP_PUBLIC_URL || publicUrl,
-    FRONTEND_URL: process.env.FRONTEND_URL || publicUrl,
-    CORS_ORIGINS: process.env.CORS_ORIGINS || publicUrl
-  }
-});
-
-await waitForBackend();
 
 if (!shuttingDown) startProcess("frontend", process.execPath, ["node_modules/next/dist/bin/next", "start", "-p", frontendPort, "-H", "0.0.0.0"], {
   env: {
     ...process.env,
     NODE_ENV: process.env.NODE_ENV || "production",
     NEXT_PUBLIC_APP_URL: publicUrl,
-    BACKEND_API_URL: backendUrl
+    BACKEND_API_URL: backendUrl,
+    EMBEDDED_BACKEND: "false"
   }
 });

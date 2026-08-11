@@ -5,7 +5,7 @@ import { CheckCircle2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
 import { ListingCard } from "@/components/listing-card";
 import { ListingsFilterPanel, type ListingsFilters } from "@/components/listings-filter-panel";
 import { getPaginatedPublicProfiles, getPublicCategories } from "@/lib/profiles";
-import { categoryItemListJsonLd, faqJsonLd } from "@/lib/seo-schema";
+import { categoryItemListJsonLd, faqJsonLd, serializeJsonLd } from "@/lib/seo-schema";
 
 const perPage = 20;
 
@@ -112,7 +112,7 @@ export async function ListingsPageContent({ page, filters }: { page: number; fil
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 md:py-14">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
       <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-champagne">Recently approved professionals</p>

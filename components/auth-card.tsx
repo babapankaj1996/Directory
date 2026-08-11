@@ -49,6 +49,18 @@ function clearSignupIntent() {
   document.cookie = `${SIGNUP_INTENT_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
 }
 
+function safeInternalPath(value: string | null) {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return "";
+  try {
+    let decoded = value;
+    for (let index = 0; index < 2; index += 1) decoded = decodeURIComponent(decoded);
+    if (decoded.startsWith("//") || decoded.includes("\\")) return "";
+  } catch {
+    return "";
+  }
+  return value;
+}
+
 export function AuthCard({
   mode
 }: {
@@ -90,8 +102,8 @@ export function AuthCard({
     }
   }, [isSignup]);
 
-  const nextPath = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("next") : "";
-  const loginHref = nextPath?.startsWith("/") && nextPath !== "/dashboard/add-profile" ? `/login?next=${encodeURIComponent(nextPath)}` : "/login";
+  const nextPath = typeof window !== "undefined" ? safeInternalPath(new URLSearchParams(window.location.search).get("next")) : "";
+  const loginHref = nextPath && nextPath !== "/dashboard/add-profile" ? `/login?next=${encodeURIComponent(nextPath)}` : "/login";
   const signupHref = "/signup";
   const continueHref = pendingRole === "OWNER" && hasOwnerAddProfileIntent() ? "/dashboard/add-profile" : pendingRole === "OWNER" ? "/dashboard" : "/";
 
@@ -120,8 +132,8 @@ export function AuthCard({
       return;
     }
 
-    if (isSignup && form.password.length < 8) {
-      setStatus("Password must be at least 8 characters.");
+    if ((isSignup || (isForgot && resetToken)) && (form.password.length < 10 || form.password.length > 128)) {
+      setStatus("Password must be between 10 and 128 characters.");
       return;
     }
 
@@ -147,10 +159,10 @@ export function AuthCard({
         setStatus(`Please verify your email before posting reviews or managing listings.${payload.mail?.message ? ` ${payload.mail.message}` : ""}`);
         return;
       }
-      const nextPath = new URLSearchParams(window.location.search).get("next");
+      const nextPath = safeInternalPath(new URLSearchParams(window.location.search).get("next"));
       const fallbackPath = payload.data.role === "ADMIN" ? "/admin" : payload.data.role === "OWNER" ? (addProfileIntent ? "/dashboard/add-profile" : "/dashboard") : "/";
       if (addProfileIntent) clearSignupIntent();
-      router.push(nextPath?.startsWith("/") ? nextPath : fallbackPath);
+      router.push(nextPath || fallbackPath);
       router.refresh();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Authentication failed.");
@@ -232,6 +244,8 @@ export function AuthCard({
                 value={form.name}
                 onChange={(value) => setForm((current) => ({ ...current, name: value }))}
                 autoComplete="name"
+                minLength={2}
+                maxLength={100}
               />
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-ink">Account Type</span>
@@ -264,6 +278,7 @@ export function AuthCard({
               value={form.email}
               onChange={(value) => setForm((current) => ({ ...current, email: value }))}
               autoComplete="email"
+              maxLength={254}
             />
           ) : null}
           {(!isForgot || resetToken) && (
@@ -275,6 +290,8 @@ export function AuthCard({
               value={form.password}
               onChange={(value) => setForm((current) => ({ ...current, password: value }))}
               autoComplete={isLogin ? "current-password" : "new-password"}
+              minLength={isLogin ? undefined : 10}
+              maxLength={128}
             />
           )}
           {isLogin && (
@@ -330,7 +347,9 @@ function Input({
   value,
   onChange,
   autoComplete,
-  revealable = false
+  revealable = false,
+  minLength,
+  maxLength
 }: {
   label: string;
   placeholder: string;
@@ -339,6 +358,8 @@ function Input({
   onChange: (value: string) => void;
   autoComplete?: string;
   revealable?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }) {
   const [showValue, setShowValue] = useState(false);
   const inputType = revealable ? (showValue ? "text" : "password") : type;
@@ -352,6 +373,9 @@ function Input({
           onChange={(event) => onChange(event.target.value)}
           placeholder={placeholder}
           autoComplete={autoComplete}
+          minLength={minLength}
+          maxLength={maxLength}
+          required
           className={`w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-ink outline-none transition placeholder:text-muted/80 focus:border-champagne focus:ring-4 focus:ring-amber-100 ${revealable ? "pr-12" : ""}`}
         />
         {revealable ? (

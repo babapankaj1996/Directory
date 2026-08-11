@@ -882,7 +882,16 @@ router.put('/listings/:id', asyncHandler(async (req, res) => {
     featured: undefined,
     ownerUserId: undefined,
     rejectionReason: undefined,
-    adminNotes: undefined
+    adminNotes: undefined,
+    rating: undefined,
+    reviewCount: undefined,
+    reviews: undefined,
+    viewCount: undefined,
+    isAdult: undefined,
+    ageRestricted: undefined,
+    adultLevel: undefined,
+    verificationStatus: undefined,
+    verificationNotes: undefined
   };
 
   const newDocuments = adultDocumentPayloads(req.body);

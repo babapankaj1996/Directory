@@ -7,6 +7,13 @@ export function siteUrl() {
   return (process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 }
 
+export function serializeJsonLd(value: unknown) {
+  return JSON.stringify(value)
+    .replace(/</g, "\\u003c")
+    .replace(/\u2028/g, "\\u2028")
+    .replace(/\u2029/g, "\\u2029");
+}
+
 export function profileJsonLd(listing: Listing) {
   const url = `${siteUrl()}${getListingUrl(listing)}`;
   return {

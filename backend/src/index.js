@@ -24,6 +24,38 @@ import seoRoutes from './routes/seo.js';
 import { optionalAuth, requireAdmin, requireAuth } from './utils/auth.js';
 import { asyncHandler } from './utils/async-handler.js';
 import { slugify } from './utils/helpers.js';
+import { rateLimit } from './utils/rate-limit.js';
+
+function assertProductionConfiguration() {
+  if (process.env.NODE_ENV !== 'production') return;
+
+  const missing = [];
+  if (!process.env.DATABASE_URL) missing.push('DATABASE_URL');
+  if (!process.env.APP_PUBLIC_URL && !process.env.FRONTEND_URL) missing.push('APP_PUBLIC_URL');
+  const authSecret = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET || '';
+  if (!authSecret) missing.push('ADMIN_JWT_SECRET');
+  if (missing.length) {
+    throw new Error(`Missing required production environment variables: ${missing.join(', ')}`);
+  }
+  if (authSecret.length < 32) {
+    throw new Error('ADMIN_JWT_SECRET must contain at least 32 characters in production.');
+  }
+  const supabaseStorageUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && !supabaseStorageUrl) {
+    throw new Error('SUPABASE_URL is required when SUPABASE_SERVICE_ROLE_KEY is configured.');
+  }
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY && new URL(supabaseStorageUrl).protocol !== 'https:') {
+    throw new Error('SUPABASE_URL must use HTTPS when durable upload storage is enabled.');
+  }
+
+  const publicUrl = new URL(process.env.APP_PUBLIC_URL || process.env.FRONTEND_URL);
+  const loopback = ['localhost', '127.0.0.1', '[::1]'].includes(publicUrl.hostname);
+  if (publicUrl.protocol !== 'https:' && !loopback) {
+    throw new Error('APP_PUBLIC_URL must use HTTPS in production.');
+  }
+}
+
+assertProductionConfiguration();
 
 const app = express();
 const port = Number(process.env.PORT || 4000);
@@ -55,8 +87,15 @@ app.use((req, res, next) => {
   return next();
 });
 app.use(express.json({ limit: '2mb' }));
+app.use('/api', (req, res, next) => {
+  if (req.is('application/json') && (req.body === null || Array.isArray(req.body) || typeof req.body !== 'object')) {
+    return res.status(400).json({ error: 'JSON request body must be an object.' });
+  }
+  return next();
+});
 app.use(morgan('dev'));
 app.use('/uploads', express.static(uploadsDir));
+app.use('/api', rateLimit({ scope: 'api-global', windowMs: 60 * 1000, max: 300 }));
 
 app.get('/api/health', async (_req, res) => {
   try {
@@ -112,7 +151,8 @@ app.use('/api', (_req, res) => {
 });
 
 app.use((error, _req, res, _next) => {
-  const status = error.statusCode || 500;
+  const rawStatus = Number(error.statusCode || error.status || 500);
+  const status = rawStatus >= 400 && rawStatus < 600 ? rawStatus : 500;
   if (status >= 500) {
     console.error(error);
   } else {
@@ -124,7 +164,7 @@ app.use((error, _req, res, _next) => {
   });
 });
 
-const server = app.listen(port, () => {
+const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Backend API running at http://localhost:${port}`);
 });
 

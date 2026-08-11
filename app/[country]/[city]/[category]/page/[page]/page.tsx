@@ -4,7 +4,7 @@ import { CategoryListingPage } from "@/components/category-listing-page";
 import { buildCategorySeoContent } from "@/lib/category-seo";
 import { getActiveCitiesForCountry, getActiveLocation } from "@/lib/locations";
 import { getPublicCategories, getPublicCategory, getPublicProfiles } from "@/lib/profiles";
-import { breadcrumbJsonLd, categoryCollectionJsonLd, categoryItemListJsonLd } from "@/lib/seo-schema";
+import { breadcrumbJsonLd, categoryCollectionJsonLd, categoryItemListJsonLd, serializeJsonLd } from "@/lib/seo-schema";
 import { formatRouteName } from "@/lib/utils";
 
 const perPage = 20;
@@ -107,7 +107,7 @@ export default async function CleanCategoryPage({
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
       <CategoryListingPage
         country={country}
         city={city}

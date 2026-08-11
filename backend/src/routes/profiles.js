@@ -325,6 +325,9 @@ router.post('/:profileId/reviews', reviewLimiter, requireAuth, asyncHandler(asyn
     return res.status(400).json({ error: 'Rating must be a whole number from 1 to 5.' });
   }
   if (comment.length < 10) return res.status(400).json({ error: 'Review comment must be at least 10 characters.' });
+  if (comment.length > 2000 || title.length > 120) {
+    return res.status(400).json({ error: 'Review title or comment is too long.' });
+  }
   const ipHash = hashSignal(req.ip || req.socket?.remoteAddress);
   const userAgentHash = hashSignal(req.get('user-agent'));
 
@@ -510,7 +513,16 @@ router.post('/', requireAuth, asyncHandler(async (req, res) => {
     featured: false,
     featuredUntil: null,
     rejectionReason: undefined,
-    adminNotes: undefined
+    adminNotes: undefined,
+    rating: undefined,
+    reviewCount: undefined,
+    reviews: undefined,
+    viewCount: undefined,
+    isAdult: undefined,
+    ageRestricted: undefined,
+    adultLevel: undefined,
+    verificationStatus: undefined,
+    verificationNotes: undefined
   };
   const profileData = await profilePayload(prisma, publicSubmission, { defaultStatus: isDraft ? 'DRAFT' : 'PENDING' });
   Object.assign(profileData, profileVerificationData(profileData, isDraft));

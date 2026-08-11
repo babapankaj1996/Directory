@@ -2,34 +2,31 @@ import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
 const apiOrigin = process.env.NEXT_PUBLIC_API_URL ||
-  process.env.BACKEND_API_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
   process.env.NEXT_PUBLIC_SITE_URL ||
-  "http://localhost:4000";
-const apiUrl = new URL(apiOrigin);
-const publicOrigin = process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  "";
-const backendRewriteOrigin = process.env.BACKEND_API_URL || "";
-const shouldProxyBackend = (() => {
-  if (!backendRewriteOrigin) return false;
-  if (!publicOrigin) return true;
+  "http://localhost:3000";
+const backendOrigin = process.env.BACKEND_API_URL || apiOrigin || "http://localhost:4000";
+const apiUrl = new URL(backendOrigin);
+const publicApiUrl = new URL(apiOrigin);
+const supabaseUrl = (() => {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
+  if (!raw) return undefined;
   try {
-    return new URL(backendRewriteOrigin).origin !== new URL(publicOrigin).origin;
+    return new URL(raw);
   } catch {
-    return false;
+    return undefined;
   }
 })();
+const supabaseSource = supabaseUrl ? ` ${supabaseUrl.origin}` : "";
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  `connect-src 'self' ${apiOrigin} https://api.razorpay.com`,
-  `img-src 'self' data: blob: ${apiOrigin} https://images.unsplash.com`,
-  `media-src 'self' blob: ${apiOrigin}`,
+  `connect-src 'self' ${apiOrigin}${supabaseSource} https://api.razorpay.com`,
+  `img-src 'self' data: blob: ${apiOrigin}${supabaseSource} https://images.unsplash.com`,
+  `media-src 'self' blob: ${apiOrigin}${supabaseSource}`,
   "font-src 'self' data:",
   `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://checkout.razorpay.com`,
   "style-src 'self' 'unsafe-inline'",
@@ -55,19 +52,6 @@ const nextConfig: NextConfig = {
       }
     ];
   },
-  async rewrites() {
-    if (!shouldProxyBackend) return [];
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${backendRewriteOrigin.replace(/\/$/, "")}/api/:path*`
-      },
-      {
-        source: "/uploads/:path*",
-        destination: `${backendRewriteOrigin.replace(/\/$/, "")}/uploads/:path*`
-      }
-    ];
-  },
   images: {
     remotePatterns: [
       {
@@ -80,10 +64,20 @@ const nextConfig: NextConfig = {
         port: apiUrl.port
       },
       {
+        protocol: publicApiUrl.protocol.replace(":", "") as "http" | "https",
+        hostname: publicApiUrl.hostname,
+        port: publicApiUrl.port
+      },
+      {
         protocol: "http",
         hostname: "127.0.0.1",
         port: "4000"
-      }
+      },
+      ...(supabaseUrl ? [{
+        protocol: supabaseUrl.protocol.replace(":", "") as "http" | "https",
+        hostname: supabaseUrl.hostname,
+        port: supabaseUrl.port
+      }] : [])
     ]
   },
   // Type checking is still available through `npm run type-check`.

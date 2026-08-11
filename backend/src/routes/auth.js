@@ -8,12 +8,35 @@ import { rateLimit } from '../utils/rate-limit.js';
 import { publicMailStatus, sendPasswordResetEmail, sendVerificationEmail } from '../utils/mailer.js';
 
 const router = Router();
-const loginLimiter = rateLimit({ scope: 'auth-login', windowMs: 15 * 60 * 1000, max: 20 });
+const loginLimiter = rateLimit({ scope: 'auth-login', windowMs: 15 * 60 * 1000, max: 20, keyBy: 'ip-email' });
 const signupLimiter = rateLimit({ scope: 'auth-signup', windowMs: 60 * 60 * 1000, max: 8 });
 const passwordLimiter = rateLimit({ scope: 'auth-password', windowMs: 60 * 60 * 1000, max: 6 });
 const SESSION_COOKIE = 'session_token';
 const ADMIN_COOKIE = 'admin_token';
 const SESSION_TTL_MS = 8 * 60 * 60 * 1000;
+const MIN_PASSWORD_LENGTH = 10;
+const MAX_PASSWORD_LENGTH = 128;
+
+router.use((_req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
+
+function normalizedEmail(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function validEmail(value) {
+  return value.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function validPassword(value) {
+  return typeof value === 'string' && value.length >= MIN_PASSWORD_LENGTH && value.length <= MAX_PASSWORD_LENGTH;
+}
+
+function validActionToken(value) {
+  return /^[a-f0-9]{64}$/i.test(value);
+}
 
 function publicUser(user) {
   return {
@@ -28,6 +51,10 @@ function publicUser(user) {
 
 function token() {
   return crypto.randomBytes(32).toString('hex');
+}
+
+function tokenHash(value) {
+  return crypto.createHash('sha256').update(value).digest('hex');
 }
 
 function tokenExpiry(hours = 24) {
@@ -50,7 +77,8 @@ function sessionCookieOptions() {
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
-    maxAge: SESSION_TTL_MS
+    maxAge: SESSION_TTL_MS,
+    priority: 'high'
   };
 }
 
@@ -90,10 +118,14 @@ function authResponse(req, res, user, extras = {}) {
 }
 
 router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const email = normalizedEmail(req.body.email);
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
   if (!email || !password) return res.status(400).json({ error: 'email and password are required' });
+  if (!validEmail(email) || password.length > MAX_PASSWORD_LENGTH) {
+    return res.status(401).json({ error: 'Invalid email or password' });
+  }
 
-  const user = await prisma.user.findUnique({ where: { email: String(email).trim().toLowerCase() } });
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return res.status(401).json({ error: 'Invalid email or password' });
 
   const valid = await bcrypt.compare(password, user.passwordHash);
@@ -105,18 +137,20 @@ router.post('/login', loginLimiter, asyncHandler(async (req, res) => {
 
 router.post('/signup', signupLimiter, asyncHandler(async (req, res) => {
   const name = String(req.body.name || '').trim();
-  const email = String(req.body.email || '').trim().toLowerCase();
-  const password = String(req.body.password || '');
+  const email = normalizedEmail(req.body.email);
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
   const requestedRole = String(req.body.role || 'USER').trim().toUpperCase();
   const role = requestedRole === 'OWNER' ? 'OWNER' : 'USER';
 
   if (!name || !email || !password) return res.status(400).json({ error: 'name, email and password are required' });
-  if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+  if (name.length < 2 || name.length > 100) return res.status(400).json({ error: 'Name must be between 2 and 100 characters.' });
+  if (!validEmail(email)) return res.status(400).json({ error: 'Enter a valid email address.' });
+  if (!validPassword(password)) return res.status(400).json({ error: `Password must be ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} characters.` });
 
   const exists = await prisma.user.findUnique({ where: { email } });
   if (exists) return res.status(409).json({ error: 'An account with this email already exists.' });
 
-  const passwordHash = await bcrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 12);
   const emailVerifyToken = token();
   const user = await prisma.user.create({
     data: {
@@ -126,7 +160,7 @@ router.post('/signup', signupLimiter, asyncHandler(async (req, res) => {
       role,
       status: 'ACTIVE',
       emailVerified: false,
-      emailVerifyToken,
+      emailVerifyToken: tokenHash(emailVerifyToken),
       emailVerifyTokenExpiresAt: tokenExpiry(24)
     }
   });
@@ -141,16 +175,16 @@ router.post('/signup', signupLimiter, asyncHandler(async (req, res) => {
 }));
 
 router.post('/forgot-password', passwordLimiter, asyncHandler(async (req, res) => {
-  const email = String(req.body.email || '').trim().toLowerCase();
+  const email = normalizedEmail(req.body.email);
   if (!email) return res.status(400).json({ error: 'email is required' });
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = validEmail(email) ? await prisma.user.findUnique({ where: { email } }) : null;
   if (user) {
     const passwordResetToken = token();
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        passwordResetToken,
+        passwordResetToken: tokenHash(passwordResetToken),
         passwordResetTokenExpiresAt: tokenExpiry(2)
       }
     });
@@ -169,12 +203,14 @@ router.post('/forgot-password', passwordLimiter, asyncHandler(async (req, res) =
 
 router.post('/reset-password', passwordLimiter, asyncHandler(async (req, res) => {
   const resetToken = String(req.body.token || '').trim();
-  const password = String(req.body.password || '');
-  if (!resetToken || password.length < 8) return res.status(400).json({ error: 'Valid token and password with at least 8 characters are required.' });
+  const password = typeof req.body.password === 'string' ? req.body.password : '';
+  if (!validActionToken(resetToken) || !validPassword(password)) {
+    return res.status(400).json({ error: `Valid token and password with ${MIN_PASSWORD_LENGTH}-${MAX_PASSWORD_LENGTH} characters are required.` });
+  }
 
   const user = await prisma.user.findFirst({
     where: {
-      passwordResetToken: resetToken,
+      passwordResetToken: { in: [tokenHash(resetToken), resetToken] },
       passwordResetTokenExpiresAt: { gt: new Date() }
     }
   });
@@ -183,7 +219,7 @@ router.post('/reset-password', passwordLimiter, asyncHandler(async (req, res) =>
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      passwordHash: await bcrypt.hash(password, 10),
+      passwordHash: await bcrypt.hash(password, 12),
       passwordResetToken: null,
       passwordResetTokenExpiresAt: null
     }
@@ -193,10 +229,10 @@ router.post('/reset-password', passwordLimiter, asyncHandler(async (req, res) =>
 
 router.post('/verify-email', asyncHandler(async (req, res) => {
   const verifyToken = String(req.body.token || req.query.token || '').trim();
-  if (!verifyToken) return res.status(400).json({ error: 'Verification token is required.' });
+  if (!validActionToken(verifyToken)) return res.status(400).json({ error: 'A valid verification token is required.' });
   const user = await prisma.user.findFirst({
     where: {
-      emailVerifyToken: verifyToken,
+      emailVerifyToken: { in: [tokenHash(verifyToken), verifyToken] },
       emailVerifyTokenExpiresAt: { gt: new Date() }
     }
   });
@@ -213,10 +249,10 @@ router.post('/verify-email', asyncHandler(async (req, res) => {
 }));
 
 router.post('/resend-verification', passwordLimiter, asyncHandler(async (req, res) => {
-  const email = String(req.body.email || '').trim().toLowerCase();
+  const email = normalizedEmail(req.body.email);
   if (!email) return res.status(400).json({ error: 'Email is required to resend verification.' });
 
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = validEmail(email) ? await prisma.user.findUnique({ where: { email } }) : null;
   if (!user || user.emailVerified) {
     return res.json({ message: 'If that account needs verification, a new email has been sent.' });
   }
@@ -225,7 +261,7 @@ router.post('/resend-verification', passwordLimiter, asyncHandler(async (req, re
   await prisma.user.update({
     where: { id: user.id },
     data: {
-      emailVerifyToken,
+      emailVerifyToken: tokenHash(emailVerifyToken),
       emailVerifyTokenExpiresAt: tokenExpiry(24)
     }
   });

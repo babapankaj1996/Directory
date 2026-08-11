@@ -10,7 +10,7 @@ import { SearchBar } from "@/components/search-bar";
 import { Button } from "@/components/ui/button";
 import { countryNames, isFeaturedActive, isIdVerifiedListing, sortByFeaturedVisibility, type Listing } from "@/lib/data";
 import { getPublicCategories, getPublicProfiles, withCategoryCounts } from "@/lib/profiles";
-import { faqJsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo-schema";
+import { faqJsonLd, organizationJsonLd, serializeJsonLd, websiteJsonLd } from "@/lib/seo-schema";
 
 export const metadata: Metadata = {
   title: "Verified Global Service Provider Directory",
@@ -166,7 +166,7 @@ export default async function HomePage() {
 
   return (
     <main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
       <section className="relative isolate overflow-hidden border-b border-cyan-200/70 bg-ink px-4 py-10 text-white md:py-16">
         <Image
           src={heroImage}

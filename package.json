@@ -12,6 +12,8 @@
     "lint": "eslint app components lib tests middleware.ts next.config.ts playwright.config.ts tailwind.config.ts",
     "test:smoke": "playwright test",
     "test:api": "node tests/backend-api-smoke.mjs",
+    "test:security": "node tests/production-security-smoke.mjs",
+    "test:browser:production": "node tests/production-auth-browser.mjs",
     "test:site-audit": "node tests/site-audit.mjs",
     "backend:install": "npm --prefix backend ci --include=dev",
     "backend:dev": "npm --prefix backend run dev",

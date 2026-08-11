@@ -11,5 +11,5 @@ export async function readApiJson<T>(response: Response, action = "request"): Pr
     ? "The server returned an HTML page instead of API JSON."
     : "The server returned a non-JSON response.";
 
-  throw new Error(`${reason} Backend API is not reachable for this ${action}.${status} Check the production /api proxy or NEXT_PUBLIC_API_URL.`);
+  throw new Error(`${reason} Backend API is not reachable for this ${action}.${status} Check the production API startup logs and BACKEND_API_URL.`);
 }
