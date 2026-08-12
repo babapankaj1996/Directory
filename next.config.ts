@@ -37,6 +37,20 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd()
   },
+  outputFileTracingIncludes: {
+    "/*": [
+      "./scripts/start-backend.mjs",
+      "./backend/package.json",
+      "./backend/src/**/*.js",
+      "./backend/node_modules/**/*",
+      "./backend/node_modules/.prisma/client/**/*"
+    ]
+  },
+  outputFileTracingExcludes: {
+    "/*": [
+      "./backend/uploads/**/*"
+    ]
+  },
   async headers() {
     return [
       {

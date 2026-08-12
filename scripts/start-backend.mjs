@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
@@ -54,8 +55,15 @@ process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
 
 try {
-  console.log("Applying pending Prisma migrations...");
-  await run("Prisma migration", process.execPath, [prismaCli, "migrate", "deploy"]);
+  if (String(runtimeEnv.RUN_MIGRATIONS_ON_START || "false").toLowerCase() === "true") {
+    if (!existsSync(prismaCli)) {
+      throw new Error("Runtime migrations were requested, but the Prisma CLI is not installed in the production artifact.");
+    }
+    console.log("Applying pending Prisma migrations at runtime...");
+    await run("Prisma migration", process.execPath, [prismaCli, "migrate", "deploy"]);
+  } else {
+    console.log("Prisma migrations were applied during the production build.");
+  }
 
   if (runtimeEnv.ADMIN_BOOTSTRAP_PASSWORD) {
     console.log("Checking the configured admin bootstrap account...");
