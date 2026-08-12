@@ -59,7 +59,12 @@ try {
 
   if (runtimeEnv.ADMIN_BOOTSTRAP_PASSWORD) {
     console.log("Checking the configured admin bootstrap account...");
-    await run("Admin bootstrap", process.execPath, ["src/bootstrap-admin.js"]);
+    try {
+      await run("Admin bootstrap", process.execPath, ["src/bootstrap-admin.js"]);
+    } catch (error) {
+      console.error("Admin bootstrap was skipped; the API will continue without changing admin access.");
+      console.error(error instanceof Error ? error.message : error);
+    }
   } else if (runtimeEnv.ADMIN_BOOTSTRAP_EMAIL) {
     console.log("Admin bootstrap password is not configured; keeping the existing admin account unchanged.");
   }

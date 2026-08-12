@@ -308,3 +308,9 @@ npm audit --prefix backend --audit-level=moderate
 ```
 
 `test:site-audit` crawls sitemap/public pages plus admin and owner pages on desktop and mobile. It checks broken internal links, HTTP failures, console/page errors, duplicate canonical tags, canonical origin mismatch, protected route redirects, and horizontal overflow.
+
+## Hostinger Production
+
+Hostinger runs the Next.js frontend and embedded Express API from the root project. Configure `NEXT_PUBLIC_APP_URL`, `APP_PUBLIC_URL`, `BACKEND_API_URL`, `BACKEND_PORT`, `DATABASE_URL`, and `ADMIN_JWT_SECRET` in the Hostinger environment panel. Keep `BACKEND_API_URL` private, normally `http://127.0.0.1:4000`; browser requests use the same-origin `/api` route.
+
+The production launcher applies pending Prisma migrations automatically. `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD`, and `ADMIN_BOOTSTRAP_NAME` are optional one-time admin setup values. The password must be 14-128 characters and contain letters and numbers. Remove `ADMIN_BOOTSTRAP_PASSWORD` after the first successful admin login.
