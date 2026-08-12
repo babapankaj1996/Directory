@@ -56,12 +56,21 @@ async function main() {
     return;
   }
 
-  if (rotatePassword) {
+  if (rotatePassword || existing.status !== 'ACTIVE') {
     await prisma.user.update({
       where: { id: existing.id },
-      data: { passwordHash: await bcrypt.hash(password, 12) }
+      data: {
+        name: name || existing.name,
+        passwordHash: await bcrypt.hash(password, 12),
+        status: 'ACTIVE',
+        emailVerified: true,
+        emailVerifyToken: null,
+        emailVerifyTokenExpiresAt: null,
+        passwordResetToken: null,
+        passwordResetTokenExpiresAt: null
+      }
     });
-    console.log(`Rotated the admin password for ${email}. Remove ADMIN_BOOTSTRAP_PASSWORD and ADMIN_BOOTSTRAP_ROTATE_PASSWORD after deployment.`);
+    console.log(`Activated the configured admin account for ${email}. Remove ADMIN_BOOTSTRAP_PASSWORD and ADMIN_BOOTSTRAP_ROTATE_PASSWORD after deployment.`);
     return;
   }
 

@@ -57,15 +57,20 @@ try {
   console.log("Applying pending Prisma migrations...");
   await run("Prisma migration", process.execPath, [prismaCli, "migrate", "deploy"]);
 
-  if (runtimeEnv.ADMIN_BOOTSTRAP_EMAIL || runtimeEnv.ADMIN_BOOTSTRAP_PASSWORD) {
+  if (runtimeEnv.ADMIN_BOOTSTRAP_PASSWORD) {
     console.log("Checking the configured admin bootstrap account...");
     await run("Admin bootstrap", process.execPath, ["src/bootstrap-admin.js"]);
+  } else if (runtimeEnv.ADMIN_BOOTSTRAP_EMAIL) {
+    console.log("Admin bootstrap password is not configured; keeping the existing admin account unchanged.");
   }
 
   const backendEnv = {
     ...runtimeEnv
   };
+  delete backendEnv.ADMIN_BOOTSTRAP_EMAIL;
+  delete backendEnv.ADMIN_BOOTSTRAP_NAME;
   delete backendEnv.ADMIN_BOOTSTRAP_PASSWORD;
+  delete backendEnv.ADMIN_BOOTSTRAP_ROTATE_PASSWORD;
 
   child = spawn(process.execPath, [backendEntry], {
     cwd: backendDir,
