@@ -17,7 +17,7 @@ function isLocalBackend(rawUrl) {
   }
 }
 
-function startProcess(name, command, args, options = {}) {
+function startProcess(name, command, args, options = {}, fatal = true) {
   const child = spawn(command, args, {
     stdio: "inherit",
     windowsHide: true,
@@ -27,9 +27,11 @@ function startProcess(name, command, args, options = {}) {
   children.add(child);
   child.on("exit", (code, signal) => {
     children.delete(child);
-    if (!shuttingDown && code !== 0) {
+    if (!shuttingDown && code !== 0 && fatal) {
       console.error(`${name} exited with ${signal || code}. Stopping production server.`);
       shutdown(code || 1);
+    } else if (!shuttingDown && code !== 0) {
+      console.error(`${name} exited with ${signal || code}. The public frontend will remain online.`);
     }
   });
 
@@ -48,12 +50,12 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function waitForBackend() {
+async function waitForBackend(child) {
   const healthUrl = new URL("/api/health", backendUrl).toString();
   const startedAt = Date.now();
 
   while (Date.now() - startedAt < 30_000) {
-    if (!children.size) return;
+    if (child.exitCode !== null || child.signalCode) return;
     try {
       const response = await fetch(healthUrl, { signal: AbortSignal.timeout(2_000) });
       if (response.ok) {
@@ -74,7 +76,7 @@ process.on("SIGINT", () => shutdown(0));
 process.on("SIGTERM", () => shutdown(0));
 
 if (isLocalBackend(backendUrl)) {
-  startProcess("backend", process.execPath, ["scripts/start-backend.mjs"], {
+  const backend = startProcess("backend", process.execPath, ["scripts/start-backend.mjs"], {
     env: {
       ...process.env,
       NODE_ENV: process.env.NODE_ENV || "production",
@@ -84,9 +86,9 @@ if (isLocalBackend(backendUrl)) {
       FRONTEND_URL: process.env.FRONTEND_URL || publicUrl,
       CORS_ORIGINS: process.env.CORS_ORIGINS || publicUrl
     }
-  });
+  }, false);
 
-  await waitForBackend();
+  void waitForBackend(backend);
 } else {
   console.log(`Using external backend at ${backendUrl}`);
 }

@@ -76,9 +76,7 @@ export async function registerEmbeddedBackend() {
   child.once("exit", (code, signal) => {
     runtime.directoryBackendProcess = undefined;
     if (!runtime.directoryBackendStopping) {
-      console.error(`Embedded backend stopped with ${signal || code}. Stopping Next.js so the platform can restart both services.`);
-      process.exitCode = code || 1;
-      setTimeout(() => process.exit(process.exitCode || 1), 250).unref();
+      console.error(`Embedded backend stopped with ${signal || code}. The public frontend will remain online.`);
     }
   });
   child.once("error", (error) => {
@@ -89,5 +87,8 @@ export async function registerEmbeddedBackend() {
   process.once("SIGTERM", stopBackend);
   process.once("exit", stopBackend);
 
-  await waitForBackend(child, backendUrl);
+  void waitForBackend(child, backendUrl).catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    console.error("The public frontend will remain online while the backend is unavailable.");
+  });
 }
