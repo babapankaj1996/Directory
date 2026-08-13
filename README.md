@@ -311,8 +311,23 @@ npm audit --prefix backend --audit-level=moderate
 
 ## Hostinger Production
 
-Hostinger runs the Next.js frontend and embedded Express API from the root project. Configure `NEXT_PUBLIC_APP_URL`, `APP_PUBLIC_URL`, `BACKEND_API_URL`, `BACKEND_PORT`, `DATABASE_URL`, and `ADMIN_JWT_SECRET` in the Hostinger environment panel. Keep `BACKEND_API_URL` private, normally `http://127.0.0.1:4000`; browser requests use the same-origin `/api` route.
+Deploy this repository as two Hostinger Node.js applications. A managed Next.js process does not reliably keep an embedded child API alive.
 
-The production build applies pending Prisma migrations automatically, prunes backend development packages, and verifies that Hostinger's Next.js runtime trace contains the Express API and Prisma client. `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD`, and `ADMIN_BOOTSTRAP_NAME` are optional one-time admin setup values. The password must be 14-128 characters and contain letters and numbers. Remove `ADMIN_BOOTSTRAP_PASSWORD` after the first successful admin login.
+1. Frontend: root directory `./`, framework `Next.js`, Node.js 22.x, build command `npm run build`, start command `npm start`.
+2. Backend: root directory `backend`, framework `Express.js`, Node.js 22.x, build command `npm run build`, start command `npm start`.
 
-The public frontend remains online if the embedded API cannot start. During that degraded state, `/api` routes return JSON errors and the underlying database or environment failure is recorded in Hostinger Runtime Logs.
+Configure the backend application with `NODE_ENV=production`, `DATABASE_URL`, `APP_PUBLIC_URL`, `FRONTEND_URL`, `CORS_ORIGINS`, and `ADMIN_JWT_SECRET`. Both URL allow-list values must be the frontend HTTPS origin. Do not set `PORT`; Hostinger supplies it. The backend build runs `prisma migrate deploy`, so committed migrations are applied automatically on each deployment and already-applied migrations are skipped.
+
+Configure the frontend application with:
+
+```env
+NEXT_PUBLIC_APP_URL=https://lightskyblue-ferret-333236.hostingersite.com
+APP_PUBLIC_URL=https://lightskyblue-ferret-333236.hostingersite.com
+BACKEND_API_URL=https://YOUR-BACKEND-HOSTINGER-URL
+EMBEDDED_BACKEND=false
+ADMIN_JWT_SECRET=the-same-long-random-secret-used-by-the-backend
+```
+
+`BACKEND_API_URL` is server-only. Browser requests continue to use the frontend's same-origin `/api` and `/uploads` routes, which proxy to the backend. Do not set `NEXT_PUBLIC_BACKEND_API_URL`, `BACKEND_PORT`, or a loopback backend URL in the frontend production environment.
+
+`ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_PASSWORD`, and `ADMIN_BOOTSTRAP_NAME` are optional one-time backend setup values. The password must be 14-128 characters and contain letters and numbers. Remove `ADMIN_BOOTSTRAP_PASSWORD` after the first successful admin login. Confirm the backend deployment at `https://YOUR-BACKEND-HOSTINGER-URL/api/health` before redeploying the frontend.
