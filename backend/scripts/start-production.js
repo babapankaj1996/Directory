@@ -7,9 +7,9 @@ const runtimeEnv = { ...process.env };
 let api;
 let stopping = false;
 
-function runBootstrap() {
+function runNode(args) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, ['src/bootstrap-admin.js'], {
+    const child = spawn(process.execPath, args, {
       cwd: backendRoot,
       env: runtimeEnv,
       stdio: 'inherit',
@@ -23,6 +23,12 @@ function runBootstrap() {
   });
 }
 
+async function deployMigrations() {
+  const prismaCli = path.join(backendRoot, 'node_modules', 'prisma', 'build', 'index.js');
+  console.log('Applying pending database migrations...');
+  await runNode([prismaCli, 'migrate', 'deploy']);
+}
+
 function shutdown(code = 0) {
   if (stopping) return;
   stopping = true;
@@ -33,10 +39,18 @@ function shutdown(code = 0) {
 process.on('SIGINT', () => shutdown(0));
 process.on('SIGTERM', () => shutdown(0));
 
+try {
+  await deployMigrations();
+} catch (error) {
+  console.error('Database migrations failed; the API cannot start safely.');
+  console.error(error instanceof Error ? error.message : error);
+  process.exit(1);
+}
+
 if (runtimeEnv.ADMIN_BOOTSTRAP_PASSWORD) {
   try {
     console.log('Checking the configured admin bootstrap account...');
-    await runBootstrap();
+    await runNode(['src/bootstrap-admin.js']);
   } catch (error) {
     console.error('Admin bootstrap was skipped; the API will continue without changing admin access.');
     console.error(error instanceof Error ? error.message : error);

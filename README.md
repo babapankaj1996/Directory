@@ -314,9 +314,9 @@ npm audit --prefix backend --audit-level=moderate
 Deploy this repository as two Hostinger Node.js applications. A managed Next.js process does not reliably keep an embedded child API alive.
 
 1. Frontend: root directory `./`, framework `Next.js`, Node.js 22.x, build command `npm run build`, start command `npm start`.
-2. Backend: root directory `backend`, framework `Express.js`, Node.js 22.x, build command `npm run build`, start command `npm start`.
+2. Backend: root directory `backend`, framework `Express.js`, Node.js 22.x, npm package manager, and entry file `scripts/start-production.js`. Leave the build command and output directory empty; this Express API runs directly from source.
 
-Configure the backend application with `NODE_ENV=production`, `DATABASE_URL`, `APP_PUBLIC_URL`, `FRONTEND_URL`, `CORS_ORIGINS`, and `ADMIN_JWT_SECRET`. Both URL allow-list values must be the frontend HTTPS origin. Do not set `PORT`; Hostinger supplies it. The backend build runs `prisma migrate deploy`, so committed migrations are applied automatically on each deployment and already-applied migrations are skipped.
+Configure the backend application with `NODE_ENV=production`, `DATABASE_URL`, `APP_PUBLIC_URL`, `FRONTEND_URL`, `CORS_ORIGINS`, and `ADMIN_JWT_SECRET`. Both URL allow-list values must be the frontend HTTPS origin. Do not set `PORT`; Hostinger supplies it. Dependency installation generates Prisma Client, and backend startup runs `prisma migrate deploy`, so committed migrations are applied automatically and already-applied migrations are skipped.
 
 Configure the frontend application with:
 

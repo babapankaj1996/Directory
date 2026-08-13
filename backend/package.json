@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "main": "src/index.js",
+  "main": "scripts/start-production.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "build": "prisma generate && prisma migrate deploy",
+    "postinstall": "prisma generate",
     "start": "node scripts/start-production.js",
     "syntax-check": "node --check src/index.js",
     "prisma:generate": "prisma generate",
