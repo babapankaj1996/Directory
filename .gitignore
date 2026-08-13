@@ -1,12 +1,9 @@
 node_modules
+backend/
 .next
 out
 .env
 .env.local
-backend/node_modules
-backend/.env
-backend/.env.local
-backend/uploads
 test-results
 playwright-report
 *.log

@@ -10,7 +10,6 @@ export default [
   {
     ignores: [
       ".next/**",
-      "backend/**",
       "node_modules/**",
       "playwright-report/**",
       "test-results/**"

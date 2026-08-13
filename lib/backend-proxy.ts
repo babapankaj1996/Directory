@@ -6,7 +6,7 @@ function jsonError(status: number, error: string) {
 }
 
 function backendOrigin() {
-  const raw = process.env.BACKEND_API_URL || `http://127.0.0.1:${process.env.BACKEND_PORT || "4000"}`;
+  const raw = process.env.BACKEND_API_URL || (process.env.NODE_ENV === "production" ? "" : "http://127.0.0.1:4000");
   try {
     return new URL(raw).origin;
   } catch {
@@ -26,7 +26,7 @@ function isProxyLoop(origin: string, request: Request) {
 
 export async function proxyBackendRequest(request: Request, pathname: string) {
   const origin = backendOrigin();
-  if (!origin) return jsonError(500, "BACKEND_API_URL is invalid.");
+  if (!origin) return jsonError(500, "BACKEND_API_URL is missing or invalid.");
   if (isProxyLoop(origin, request)) {
     return jsonError(503, "BACKEND_API_URL must point to the private API service, not this frontend URL.");
   }

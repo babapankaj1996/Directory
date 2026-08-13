@@ -5,7 +5,10 @@ const apiOrigin = process.env.NEXT_PUBLIC_API_URL ||
   process.env.NEXT_PUBLIC_APP_URL ||
   process.env.NEXT_PUBLIC_SITE_URL ||
   "http://localhost:3000";
-const backendOrigin = process.env.BACKEND_API_URL || apiOrigin || "http://localhost:4000";
+const backendOrigin = process.env.BACKEND_API_URL || (isProduction ? "" : "http://127.0.0.1:4000");
+if (!backendOrigin) {
+  throw new Error("BACKEND_API_URL is required for a production frontend build.");
+}
 const apiUrl = new URL(backendOrigin);
 const publicApiUrl = new URL(apiOrigin);
 const supabaseUrl = (() => {
@@ -18,15 +21,16 @@ const supabaseUrl = (() => {
   }
 })();
 const supabaseSource = supabaseUrl ? ` ${supabaseUrl.origin}` : "";
+const backendSource = ` ${apiUrl.origin}`;
 const contentSecurityPolicy = [
   "default-src 'self'",
   "base-uri 'self'",
   "object-src 'none'",
   "frame-ancestors 'none'",
   "form-action 'self'",
-  `connect-src 'self' ${apiOrigin}${supabaseSource} https://api.razorpay.com`,
-  `img-src 'self' data: blob: ${apiOrigin}${supabaseSource} https://images.unsplash.com`,
-  `media-src 'self' blob: ${apiOrigin}${supabaseSource}`,
+  `connect-src 'self' ${apiOrigin}${backendSource}${supabaseSource} https://api.razorpay.com`,
+  `img-src 'self' data: blob: ${apiOrigin}${backendSource}${supabaseSource} https://images.unsplash.com`,
+  `media-src 'self' blob: ${apiOrigin}${backendSource}${supabaseSource}`,
   "font-src 'self' data:",
   `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://checkout.razorpay.com`,
   "style-src 'self' 'unsafe-inline'",
@@ -36,20 +40,6 @@ const contentSecurityPolicy = [
 const nextConfig: NextConfig = {
   turbopack: {
     root: process.cwd()
-  },
-  outputFileTracingIncludes: {
-    "/*": [
-      "./scripts/start-backend.mjs",
-      "./backend/package.json",
-      "./backend/src/**/*.js",
-      "./backend/node_modules/**/*",
-      "./backend/node_modules/.prisma/client/**/*"
-    ]
-  },
-  outputFileTracingExcludes: {
-    "/*": [
-      "./backend/uploads/**/*"
-    ]
   },
   async headers() {
     return [
@@ -81,11 +71,6 @@ const nextConfig: NextConfig = {
         protocol: publicApiUrl.protocol.replace(":", "") as "http" | "https",
         hostname: publicApiUrl.hostname,
         port: publicApiUrl.port
-      },
-      {
-        protocol: "http",
-        hostname: "127.0.0.1",
-        port: "4000"
       },
       ...(supabaseUrl ? [{
         protocol: supabaseUrl.protocol.replace(":", "") as "http" | "https",

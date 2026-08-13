@@ -1,35 +1,20 @@
 {
-  "name": "luxury-directory-fullstack-postgres-prisma",
+  "name": "luxury-directory-frontend",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npm run backend:install && npm run backend:generate && npm run backend:migrate:deploy && npm run backend:prune && next build && node scripts/check-production-trace.mjs",
-    "start": "node scripts/start-production.mjs",
-    "start:frontend": "next start",
-    "start:fullstack": "node scripts/start-production.mjs",
+    "build": "next build",
+    "start": "next start",
     "type-check": "next typegen && tsc --noEmit --incremental false",
     "lint": "eslint app components lib tests middleware.ts next.config.ts playwright.config.ts tailwind.config.ts",
     "test:smoke": "playwright test",
-    "test:api": "node tests/backend-api-smoke.mjs",
-    "test:security": "node tests/production-security-smoke.mjs",
-    "test:browser:production": "node tests/production-auth-browser.mjs",
-    "test:site-audit": "node tests/site-audit.mjs",
-    "backend:install": "npm --prefix backend ci --include=dev",
-    "backend:dev": "npm --prefix backend run dev",
-    "backend:start": "npm --prefix backend run start",
-    "backend:setup": "npm --prefix backend run prisma:generate && npm --prefix backend run prisma:migrate && npm --prefix backend run seed",
-    "backend:generate": "npm --prefix backend run prisma:generate",
-    "backend:migrate": "npm --prefix backend run prisma:migrate",
-    "backend:migrate:deploy": "npm --prefix backend run prisma:migrate:deploy",
-    "backend:prune": "npm --prefix backend prune --omit=dev",
-    "backend:data:migrate": "npm --prefix backend run data:migrate",
-    "backend:seed": "npm --prefix backend run seed",
-    "backend:locations:import": "npm --prefix backend run locations:import",
-    "backend:studio": "npm --prefix backend run prisma:studio"
+    "test:site-audit": "node tests/site-audit.mjs"
+  },
+  "engines": {
+    "node": ">=22 <23"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.0.0",
     "@types/node": "^22.10.5",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
