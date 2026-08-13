@@ -13,9 +13,9 @@ const adminPassword = `AdminSecurity-${testId}!`;
 const ownerPassword = `OwnerSecurity-${testId}!`;
 const rolePassword = `RoleSecurity-${testId}!`;
 const testEmails = [adminEmail, ownerEmail, roleEmail];
-const requireFromBackend = createRequire(new URL("../backend/package.json", import.meta.url));
+const requireFromBackend = createRequire(new URL("../package.json", import.meta.url));
 const dotenv = requireFromBackend("dotenv");
-dotenv.config({ path: fileURLToPath(new URL("../backend/.env", import.meta.url)), quiet: true });
+dotenv.config({ path: fileURLToPath(new URL("../.env", import.meta.url)), quiet: true });
 const { PrismaClient } = requireFromBackend("@prisma/client");
 const bcrypt = requireFromBackend("bcryptjs");
 const sharp = requireFromBackend("sharp");
@@ -69,7 +69,7 @@ async function cleanup() {
   await prisma.category.deleteMany({ where: { slug: categorySlug } });
   await prisma.country.deleteMany({ where: { code: locationCode } });
   await prisma.user.deleteMany({ where: { email: { in: testEmails } } });
-  const uploadsRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../backend/uploads/images");
+  const uploadsRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../uploads/images");
   for (const fileName of uploadsToRemove) {
     await fs.rm(path.join(uploadsRoot, fileName), { force: true });
   }
