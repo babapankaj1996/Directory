@@ -6,22 +6,6 @@ import morgan from 'morgan';
 import { fileURLToPath } from 'url';
 import path from 'path';
 import { prisma } from './lib/prisma.js';
-import authRoutes from './routes/auth.js';
-import countryRoutes from './routes/countries.js';
-import cityRoutes from './routes/cities.js';
-import categoryRoutes from './routes/categories.js';
-import profileRoutes from './routes/profiles.js';
-import dashboardRoutes from './routes/dashboard.js';
-import adminListingRoutes from './routes/admin-listings.js';
-import adminGalleryRoutes from './routes/admin-gallery.js';
-import adminReviewRoutes from './routes/admin-reviews.js';
-import adminInsightRoutes from './routes/admin-insights.js';
-import adminQuoteRoutes from './routes/admin-quotes.js';
-import adminBillingRoutes from './routes/admin-billing.js';
-import uploadRoutes from './routes/uploads.js';
-import blogRoutes from './routes/blog.js';
-import seoRoutes from './routes/seo.js';
-import { optionalAuth, requireAdmin, requireAuth } from './utils/auth.js';
 import { asyncHandler } from './utils/async-handler.js';
 import { slugify } from './utils/helpers.js';
 import { rateLimit } from './utils/rate-limit.js';
@@ -62,6 +46,8 @@ const port = Number(process.env.PORT || 4000);
 const appPublicUrl = process.env.APP_PUBLIC_URL || '';
 const frontendUrl = process.env.FRONTEND_URL || appPublicUrl || 'http://localhost:3000';
 const uploadsDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../uploads');
+let routesReady = false;
+let startupError;
 const corsOrigins = new Set([
   frontendUrl,
   'http://127.0.0.1:3000',
@@ -98,74 +84,134 @@ app.use('/uploads', express.static(uploadsDir));
 app.use('/api', rateLimit({ scope: 'api-global', windowMs: 60 * 1000, max: 300 }));
 
 app.get('/api/health', async (_req, res) => {
+  if (!routesReady) {
+    return res.status(startupError ? 500 : 503).json({
+      status: startupError ? 'error' : 'starting',
+      database: 'not checked',
+      message: startupError ? 'API route initialization failed.' : 'API routes are loading.'
+    });
+  }
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.json({ status: 'ok', database: 'connected', time: new Date().toISOString() });
+    return res.json({ status: 'ok', database: 'connected', time: new Date().toISOString() });
   } catch (error) {
-    res.status(500).json({ status: 'error', database: 'not connected', message: error.message });
+    return res.status(500).json({ status: 'error', database: 'not connected', message: error.message });
   }
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/countries', countryRoutes);
-app.use('/api/cities', cityRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/profiles', profileRoutes);
-app.get('/api/dashboard/saved-profiles/:profileId/status', optionalAuth, asyncHandler(async (req, res) => {
-  const profile = await prisma.profile.findFirst({
-    where: {
-      status: 'APPROVED',
-      OR: [{ id: req.params.profileId }, { slug: slugify(req.params.profileId) }]
-    },
-    select: { id: true }
+app.use('/api', (_req, res, next) => {
+  if (routesReady) return next();
+  return res.status(startupError ? 500 : 503).json({
+    error: startupError ? 'API startup failed.' : 'API is starting.'
   });
-  if (!profile) return res.status(404).json({ error: 'Profile not found' });
+});
 
-  if (!req.authUser) {
-    return res.json({ data: { profileId: profile.id, saved: false, authenticated: false } });
-  }
+async function registerRoutes() {
+  const [
+    { default: authRoutes },
+    { default: countryRoutes },
+    { default: cityRoutes },
+    { default: categoryRoutes },
+    { default: profileRoutes },
+    { default: dashboardRoutes },
+    { default: adminListingRoutes },
+    { default: adminGalleryRoutes },
+    { default: adminReviewRoutes },
+    { default: adminInsightRoutes },
+    { default: adminQuoteRoutes },
+    { default: adminBillingRoutes },
+    { default: uploadRoutes },
+    { default: blogRoutes },
+    { default: seoRoutes },
+    { optionalAuth, requireAdmin, requireAuth }
+  ] = await Promise.all([
+    import('./routes/auth.js'),
+    import('./routes/countries.js'),
+    import('./routes/cities.js'),
+    import('./routes/categories.js'),
+    import('./routes/profiles.js'),
+    import('./routes/dashboard.js'),
+    import('./routes/admin-listings.js'),
+    import('./routes/admin-gallery.js'),
+    import('./routes/admin-reviews.js'),
+    import('./routes/admin-insights.js'),
+    import('./routes/admin-quotes.js'),
+    import('./routes/admin-billing.js'),
+    import('./routes/uploads.js'),
+    import('./routes/blog.js'),
+    import('./routes/seo.js'),
+    import('./utils/auth.js')
+  ]);
 
-  const saved = await prisma.profileSave.findUnique({
-    where: {
-      profileId_userId: {
-        profileId: profile.id,
-        userId: req.authUser.id
-      }
+  app.use('/api/auth', authRoutes);
+  app.use('/api/countries', countryRoutes);
+  app.use('/api/cities', cityRoutes);
+  app.use('/api/categories', categoryRoutes);
+  app.use('/api/profiles', profileRoutes);
+  app.get('/api/dashboard/saved-profiles/:profileId/status', optionalAuth, asyncHandler(async (req, res) => {
+    const profile = await prisma.profile.findFirst({
+      where: {
+        status: 'APPROVED',
+        OR: [{ id: req.params.profileId }, { slug: slugify(req.params.profileId) }]
+      },
+      select: { id: true }
+    });
+    if (!profile) return res.status(404).json({ error: 'Profile not found' });
+
+    if (!req.authUser) {
+      return res.json({ data: { profileId: profile.id, saved: false, authenticated: false } });
     }
-  });
-  res.json({ data: { profileId: profile.id, saved: Boolean(saved), authenticated: true } });
-}));
-app.use('/api/dashboard', requireAuth, dashboardRoutes);
-app.use('/api/admin/listings', requireAdmin, adminListingRoutes);
-app.use('/api/admin/gallery', requireAdmin, adminGalleryRoutes);
-app.use('/api/admin/reviews', requireAdmin, adminReviewRoutes);
-app.use('/api/admin/insights', requireAdmin, adminInsightRoutes);
-app.use('/api/admin/quotes', requireAdmin, adminQuoteRoutes);
-app.use('/api/admin/billing', requireAdmin, adminBillingRoutes);
-app.use('/api/uploads', uploadRoutes);
-app.use('/api/blog', blogRoutes);
-app.use('/api/seo', seoRoutes);
 
-app.use('/api', (_req, res) => {
-  res.status(404).json({ error: 'API endpoint not found' });
-});
+    const saved = await prisma.profileSave.findUnique({
+      where: {
+        profileId_userId: {
+          profileId: profile.id,
+          userId: req.authUser.id
+        }
+      }
+    });
+    return res.json({ data: { profileId: profile.id, saved: Boolean(saved), authenticated: true } });
+  }));
+  app.use('/api/dashboard', requireAuth, dashboardRoutes);
+  app.use('/api/admin/listings', requireAdmin, adminListingRoutes);
+  app.use('/api/admin/gallery', requireAdmin, adminGalleryRoutes);
+  app.use('/api/admin/reviews', requireAdmin, adminReviewRoutes);
+  app.use('/api/admin/insights', requireAdmin, adminInsightRoutes);
+  app.use('/api/admin/quotes', requireAdmin, adminQuoteRoutes);
+  app.use('/api/admin/billing', requireAdmin, adminBillingRoutes);
+  app.use('/api/uploads', uploadRoutes);
+  app.use('/api/blog', blogRoutes);
+  app.use('/api/seo', seoRoutes);
 
-app.use((error, _req, res, _next) => {
-  const rawStatus = Number(error.statusCode || error.status || 500);
-  const status = rawStatus >= 400 && rawStatus < 600 ? rawStatus : 500;
-  if (status >= 500) {
-    console.error(error);
-  } else {
-    console.warn(`[request:${status}] ${error.message}`);
-  }
-  res.status(status).json({
-    error: status === 500 ? 'Internal server error' : error.message,
-    detail: process.env.NODE_ENV === 'development' ? error.message : undefined
+  app.use('/api', (_req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
   });
-});
+
+  app.use((error, _req, res, _next) => {
+    const rawStatus = Number(error.statusCode || error.status || 500);
+    const status = rawStatus >= 400 && rawStatus < 600 ? rawStatus : 500;
+    if (status >= 500) {
+      console.error(error);
+    } else {
+      console.warn(`[request:${status}] ${error.message}`);
+    }
+    res.status(status).json({
+      error: status === 500 ? 'Internal server error' : error.message,
+      detail: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  });
+
+  routesReady = true;
+  console.log('Backend API routes are ready.');
+}
 
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`Backend API running at http://localhost:${port}`);
+});
+
+void registerRoutes().catch((error) => {
+  startupError = error;
+  console.error('Backend API route initialization failed:', error);
 });
 
 async function shutdown() {

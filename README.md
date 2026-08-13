@@ -316,7 +316,7 @@ Deploy this repository as two Hostinger Node.js applications. A managed Next.js 
 1. Frontend: root directory `./`, framework `Next.js`, Node.js 22.x, build command `npm run build`, start command `npm start`.
 2. Backend: root directory `backend`, framework `Express.js`, Node.js 22.x, npm package manager, and entry file `scripts/start-production.js`. Leave the build command and output directory empty; this Express API runs directly from source.
 
-Configure the backend application with `NODE_ENV=production`, `DATABASE_URL`, `APP_PUBLIC_URL`, `FRONTEND_URL`, `CORS_ORIGINS`, and `ADMIN_JWT_SECRET`. Both URL allow-list values must be the frontend HTTPS origin. Do not set `PORT`; Hostinger supplies it. Dependency installation generates Prisma Client, and backend startup runs `prisma migrate deploy`, so committed migrations are applied automatically and already-applied migrations are skipped.
+Configure the backend application with `NODE_ENV=production`, `DATABASE_URL`, `APP_PUBLIC_URL`, `FRONTEND_URL`, `CORS_ORIGINS`, and `ADMIN_JWT_SECRET`. Both URL allow-list values must be the frontend HTTPS origin. Do not set `PORT`; Hostinger supplies it. Dependency installation generates Prisma Client and runs `prisma migrate deploy` with retries, so committed migrations are applied automatically and already-applied migrations are skipped. The runtime entry starts Express immediately, as required by Hostinger's LiteSpeed launcher.
 
 Configure the frontend application with:
 

@@ -6,7 +6,7 @@
   "main": "scripts/start-production.js",
   "scripts": {
     "dev": "nodemon src/index.js",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && node scripts/deploy-migrations.js",
     "start": "node scripts/start-production.js",
     "syntax-check": "node --check src/index.js",
     "prisma:generate": "prisma generate",
