@@ -1,5 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const isProduction = process.env.NODE_ENV === "production";
+
+function securityHeaders(response: NextResponse) {
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  if (isProduction) {
+    response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  }
+  return response;
+}
+
 function adminSecret() {
   const value = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
   if (value) return value;
@@ -84,35 +97,40 @@ export async function middleware(request: NextRequest) {
     const roleParam = request.nextUrl.searchParams.get("role")?.toUpperCase();
     const nextParam = request.nextUrl.searchParams.get("next") || "";
     if (roleParam === "OWNER" || nextParam.startsWith("/dashboard/add-profile")) {
-      return attachOwnerSignupIntent(NextResponse.redirect(new URL("/signup", request.url)));
+      return securityHeaders(attachOwnerSignupIntent(NextResponse.redirect(new URL("/signup", request.url))));
     }
-    return NextResponse.next();
+    return securityHeaders(NextResponse.next());
+  }
+
+  const isAdminRoute = pathname.startsWith("/admin");
+  const isDashboardRoute = pathname.startsWith("/dashboard");
+  if (!isAdminRoute && !isDashboardRoute) {
+    return securityHeaders(NextResponse.next());
   }
 
   const adminToken = request.cookies.get("admin_token")?.value;
   const sessionToken = request.cookies.get("session_token")?.value || adminToken;
-  const isAdminRoute = pathname.startsWith("/admin");
   const payload = isAdminRoute
     ? await getUsableTokenPayload(adminToken, "ADMIN")
     : await getUsableTokenPayload(sessionToken);
 
   if (payload) {
     if (pathname.startsWith("/dashboard") && payload.role === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin", request.url));
+      return securityHeaders(NextResponse.redirect(new URL("/admin", request.url)));
     }
-    return NextResponse.next();
+    return securityHeaders(NextResponse.next());
   }
 
   if (pathname === "/dashboard/add-profile") {
     const signupUrl = new URL("/signup", request.url);
-    return attachOwnerSignupIntent(NextResponse.redirect(signupUrl));
+    return securityHeaders(attachOwnerSignupIntent(NextResponse.redirect(signupUrl)));
   }
 
   const loginUrl = new URL("/login", request.url);
   loginUrl.searchParams.set("next", `${request.nextUrl.pathname}${request.nextUrl.search}`);
-  return NextResponse.redirect(loginUrl);
+  return securityHeaders(NextResponse.redirect(loginUrl));
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/dashboard/:path*", "/signup"]
+  matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"]
 };
