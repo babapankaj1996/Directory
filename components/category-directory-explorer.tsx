@@ -116,7 +116,7 @@ export function CategoryDirectoryExplorer({ listings, categories = fallbackCateg
             </select>
           </label>
           <button onClick={openSelectedUrl} className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass">
-            Open URL
+            Browse
           </button>
         </div>
         <p className="mt-4 text-sm font-semibold text-muted">
@@ -124,6 +124,9 @@ export function CategoryDirectoryExplorer({ listings, categories = fallbackCateg
         </p>
       </GlassCard>
 
+      {/* Category cards render an h3, so an h2 has to sit between them and the
+          page h1 to keep the heading outline in order. */}
+      <h2 className="sr-only">Service categories</h2>
       <CategoryGrid
         items={countedCategories}
         country={country === "ALL" ? "in" : country}

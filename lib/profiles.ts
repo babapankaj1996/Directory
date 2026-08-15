@@ -383,12 +383,22 @@ function queryString(filters: ProfileFilters) {
   return query ? `?${query}` : "";
 }
 
+/**
+ * How long a public directory read may be served from the Next data cache.
+ *
+ * The frontend and the API are separate Hostinger sites, so every call is a
+ * public-internet HTTPS round trip (~800ms measured) and the home page makes
+ * three of them. Caching public reads takes that off the request path; the
+ * window is short enough that a newly approved listing shows up promptly.
+ * Anything carrying a token is per-user and is never cached.
+ */
+export const PUBLIC_READ_REVALIDATE_SECONDS = 60;
+
 async function fetchPayload(path: string, token?: string): Promise<{ data?: unknown; meta?: unknown } | undefined> {
   try {
-    const response = await fetch(`${getApiBase()}${path}`, {
-      cache: "no-store",
-      headers: token ? { Authorization: `Bearer ${token}` } : undefined
-    });
+    const response = await fetch(`${getApiBase()}${path}`, token
+      ? { cache: "no-store", headers: { Authorization: `Bearer ${token}` } }
+      : { next: { revalidate: PUBLIC_READ_REVALIDATE_SECONDS } });
     if (!response.ok) return undefined;
     return await response.json() as { data?: unknown; meta?: unknown };
   } catch {

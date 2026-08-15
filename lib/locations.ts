@@ -52,7 +52,9 @@ function normalizeCity(value: unknown): PublicCity | undefined {
 
 async function apiList(path: string): Promise<unknown[] | undefined> {
   try {
-    const response = await fetch(`${getApiBase()}${path}`, { cache: "no-store" });
+    // Country and city lists are public and change rarely; see
+    // PUBLIC_READ_REVALIDATE_SECONDS in lib/profiles.ts for the rationale.
+    const response = await fetch(`${getApiBase()}${path}`, { next: { revalidate: 300 } });
     if (!response.ok) return undefined;
     const payload = await response.json() as { data?: unknown };
     return Array.isArray(payload.data) ? payload.data : undefined;

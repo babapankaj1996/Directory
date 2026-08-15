@@ -5,7 +5,8 @@ import { CheckCircle2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react"
 import { ListingCard } from "@/components/listing-card";
 import { ListingsFilterPanel, type ListingsFilters } from "@/components/listings-filter-panel";
 import { getPaginatedPublicProfiles, getPublicCategories } from "@/lib/profiles";
-import { categoryItemListJsonLd, faqJsonLd, serializeJsonLd } from "@/lib/seo-schema";
+import { categoryItemListJsonLd, faqJsonLd } from "@/lib/seo-schema";
+import { JsonLd } from "@/components/json-ld";
 
 const perPage = 20;
 
@@ -112,7 +113,7 @@ export async function ListingsPageContent({ page, filters }: { page: number; fil
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 md:py-14">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-champagne">Recently approved professionals</p>
@@ -128,7 +129,10 @@ export async function ListingsPageContent({ page, filters }: { page: number; fil
 
       <ListingsFilterPanel filters={filters} total={result.total} categories={activeCategories} />
 
-      <section>
+      <section aria-labelledby="listing-results-heading">
+        {/* The cards below are h3, so the page needs an h2 between them and the
+            page h1 for the heading outline to stay in order. */}
+        <h2 id="listing-results-heading" className="sr-only">Approved listings</h2>
         <div className="mb-5 rounded-3xl bg-white/50 p-4 text-sm font-semibold text-muted">
           Showing {result.listings.length} listing{result.listings.length === 1 ? "" : "s"} on page {result.page} of {result.totalPages}
         </div>

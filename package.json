@@ -20,7 +20,6 @@
     "@types/react-dom": "^19.0.3",
     "autoprefixer": "^10.4.20",
     "clsx": "^2.1.1",
-    "framer-motion": "^11.18.2",
     "lucide-react": "^0.468.0",
     "next": "15.5.23",
     "postcss": "^8.5.14",
@@ -39,5 +38,11 @@
   "overrides": {
     "postcss": "^8.5.14",
     "sharp": "^0.35.3"
-  }
+  },
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 111",
+    "safari >= 16.4"
+  ]
 }
