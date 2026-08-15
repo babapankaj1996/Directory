@@ -299,7 +299,7 @@ export function CategoryListingPage({
             </select>
           </label>
           <button type="button" onClick={openSelectedUrl} disabled={!selectedCountry || !selectedCity || !selectedCategory} className="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass disabled:cursor-not-allowed disabled:opacity-50">
-            Open URL
+            Browse
           </button>
         </div>
 

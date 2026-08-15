@@ -24,51 +24,107 @@ export function ListingCard({
   const idVerified = isIdVerifiedListing(listing);
   const phoneHref = listing.phone ? `tel:${listing.phone.replace(/\s+/g, "")}` : "";
   const whatsapp = (listing.whatsapp || listing.phone || "").replace(/\D/g, "");
-  const compactButtonClass = horizontal ? "px-3 py-2 text-xs md:px-4 md:py-2.5 md:text-sm" : "py-2.5";
+  const buttonSize = horizontal ? "sm" : "sm";
 
   return (
-    <article className={`group overflow-hidden rounded-lg border border-slate-200 bg-white/[.96] shadow-[0_14px_46px_rgba(15,23,42,0.07)] ring-1 ring-white/70 transition duration-200 hover:-translate-y-1 hover:border-cyan-200 hover:shadow-xl hover:shadow-cyan-950/10 ${activeFeatured ? "border-amber-200 ring-amber-200" : ""} ${horizontal ? "grid grid-cols-[minmax(124px,38%)_minmax(0,1fr)] sm:grid-cols-[180px_minmax(0,1fr)] md:grid-cols-[232px_1fr]" : ""}`}>
-      <div className={`relative overflow-hidden bg-slate-100 ${horizontal ? "h-full min-h-[184px]" : "aspect-[4/3]"}`}>
-        <Link href={href} className="absolute inset-0 block">
-          <Image src={listing.image} alt={listing.name} fill priority={priority} className="object-cover transition duration-300 group-hover:scale-[1.03]" sizes={horizontal ? "(max-width: 640px) 38vw, (max-width: 768px) 180px, 232px" : "(max-width: 768px) 100vw, 33vw"} />
-        </Link>
-        <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink/70 to-transparent" aria-hidden="true" />
-        {activeFeatured && <span className={`absolute rounded-full bg-[linear-gradient(135deg,#f59e0b,#f97316)] font-bold text-white shadow-lg shadow-orange-950/20 backdrop-blur-xl ${horizontal ? "left-2 top-2 max-w-[88px] truncate px-2 py-1 text-[10px] md:left-4 md:top-4 md:max-w-none md:px-3 md:text-xs" : "left-4 top-4 px-3 py-1 text-xs"}`}>{featuredDays ? `Featured ${featuredDays}d` : "Featured"}</span>}
-      </div>
-      <div className={`min-w-0 ${horizontal ? "p-3 sm:p-4 md:p-5" : "p-5"}`}>
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <Link href={href} className={`flex min-w-0 items-center gap-2 font-semibold text-ink hover:text-cyan-700 ${horizontal ? "text-base leading-snug md:text-lg" : "text-lg"}`}>
-              <span className="line-clamp-2 min-w-0">{listing.name}</span>
-              {idVerified && <BadgeCheck className="h-5 w-5 shrink-0 text-cyan-600" />}
-            </Link>
-            <div className={`mt-1 flex flex-wrap gap-2 text-muted ${horizontal ? "text-xs md:text-sm" : "text-sm"}`}>
-              <span>{listing.category}</span>
-              {listing.isAdult ? <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-bold text-amber-800">18+</span> : null}
-              {listing.isAdult ? <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${idVerified ? "bg-blue-100 text-blue-700" : "bg-rose-100 text-rose-700"}`}>{idVerified ? "ID verified" : "Not verified"}</span> : null}
-            </div>
-          </div>
-          <SaveProfileButton
-            profileId={listing.id || listing.slug}
-            className={`flex shrink-0 items-center justify-center rounded-full bg-white/90 text-rose-500 shadow-sm ring-1 ring-slate-200 transition hover:bg-white ${horizontal ? "h-9 w-9 md:h-10 md:w-10" : "h-10 w-10"}`}
-            savedClassName="bg-rose-50 text-rose-600"
+    <article
+      className={`group relative flex flex-col overflow-hidden rounded-xl border bg-surface transition-all duration-300 ease-entrance hover:-translate-y-0.5 hover:shadow-lift ${
+        activeFeatured ? "border-copper-500/45" : "border-line shadow-xs"
+      } ${horizontal ? "sm:grid sm:grid-cols-[190px_minmax(0,1fr)] md:grid-cols-[248px_1fr]" : ""}`}
+    >
+      <div
+        className={`relative overflow-hidden bg-sunken ${
+          horizontal ? "aspect-[16/9] sm:aspect-auto sm:h-full sm:min-h-[196px]" : "aspect-[4/3]"
+        }`}
+      >
+        <Link href={href} className="absolute inset-0 block" tabIndex={-1} aria-hidden="true">
+          <Image
+            src={listing.image}
+            alt=""
+            fill
+            priority={priority}
+            fetchPriority={priority ? "high" : undefined}
+            quality={priority ? 65 : 70}
+            className="object-cover transition-transform duration-500 ease-entrance group-hover:scale-[1.04]"
+            sizes={horizontal ? "(max-width: 640px) 100vw, (max-width: 768px) 190px, 248px" : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"}
           />
+        </Link>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-shade/70 via-shade/10 to-transparent" aria-hidden="true" />
+
+        {activeFeatured ? (
+          <span className="absolute left-3 top-3 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 truncate rounded-full bg-shade/80 px-2.5 py-1 text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-copper-700 backdrop-blur">
+            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-copper-600" aria-hidden="true" />
+            {featuredDays ? `Featured · ${featuredDays}d` : "Featured"}
+          </span>
+        ) : null}
+
+        <SaveProfileButton
+          profileId={listing.id || listing.slug}
+          className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-shade/70 text-white shadow-sm backdrop-blur transition-colors hover:bg-shade hover:text-clay-600"
+          savedClassName="bg-clay-600 text-white hover:text-white"
+        />
+      </div>
+
+      <div className={`flex min-w-0 flex-1 flex-col ${horizontal ? "p-4 md:p-5" : "p-5"}`}>
+        <p className="flex flex-wrap items-center gap-x-2 gap-y-1.5 text-2xs font-bold uppercase tracking-[0.14em] text-copper-700">
+          {listing.category}
+          {listing.isAdult ? (
+            <span className="rounded-full bg-gold-100 px-2 py-0.5 text-[0.625rem] tracking-normal text-gold-700">18+</span>
+          ) : null}
+          {listing.isAdult ? (
+            <span
+              className={`rounded-full px-2 py-0.5 text-[0.625rem] tracking-normal ${
+                idVerified ? "bg-jade-100 text-jade-700" : "bg-clay-100 text-clay-700"
+              }`}
+            >
+              {idVerified ? "ID verified" : "Not verified"}
+            </span>
+          ) : null}
+        </p>
+
+        <h3 className={`mt-2 min-w-0 font-display font-semibold leading-tight tracking-[-0.02em] text-ink ${horizontal ? "text-lg md:text-xl" : "text-xl"}`}>
+          <Link href={href} className="inline-flex items-start gap-1.5 transition-colors duration-200 hover:text-copper-700 after:absolute after:inset-0 after:content-['']">
+            <span className="line-clamp-2">{listing.name}</span>
+            {idVerified ? <BadgeCheck className="mt-1 h-[1.05rem] w-[1.05rem] shrink-0 text-jade-600" aria-label="Verified" /> : null}
+          </Link>
+        </h3>
+
+        <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[0.8125rem] text-ink-muted">
+          <span className="inline-flex items-center gap-1 font-semibold text-ink">
+            <Star className="h-3.5 w-3.5 fill-gold-600 text-gold-600" aria-hidden="true" />
+            {listing.rating}
+            <span className="font-normal text-ink-muted">({listing.reviews})</span>
+          </span>
+          <span aria-hidden="true" className="h-3 w-px bg-line-strong" />
+          <span className="inline-flex min-w-0 items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            <span className="truncate">{listing.location}</span>
+          </span>
+          <span aria-hidden="true" className="hidden h-3 w-px bg-line-strong sm:block" />
+          <span className="hidden items-center gap-1.5 sm:inline-flex">
+            <Eye className="h-3.5 w-3.5" aria-hidden="true" /> {listing.viewCount.toLocaleString()}
+          </span>
         </div>
-        <div className={`mt-3 flex flex-wrap items-center gap-2 text-muted md:mt-4 md:gap-3 ${horizontal ? "text-xs md:text-sm" : "text-sm"}`}>
-          <span className="inline-flex items-center gap-1"><Star className="h-4 w-4 fill-amber-400 text-amber-400" /> {listing.rating} ({listing.reviews})</span>
-          <span className="inline-flex items-center gap-1"><Eye className="h-4 w-4" /> {listing.viewCount.toLocaleString()} views</span>
-          <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> {listing.location}</span>
-        </div>
-        <p className={`${horizontal ? "mt-3 hidden text-sm leading-6 text-muted sm:line-clamp-2 md:mt-4" : "mt-4 line-clamp-2 text-sm leading-6 text-muted"}`}>{listing.about}</p>
-        <div className={`flex flex-wrap gap-2 ${horizontal ? "mt-3 md:mt-5" : "mt-5"}`}>
-          <Button href={href} variant="gold" className={compactButtonClass}>View Profile</Button>
+
+        <p className="mt-3 line-clamp-2 text-sm leading-6 text-ink-muted">{listing.about}</p>
+
+        <div className="relative z-10 mt-auto flex flex-wrap gap-2 pt-4">
+          <Button href={href} variant="primary" size={buttonSize}>View profile</Button>
           {activeFeatured && featuredContact ? (
             <>
-              {phoneHref ? <Button href={phoneHref} variant="ghost" className={`bg-blue-600 text-white ring-blue-200 hover:bg-blue-700 hover:text-white focus:ring-blue-200 ${compactButtonClass}`}><Phone className="mr-1.5 h-4 w-4 md:mr-2" /> Call</Button> : null}
-              {whatsapp ? <Button href={`https://wa.me/${whatsapp}`} variant="ghost" className={`bg-emerald-700 text-white ring-emerald-200 hover:bg-emerald-800 hover:text-white focus:ring-emerald-200 ${compactButtonClass}`}><MessageCircle className="mr-1.5 h-4 w-4 md:mr-2" /> WhatsApp</Button> : null}
+              {phoneHref ? (
+                <Button href={phoneHref} variant="ghost" size={buttonSize} aria-label={`Call ${listing.name}`}>
+                  <Phone className="h-3.5 w-3.5 text-jade-600" /> Call
+                </Button>
+              ) : null}
+              {whatsapp ? (
+                <Button href={`https://wa.me/${whatsapp}`} variant="ghost" size={buttonSize} aria-label={`WhatsApp ${listing.name}`}>
+                  <MessageCircle className="h-3.5 w-3.5 text-moss-600" /> WhatsApp
+                </Button>
+              ) : null}
             </>
           ) : (
-            <Button href="/login" variant="ghost" className={compactButtonClass}>Request Service</Button>
+            <Button href="/login" variant="ghost" size={buttonSize}>Request service</Button>
           )}
         </div>
       </div>

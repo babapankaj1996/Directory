@@ -742,7 +742,7 @@ export function OwnerDashboard() {
                         key={duration.days}
                         type="button"
                         onClick={() => setFeaturedRequestForm((current) => ({ ...current, requestedDays: String(duration.days) }))}
-                        className={`rounded-2xl px-2 py-3 text-center text-sm font-bold ring-1 transition ${featuredRequestForm.requestedDays === String(duration.days) ? "bg-champagne text-white ring-champagne" : "bg-white text-ink ring-slate-200 hover:bg-cloud"}`}
+                        className={`rounded-2xl px-2 py-3 text-center text-sm font-bold ring-1 transition ${featuredRequestForm.requestedDays === String(duration.days) ? "bg-champagne text-onaccent ring-champagne" : "bg-white text-ink ring-slate-200 hover:bg-cloud"}`}
                       >
                         {duration.days}d
                       </button>

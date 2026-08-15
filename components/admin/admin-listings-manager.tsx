@@ -329,7 +329,7 @@ export function AdminListingsManager({ initialStatus = "ALL", mode = "listings" 
       </GlassCard>
 
       {modal ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/45 px-4 backdrop-blur-sm" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-shade/45 px-4 backdrop-blur-sm" role="dialog" aria-modal="true">
           <div className="glass-strong w-full max-w-xl rounded-[2rem] p-6 shadow-glass">
             <h3 className="text-2xl font-semibold text-ink">
               {modal.action === "delete" ? "Delete listing" : modal.action === "reject" ? "Reject listing" : "Suspend listing"}
@@ -530,12 +530,12 @@ function AdminActionButton({
 }) {
   const tones = {
     default: "bg-white text-ink ring-slate-200 hover:bg-slate-50",
-    green: "bg-emerald-600 text-white ring-emerald-200 hover:bg-emerald-700",
+    green: "bg-emerald-600 text-onaccent ring-emerald-200 hover:bg-emerald-700",
     red: "bg-rose-50 text-rose-700 ring-rose-100 hover:bg-rose-100",
     gray: "bg-slate-100 text-slate-700 ring-slate-200 hover:bg-slate-200",
     blue: "bg-blue-50 text-blue-700 ring-blue-100 hover:bg-blue-100",
     amber: "bg-amber-50 text-amber-800 ring-amber-100 hover:bg-amber-100",
-    gold: "bg-champagne text-white ring-amber-200 hover:bg-amber-600"
+    gold: "bg-champagne text-onaccent ring-amber-200 hover:bg-amber-600"
   };
   const className = `inline-flex min-h-10 items-center gap-2 rounded-full px-3.5 py-2 text-xs font-bold shadow-sm ring-1 transition sm:px-4 ${tones[tone]}`;
 

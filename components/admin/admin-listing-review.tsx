@@ -359,9 +359,9 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
 
       <GlassCard className="mb-6 overflow-hidden p-0">
         <div className="grid gap-0 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="relative min-h-72 overflow-hidden bg-ink">
+          <div className="relative min-h-72 overflow-hidden bg-shade">
             <Image src={listing.coverImage || listing.image} alt={listing.name} fill className="object-cover opacity-80" sizes="(min-width: 1024px) 55vw, 100vw" />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/30 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-shade/85 via-shade/30 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-5 text-white md:p-7">
               <div className="flex flex-wrap gap-2">
                 <StatusPill tone={statusTone(listing.status)}>{formatStatus(listing.status)}</StatusPill>
@@ -709,7 +709,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
           </GlassCard>
 
           <Button href={publicHref} variant="ghost" className="w-full"><ExternalLink className="mr-2 h-4 w-4" /> Public URL</Button>
-          <button onClick={() => updateStatus(listing.status, moderationNote)} className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ead39a] to-[#d8aa5b] px-5 py-3 text-sm font-semibold text-ink shadow-glow">
+          <button onClick={() => updateStatus(listing.status, moderationNote)} className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#ead39a] to-[#d8aa5b] px-5 py-3 text-sm font-semibold text-onaccent shadow-glow">
             <Save className="h-4 w-4" /> Save Review Notes
           </button>
         </aside>
@@ -764,7 +764,7 @@ function resolveAdminMediaSrc(src: string) {
 function AdminMedia({ src, alt, className }: { src: string; alt: string; className: string }) {
   if (isVideoMedia(src)) {
     return (
-      <div className="absolute inset-0 bg-ink text-white">
+      <div className="absolute inset-0 bg-shade text-white">
         <video
           src={resolveAdminMediaSrc(src)}
           aria-label={alt}

@@ -81,38 +81,51 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
     router.push(path);
   }
 
+  const fieldLabel = "mb-1.5 block text-2xs font-bold uppercase tracking-[0.14em] text-ink-muted";
+  const fieldControl =
+    "h-12 w-full rounded-lg border border-line bg-stone-50 px-3.5 text-sm font-medium text-ink outline-none transition-colors duration-200 hover:border-line-strong focus:border-copper-500 focus:bg-sunken focus:ring-2 focus:ring-copper-500/30 disabled:cursor-not-allowed disabled:opacity-60";
+
   return (
-    <form onSubmit={submitSearch} className="rounded-lg bg-[linear-gradient(135deg,#22d3ee,#f59e0b_48%,#fb7185)] p-[1px] shadow-2xl shadow-cyan-950/20">
-      <div className="rounded-lg bg-white/95 p-3 backdrop-blur md:p-4">
+    <form
+      onSubmit={submitSearch}
+      className={`rounded-2xl border border-line bg-surface/95 backdrop-blur-xl ${compact ? "p-2 shadow-xl md:p-2.5" : "p-2.5 shadow-lg md:p-3"}`}
+    >
+      {/* Mobile: collapsed summary that expands into the full filter set. */}
       <button
         type="button"
         onClick={() => setFiltersOpen((current) => !current)}
         aria-expanded={filtersOpen}
-        className="flex w-full items-center justify-between gap-3 rounded-lg bg-cyan-50/70 px-4 py-3 text-left ring-1 ring-cyan-100 md:hidden"
+        className="flex w-full items-center justify-between gap-3 rounded-xl bg-stone-50 px-4 py-3.5 text-left md:hidden"
       >
         <span className="flex min-w-0 items-center gap-3">
-          <Search className="h-4 w-4 shrink-0 text-aqua" />
+          <Search className="h-4 w-4 shrink-0 text-copper-600" />
           <span className="block min-w-0 truncate text-sm font-semibold text-ink">{filterSummary}</span>
         </span>
-        <SlidersHorizontal className="h-4 w-4 shrink-0 text-coral" />
+        <SlidersHorizontal className="h-4 w-4 shrink-0 text-ink-muted" />
       </button>
 
-      <div className={`${filtersOpen ? "mt-4 grid" : "hidden"} gap-3 md:mt-0 md:grid ${compact ? "xl:grid-cols-[minmax(0,1.35fr)_1fr_1fr_1fr_auto]" : "xl:grid-cols-[minmax(0,1.35fr)_1fr_1fr_1fr_auto]"} xl:items-end`}>
-        <label>
-          <span className="mb-2 block text-sm font-semibold text-ink">Search</span>
-          <span className="flex items-center gap-3 rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 transition focus-within:border-aqua focus-within:bg-white focus-within:ring-4 focus-within:ring-cyan-100">
-            <Search className="h-4 w-4 text-aqua" />
+      <div
+        className={`${filtersOpen ? "mt-2.5 grid" : "hidden"} gap-2.5 md:mt-0 md:grid md:items-end ${
+          compact
+            ? "grid-cols-2 md:grid-cols-[1fr_1fr_1fr_auto]"
+            : "md:grid-cols-2 xl:grid-cols-[minmax(0,1.5fr)_1fr_1fr_1fr_auto]"
+        }`}
+      >
+        <label className={`min-w-0 ${compact ? "col-span-2 md:col-span-4" : ""}`}>
+          <span className={fieldLabel}>Search</span>
+          <span className="flex h-12 items-center gap-2.5 rounded-lg border border-line bg-stone-50 px-3.5 transition-colors duration-200 focus-within:border-copper-500 focus-within:bg-sunken focus-within:ring-2 focus-within:ring-copper-500/30">
+            <Search className="h-4 w-4 shrink-0 text-ink-muted" />
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="w-full bg-transparent text-ink outline-none placeholder:text-muted/70"
-              placeholder="Service, provider, category or city"
+              className="w-full bg-transparent text-sm font-medium text-ink outline-none placeholder:font-normal placeholder:text-stone-400"
+              placeholder="Service, provider or keyword"
             />
           </span>
         </label>
 
-        <label>
-          <span className="mb-2 block text-sm font-semibold text-ink">Country</span>
+        <label className="min-w-0">
+          <span className={fieldLabel}>Country</span>
           <select
             value={country}
             onChange={(event) => {
@@ -121,41 +134,38 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
               setCity("");
             }}
             disabled={loadingCountries}
-            className="w-full rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-aqua focus:bg-white focus:ring-4 focus:ring-cyan-100 disabled:cursor-not-allowed disabled:opacity-60"
+            className={fieldControl}
           >
             {countries.length === 0 ? <option value="">{loadingCountries ? "Loading countries..." : "No active countries"}</option> : null}
             {countries.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}
           </select>
         </label>
 
-        <label>
-          <span className="mb-2 block text-sm font-semibold text-ink">City</span>
-          <select
-            value={city}
-            onChange={(event) => setCity(event.target.value)}
-            className="w-full rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-aqua focus:bg-white focus:ring-4 focus:ring-cyan-100"
-          >
+        <label className="min-w-0">
+          <span className={fieldLabel}>City</span>
+          <select value={city} onChange={(event) => setCity(event.target.value)} className={fieldControl}>
             {cityOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
             {cityOptions.length === 0 ? <option value="">{loadingCities ? "Loading cities..." : "No active cities"}</option> : null}
           </select>
         </label>
 
-        <label>
-          <span className="mb-2 block text-sm font-semibold text-ink">Category</span>
-          <select
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            className="w-full rounded-lg border border-cyan-100 bg-slate-50/80 px-4 py-3 text-sm text-ink outline-none transition focus:border-aqua focus:bg-white focus:ring-4 focus:ring-cyan-100"
-          >
+        <label className="min-w-0">
+          <span className={fieldLabel}>Category</span>
+          <select value={category} onChange={(event) => setCategory(event.target.value)} className={fieldControl}>
             <option value="ALL">Auto detect</option>
             {categoryOptions.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
           </select>
         </label>
 
-        <button disabled={!country || !city || loadingCountries || loadingCities} className="rounded-lg bg-[linear-gradient(135deg,#0b1020,#0ea5e9_55%,#f97316)] px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-900/20 transition hover:-translate-y-0.5 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0">
+        <button
+          disabled={!country || !city || loadingCountries || loadingCities}
+          className={`inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-ink px-6 text-sm font-semibold text-onaccent transition-all duration-200 ease-entrance hover:bg-stone-950 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-copper-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-45 ${
+            compact ? "col-span-2 md:col-span-1" : "md:col-span-2 xl:col-span-1"
+          }`}
+        >
+          <Search className="h-4 w-4 text-copper-400" />
           Search
         </button>
-      </div>
       </div>
     </form>
   );

@@ -10,7 +10,8 @@ import { SearchBar } from "@/components/search-bar";
 import { Button } from "@/components/ui/button";
 import { countryNames, isFeaturedActive, isIdVerifiedListing, sortByFeaturedVisibility, type Listing } from "@/lib/data";
 import { getPublicCategories, getPublicProfiles, withCategoryCounts } from "@/lib/profiles";
-import { faqJsonLd, organizationJsonLd, serializeJsonLd, websiteJsonLd } from "@/lib/seo-schema";
+import { faqJsonLd, organizationJsonLd, websiteJsonLd } from "@/lib/seo-schema";
+import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "Verified Global Service Provider Directory",
@@ -56,30 +57,10 @@ const routeShortcuts = [
 ];
 
 const trendTones = {
-  blue: {
-    panel: "bg-cyan-50/80 ring-cyan-100",
-    header: "from-cyan-500 to-blue-600",
-    rank: "bg-cyan-100 text-cyan-800",
-    row: "hover:bg-cyan-50"
-  },
-  emerald: {
-    panel: "bg-emerald-50/80 ring-emerald-100",
-    header: "from-emerald-500 to-teal-600",
-    rank: "bg-emerald-100 text-emerald-700",
-    row: "hover:bg-emerald-50"
-  },
-  amber: {
-    panel: "bg-amber-50/80 ring-amber-100",
-    header: "from-amber-400 to-orange-500",
-    rank: "bg-amber-100 text-amber-800",
-    row: "hover:bg-amber-50"
-  },
-  rose: {
-    panel: "bg-rose-50/80 ring-rose-100",
-    header: "from-rose-500 to-pink-600",
-    rank: "bg-rose-100 text-rose-700",
-    row: "hover:bg-rose-50"
-  }
+  blue: { accent: "text-jade-700", rank: "text-jade-700/60 group-hover:text-jade-700" },
+  emerald: { accent: "text-moss-700", rank: "text-moss-700/60 group-hover:text-moss-700" },
+  amber: { accent: "text-gold-700", rank: "text-gold-700/60 group-hover:text-gold-700" },
+  rose: { accent: "text-copper-700", rank: "text-copper-700/60 group-hover:text-copper-700" }
 } as const;
 
 type TrendTone = keyof typeof trendTones;
@@ -166,76 +147,95 @@ export default async function HomePage() {
 
   return (
     <main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
-      <section className="relative isolate overflow-hidden border-b border-cyan-200/70 bg-ink px-4 py-10 text-white md:py-16">
+      <JsonLd data={jsonLd} />
+      <section className="relative isolate overflow-hidden bg-deep text-white">
         <Image
           src={heroImage}
           alt=""
           fill
           priority
-          className="absolute inset-0 -z-30 object-cover opacity-45 saturate-125"
+          fetchPriority="high"
+          quality={60}
+          className="absolute inset-0 -z-30 object-cover opacity-30"
           sizes="100vw"
         />
-        <div className="absolute inset-0 -z-20 bg-[linear-gradient(116deg,rgba(11,16,32,0.98),rgba(8,47,73,0.88)_38%,rgba(217,119,6,0.54)_68%,rgba(225,29,72,0.36))]" />
-        <div className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-ink to-transparent" />
-        <div className="mx-auto max-w-7xl">
-          <div className="grid gap-9 lg:grid-cols-[minmax(0,1.04fr)_minmax(360px,0.72fr)] lg:items-center">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/[.12] px-4 py-2 text-sm font-semibold text-cyan-50 ring-1 ring-white/20 backdrop-blur">
-                <Compass className="h-4 w-4 text-cyan-300" /> Global expert directory
-              </div>
-              <h1 className="mt-6 max-w-4xl text-4xl font-bold leading-[1.02] text-white md:text-6xl">
-                Discover <span className="bg-[linear-gradient(100deg,#67e8f9,#facc15_48%,#fb7185)] bg-clip-text text-transparent">verified</span> service providers worldwide.
+        <div className="absolute inset-0 -z-20 bg-[linear-gradient(105deg,rgba(22,19,15,0.97)_0%,rgba(22,19,15,0.9)_42%,rgba(22,19,15,0.62)_100%)]" />
+        <div aria-hidden="true" className="absolute inset-0 -z-10 bg-grid opacity-70" />
+        <div
+          aria-hidden="true"
+          className="absolute -right-24 top-1/4 -z-10 h-[28rem] w-[28rem] rounded-full bg-copper-500/20 blur-[110px]"
+        />
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-24 bg-gradient-to-t from-shade to-transparent" />
+
+        <div className="shell py-14 md:py-20">
+          <div className="grid gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(340px,0.68fr)] lg:items-center">
+            <div className="stagger">
+              <p className="eyebrow text-copper-700">
+                <Compass className="h-3.5 w-3.5" /> Global expert directory
+              </p>
+              <h1 className="mt-6 max-w-3xl text-[2.6rem] font-semibold leading-[1.02] tracking-[-0.03em] text-white md:text-[4.25rem]">
+                Discover <em className="not-italic text-copper-700" style={{ fontVariationSettings: '"opsz" 144' }}>verified</em> service providers worldwide.
               </h1>
-              <p className="mt-5 max-w-3xl text-base leading-8 text-white/80 md:text-lg">
-                Search by service, city or provider. Compare ratings, reviews, availability, verification, pricing notes and contact options in one fast directory.
+              <p className="mt-6 max-w-xl text-[1.0625rem] leading-8 text-white/65">
+                Search by service, city or provider. Compare ratings, reviews, availability, verification, pricing notes
+                and contact options in one calm directory.
               </p>
 
-              <div className="mt-8 max-w-6xl">
+              <div className="mt-9">
                 <SearchBar compact categoryOptions={activeCategories} />
               </div>
 
               <div className="mt-7 flex flex-wrap items-center gap-3">
-                <Button href="/listings" variant="gold">Explore All Listings</Button>
-                <AddProfileSignupLink variant="ghost" className="bg-white/[.12] text-white ring-white/25 hover:bg-white hover:text-ink" />
+                <Button href="/listings" variant="gold" size="lg">Explore all listings</Button>
+                <AddProfileSignupLink
+                  variant="ghost"
+                  className="bg-transparent text-white shadow-none ring-1 ring-white/25 hover:bg-ink hover:text-onaccent hover:ring-ink"
+                >
+                  Add your profile
+                </AddProfileSignupLink>
               </div>
 
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              <dl className="mt-12 grid max-w-2xl grid-cols-3 gap-6 border-t border-white/10 pt-8">
                 {[
-                  [`${approvedListings.length.toLocaleString()}+`, "approved listings", <ShieldCheck key="approved" className="h-4 w-4 text-emerald-300" />],
-                  [`${cityCount || 1}`, "cities with professionals", <MapPin key="cities" className="h-4 w-4 text-amber-300" />],
-                  [`${idVerifiedCount.toLocaleString()}`, "ID verified profiles", <BadgeCheck key="verified" className="h-4 w-4 text-cyan-300" />]
+                  [`${approvedListings.length.toLocaleString()}+`, "approved listings", <ShieldCheck key="approved" className="h-3.5 w-3.5" />],
+                  [`${cityCount || 1}`, "cities covered", <MapPin key="cities" className="h-3.5 w-3.5" />],
+                  [`${idVerifiedCount.toLocaleString()}`, "ID verified", <BadgeCheck key="verified" className="h-3.5 w-3.5" />]
                 ].map(([value, label, icon]) => (
-                  <div key={String(label)} className="rounded-lg bg-white/[.12] px-4 py-3 ring-1 ring-white/20 backdrop-blur">
-                    <p className="flex items-center gap-2 text-2xl font-bold text-white">{icon}{value}</p>
-                    <p className="mt-1 text-sm font-medium text-white/75">{label}</p>
+                  <div key={String(label)} className="min-w-0">
+                    <dt className="sr-only">{String(label)}</dt>
+                    <dd>
+                      <span className="block font-display text-3xl font-semibold tracking-[-0.02em] text-white md:text-4xl">{value}</span>
+                      <span className="mt-2 flex items-start gap-1.5 text-xs font-medium leading-4 text-white/50">
+                        <span className="mt-px shrink-0 text-copper-600">{icon}</span>
+                        <span>{label}</span>
+                      </span>
+                    </dd>
                   </div>
                 ))}
-              </div>
+              </dl>
             </div>
 
             {spotlight ? (
-              <Link href={spotlightHref} className="group relative hidden overflow-hidden rounded-lg border border-white/20 bg-white/10 p-3 shadow-2xl shadow-cyan-950/30 ring-1 ring-white/20 backdrop-blur lg:block">
-                <div className="relative aspect-[4/5] overflow-hidden rounded-lg bg-slate-900">
+              <Link href={spotlightHref} className="group relative hidden lg:block">
+                <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-shade ring-1 ring-white/15">
+                  {/* No `priority` here: the card is hidden below lg, so
+                      preloading it only burned mobile bandwidth ahead of LCP. */}
                   <Image
                     src={spotlight.coverImage || spotlight.image}
                     alt={spotlight.name}
                     fill
-                    priority
-                    className="object-cover transition duration-500 group-hover:scale-[1.04]"
-                    sizes="420px"
+                    className="object-cover transition-transform duration-700 ease-entrance group-hover:scale-[1.05]"
+                    sizes="(max-width: 1024px) 0px, 420px"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/20 to-transparent" />
-                  <div className="absolute inset-x-0 bottom-0 p-5">
-                    <p className="inline-flex rounded-full bg-white/[.18] px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-cyan-100 ring-1 ring-white/20 backdrop-blur">
-                      Spotlight provider
-                    </p>
-                    <h2 className="mt-3 line-clamp-2 text-2xl font-bold text-white">{spotlight.name}</h2>
-                    <p className="mt-1 text-sm font-semibold text-amber-100">{spotlight.category} - {spotlight.cityName}</p>
-                    <div className="mt-4 flex items-center justify-between gap-3 rounded-lg bg-white/[.14] px-4 py-3 ring-1 ring-white/20 backdrop-blur">
-                      <span className="text-sm font-semibold text-white">{spotlight.rating} rating</span>
-                      <span className="text-sm font-semibold text-cyan-100">{spotlight.reviews} reviews</span>
-                      <ArrowRight className="h-4 w-4 text-amber-200 transition group-hover:translate-x-1" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-shade via-shade/25 to-transparent" />
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <p className="eyebrow text-copper-700">Spotlight provider</p>
+                    <h2 className="mt-3 line-clamp-2 text-2xl font-semibold leading-tight tracking-[-0.02em] text-white">{spotlight.name}</h2>
+                    <p className="mt-1.5 text-sm text-white/60">{spotlight.category} · {spotlight.cityName}</p>
+                    <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/15 pt-4 text-sm">
+                      <span className="font-semibold text-white">{spotlight.rating} rating</span>
+                      <span className="text-white/55">{spotlight.reviews} reviews</span>
+                      <ArrowRight className="h-4 w-4 text-copper-700 transition-transform duration-300 group-hover:translate-x-1" />
                     </div>
                   </div>
                 </div>
@@ -245,152 +245,202 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="border-b border-cyan-100 bg-white px-4 py-4">
-        <div className="mx-auto grid max-w-7xl gap-3 md:grid-cols-4">
-          {visibleRouteShortcuts.map((item) => (
-            <Link key={item.href} href={item.href} className="group flex items-center justify-between gap-3 rounded-lg border border-cyan-100 bg-gradient-to-br from-white to-cyan-50/70 px-4 py-3 text-sm font-semibold text-ink shadow-sm transition hover:-translate-y-0.5 hover:border-cyan-300 hover:shadow-lg hover:shadow-cyan-950/10">
-              <span>
-                <span className="block text-xs font-bold uppercase tracking-[0.14em] text-coral">{item.place}</span>
+      {visibleRouteShortcuts.length ? (
+        <section className="border-b border-line bg-paper" aria-label="Popular searches">
+          <div className="shell flex flex-wrap items-center gap-x-6 gap-y-3 py-5">
+            <span className="text-2xs font-bold uppercase tracking-[0.18em] text-ink-muted">Popular now</span>
+            {visibleRouteShortcuts.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group inline-flex items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-copper-700"
+              >
+                <Route className="h-3.5 w-3.5 text-stone-400 transition-colors group-hover:text-copper-500" />
                 {item.label}
-              </span>
-              <Route className="h-4 w-4 text-muted transition group-hover:text-cyan-700" />
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {featuredListings.length ? (
-        <section className="border-y border-cyan-100 bg-[linear-gradient(180deg,#effcff_0%,#ffffff_100%)] px-4 py-14" aria-label="Featured providers on homepage">
-          <div className="mx-auto max-w-7xl">
-          <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-            <div>
-              <p className="flex items-center gap-2 text-sm font-semibold text-cyan-700"><Sparkles className="h-4 w-4 text-coral" /> Featured placement</p>
-              <h2 className="mt-2 text-3xl font-bold text-ink md:text-4xl">Featured service providers</h2>
-              <p className="mt-3 max-w-3xl text-sm leading-6 text-muted">
-                These profiles have active homepage featured campaigns. Compare services, verification status, reviews, gallery media, rates and direct contact options before opening a profile.
-              </p>
-            </div>
-            <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-coral">
-              View featured listings <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid gap-5">
-            {featuredListings.map((listing, index) => (
-              <ListingCard
-                key={`home-featured-${listing.country}-${listing.city}-${listing.slug}`}
-                listing={listing}
-                horizontal
-                featuredContact
-                priority={index < 2}
-                placementPath="/"
-              />
+                <span className="font-normal text-ink-muted">in {item.place}</span>
+              </Link>
             ))}
-          </div>
           </div>
         </section>
       ) : null}
 
-      <section className="bg-ink px-4 py-14 text-white">
-        <div className="mx-auto max-w-7xl">
-        <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-200"><TrendingUp className="h-4 w-4 text-amber-300" /> Trending now</p>
-            <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">Top 5 country, city, category and profile pages</h2>
+      {featuredListings.length ? (
+        <section className="bg-paper py-16 md:py-20" aria-label="Featured providers on homepage">
+          <div className="shell">
+            <div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+              <div className="max-w-2xl">
+                <p className="eyebrow text-copper-700">
+                  <Sparkles className="h-3.5 w-3.5" /> Featured placement
+                </p>
+                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.025em] text-ink md:text-[2.75rem] md:leading-[1.08]">
+                  Featured service providers
+                </h2>
+                <p className="mt-4 text-[0.9375rem] leading-7 text-ink-muted">
+                  These profiles have active homepage campaigns. Compare services, verification, reviews, gallery media,
+                  rates and direct contact options before opening a profile.
+                </p>
+              </div>
+              <Link href="/listings" className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-copper-700">
+                View featured listings
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+              </Link>
+            </div>
+            <div className="grid gap-4">
+              {featuredListings.map((listing, index) => (
+                <ListingCard
+                  key={`home-featured-${listing.country}-${listing.city}-${listing.slug}`}
+                  listing={listing}
+                  horizontal
+                  featuredContact
+                  priority={index < 2}
+                  placementPath="/"
+                />
+              ))}
+            </div>
           </div>
-          <Link href="/listings" className="inline-flex items-center gap-2 text-sm font-semibold text-amber-200">
-            Browse all listings <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <div className="grid gap-5 lg:grid-cols-4">
-          <TrendingPanel title="Countries" items={trending.countries} tone="blue" />
-          <TrendingPanel title="Cities" items={trending.cities} tone="emerald" />
-          <TrendingPanel title="Categories" items={trending.categories} tone="amber" />
-          <TrendingPanel title="Profiles" items={trending.profiles} tone="rose" />
-        </div>
+        </section>
+      ) : null}
+
+      <section className="relative overflow-hidden border-y border-line bg-deep py-16 text-white md:py-20">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-grid opacity-60" />
+        <div className="shell relative">
+          <div className="mb-10 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div className="max-w-2xl">
+              <p className="eyebrow text-copper-700">
+                <TrendingUp className="h-3.5 w-3.5" /> Trending now
+              </p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.025em] text-white md:text-[2.75rem] md:leading-[1.08]">
+                What people are searching this week
+              </h2>
+            </div>
+            <Link href="/listings" className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-white/70 transition-colors hover:text-white">
+              Browse all listings
+              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <TrendingPanel title="Countries" items={trending.countries} tone="blue" />
+            <TrendingPanel title="Cities" items={trending.cities} tone="emerald" />
+            <TrendingPanel title="Categories" items={trending.categories} tone="amber" />
+            <TrendingPanel title="Profiles" items={trending.profiles} tone="rose" />
+          </div>
         </div>
       </section>
 
-      <section className="border-y border-orange-100 bg-[linear-gradient(135deg,#fff7ed_0%,#ecfeff_48%,#fff1f2_100%)] px-4 py-14">
-        <div className="mx-auto max-w-7xl">
-        <div className="mb-7 flex flex-col justify-between gap-4 md:flex-row md:items-end">
-          <div>
-            <p className="text-sm font-semibold text-coral">Popular categories</p>
-            <h2 className="mt-2 text-3xl font-bold text-ink md:text-4xl">Browse {categoryCount} active service categories</h2>
+      <section className="border-b border-line bg-surface py-16 md:py-20">
+        <div className="shell">
+          <div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+            <div className="max-w-2xl">
+              <p className="eyebrow text-copper-700">Popular categories</p>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.025em] text-ink md:text-[2.75rem] md:leading-[1.08]">
+                Browse {categoryCount} active service categories
+              </h2>
+            </div>
+            <Link href="/categories" className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-copper-700">
+              View all categories
+              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </Link>
           </div>
-          <Link href="/categories" className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-700">
-            View all categories <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-        <CategoryGrid items={standardCategories} hrefForCategory={(category) => `/${category.slug}`} />
-        <AdultCategoryGate listings={adultListings} categories={categoryItems} />
+          <CategoryGrid items={standardCategories} hrefForCategory={(category) => `/${category.slug}`} />
+          <AdultCategoryGate listings={adultListings} categories={categoryItems} />
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_0.9fr]">
-          <div className="rounded-lg border border-cyan-100 bg-white p-6 shadow-xl shadow-cyan-950/10 md:p-8">
-            <p className="inline-flex items-center gap-2 rounded-full bg-cyan-50 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-cyan-700">
-              <Sparkles className="h-4 w-4" /> How the directory helps
+      <section className="bg-paper py-16 md:py-20">
+        <div className="shell grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_0.95fr] lg:gap-16">
+          <div>
+            <p className="eyebrow text-copper-700">
+              <Sparkles className="h-3.5 w-3.5" /> How the directory helps
             </p>
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-ink">Find the right provider faster.</h2>
-            <p className="mt-4 text-sm leading-7 text-muted md:text-base">
-              Start with a service need, location or provider name. Then compare real profile details such as services offered, rating, reviews, portfolio galleries, pricing notes, availability, verification badges and response methods before you contact anyone.
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.025em] text-ink md:text-[2.75rem] md:leading-[1.08]">
+              Find the right provider faster.
+            </h2>
+            <p className="mt-5 max-w-xl text-[0.9375rem] leading-7 text-ink-muted">
+              Start with a service need, location or provider name. Then compare real profile details such as services
+              offered, rating, reviews, portfolio galleries, pricing notes, availability, verification badges and
+              response methods before you contact anyone.
             </p>
-            <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="mt-9 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-3">
               {[
-                ["Local and global search", "Explore service providers by country, city, category or profile keyword."],
-                ["Trust signals", "Use reviews, verified badges, galleries and profile details to build confidence."],
-                ["Contact and booking", "Request a service, call, message, book or start an online consultation where available."]
-              ].map(([title, copy]) => (
-                <div key={title} className="rounded-lg bg-gradient-to-br from-cyan-50 to-white p-4 ring-1 ring-cyan-100">
-                  <CheckCircle2 className="h-5 w-5 text-coral" />
-                  <h3 className="mt-3 text-base font-semibold text-ink">{title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-muted">{copy}</p>
+                ["Local and global search", "Explore providers by country, city, category or profile keyword."],
+                ["Trust signals", "Reviews, verified badges and galleries help build confidence."],
+                ["Contact and booking", "Request, call, message or book where the provider allows it."]
+              ].map(([title, copy], index) => (
+                <div key={title} className="bg-surface p-6">
+                  <span className="font-display text-sm text-copper-600">0{index + 1}</span>
+                  <h3 className="mt-3 text-[0.9375rem] font-semibold text-ink">{title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink-muted">{copy}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="rounded-lg bg-[linear-gradient(135deg,#0b1020,#0f766e_52%,#d97706)] p-6 text-white shadow-2xl shadow-cyan-950/20 md:p-8">
-            <ShieldCheck className="h-9 w-9 text-amber-200" />
-            <h2 className="mt-4 text-3xl font-bold">What makes a profile worth opening?</h2>
-            <div className="mt-5 grid gap-3">
-              {[
-                "Clear service details and location fit.",
-                "Verification or ID status where relevant.",
-                "Gallery media, rates or pricing notes, and availability.",
-                "Direct call, WhatsApp, chat, video consultation, website or booking request options when available."
-              ].map((item) => (
-                <p key={item} className="flex gap-3 text-sm leading-6 text-white/80">
-                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-amber-200" />
-                  {item}
-                </p>
-              ))}
+          <div className="relative overflow-hidden rounded-2xl border border-line bg-deep p-8 text-white md:p-10">
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-grid opacity-70" />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute -bottom-24 -right-16 h-64 w-64 rounded-full bg-jade-500/15 blur-[80px]"
+            />
+            <div className="relative">
+              <ShieldCheck className="h-8 w-8 text-copper-700" />
+              <h2 className="mt-6 text-2xl font-semibold tracking-[-0.02em] text-white md:text-3xl">
+                What makes a profile worth opening?
+              </h2>
+              <ul className="mt-7 grid gap-4">
+                {[
+                  "Clear service details and location fit.",
+                  "Verification or ID status where relevant.",
+                  "Gallery media, rates or pricing notes, and availability.",
+                  "Direct call, WhatsApp, chat, video consultation, website or booking request options."
+                ].map((item) => (
+                  <li key={item} className="flex gap-3 border-b border-white/10 pb-4 text-sm leading-6 text-white/70 last:border-0 last:pb-0">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-copper-600" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="border-y border-cyan-100 bg-[linear-gradient(100deg,#0b1020,#155e75_48%,#f97316)] px-4 py-12 text-white">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-5 md:flex-row md:items-center">
-          <div>
-            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-100"><Sparkles className="h-4 w-4 text-amber-200" /> For business owners</p>
-            <h2 className="mt-2 text-3xl font-bold text-white">Create one profile and reach users looking for your service.</h2>
-            <p className="mt-3 max-w-3xl leading-7 text-white/80">
-              Add your services, gallery, prices, availability, contact options and verification details. After review, your profile can appear on relevant country, city, category and listing discovery pages.
+      <section className="border-y border-line bg-surface">
+        <div className="shell flex flex-col justify-between gap-8 py-16 md:flex-row md:items-center md:py-20">
+          <div className="max-w-2xl">
+            <p className="eyebrow text-copper-700">
+              <Sparkles className="h-3.5 w-3.5" /> For business owners
+            </p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.025em] text-ink md:text-[2.5rem] md:leading-[1.1]">
+              One profile. Every user searching for your service.
+            </h2>
+            <p className="mt-5 text-[0.9375rem] leading-7 text-ink-muted">
+              Add your services, gallery, prices, availability, contact options and verification details. After review,
+              your profile can appear on relevant country, city, category and listing discovery pages.
             </p>
           </div>
-          <AddProfileSignupLink variant="gold" className="shadow-2xl shadow-orange-950/20">Add Your Profile</AddProfileSignupLink>
+          <AddProfileSignupLink variant="gold" className="shrink-0 px-6 py-3.5 text-[0.9375rem]">Add your profile</AddProfileSignupLink>
         </div>
       </section>
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <div className="rounded-lg border border-cyan-100 bg-white p-6 shadow-xl shadow-slate-950/10 md:p-8">
-          <h2 className="text-3xl font-bold tracking-tight text-ink">Questions people ask before hiring</h2>
-          <div className="mt-6 grid gap-3 md:grid-cols-2">
+
+      <section className="bg-paper py-16 md:py-20">
+        <div className="shell grid gap-10 lg:grid-cols-[0.8fr_minmax(0,1.2fr)] lg:gap-16">
+          <div>
+            <p className="eyebrow text-copper-700">FAQ</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.025em] text-ink md:text-[2.5rem] md:leading-[1.1]">
+              Questions people ask before hiring
+            </h2>
+          </div>
+          <div className="border-t border-line">
             {homeFaq.map((item) => (
-              <details key={item.question} className="rounded-lg bg-gradient-to-br from-cyan-50 to-white px-4 py-3 ring-1 ring-cyan-100">
-                <summary className="cursor-pointer text-sm font-semibold text-ink">{item.question}</summary>
-                <p className="mt-2 text-sm leading-6 text-muted">{item.answer}</p>
+              <details key={item.question} className="group border-b border-line py-5">
+                <summary className="flex cursor-pointer list-none items-start justify-between gap-4 text-[0.9375rem] font-semibold text-ink transition-colors hover:text-copper-700">
+                  {item.question}
+                  <span
+                    aria-hidden="true"
+                    className="relative mt-2 h-3 w-3 shrink-0 before:absolute before:left-0 before:top-1/2 before:h-px before:w-3 before:-translate-y-1/2 before:bg-copper-600 after:absolute after:left-1/2 after:top-0 after:h-3 after:w-px after:-translate-x-1/2 after:bg-copper-600 after:transition-transform after:duration-300 group-open:after:rotate-90 group-open:after:opacity-0"
+                  />
+                </summary>
+                <p className="mt-3 max-w-2xl text-sm leading-7 text-ink-muted">{item.answer}</p>
               </details>
             ))}
           </div>
@@ -403,22 +453,26 @@ export default async function HomePage() {
 function TrendingPanel({ title, items, tone }: { title: string; items: TrendItem[]; tone: TrendTone }) {
   const toneClasses = trendTones[tone];
   return (
-    <div className={`min-w-0 overflow-hidden rounded-lg p-1 shadow-sm ring-1 transition duration-200 hover:-translate-y-0.5 hover:shadow-md ${toneClasses.panel}`}>
-      <div className={`rounded-md bg-gradient-to-br px-4 py-4 text-white ${toneClasses.header}`}>
-        <p className="text-xs font-bold uppercase tracking-[0.18em] text-white/80">Top 5</p>
-        <h3 className="mt-1 text-xl font-semibold">{title}</h3>
-      </div>
-      <div className="space-y-2 p-3">
+    <div className="min-w-0 rounded-xl border border-white/10 bg-white/[0.03] p-5 transition-colors duration-300 hover:border-white/20 hover:bg-white/[0.06]">
+      <p className={`text-2xs font-bold uppercase tracking-[0.18em] ${toneClasses.accent}`}>{title}</p>
+      <div className="mt-4 divide-y divide-white/10">
         {items.length ? items.map((item, index) => (
-          <Link key={`${title}-${item.href}`} href={item.href} className={`group flex items-center gap-3 rounded-lg bg-white/80 px-3 py-3 ring-1 ring-white/80 transition duration-200 hover:-translate-y-0.5 hover:shadow-sm ${toneClasses.row}`}>
-            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${toneClasses.rank}`}>{index + 1}</span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-ink group-hover:text-champagne">{item.label}</span>
-              <span className="mt-0.5 block truncate text-xs font-medium text-muted">{item.meta}</span>
+          <Link
+            key={`${title}-${item.href}`}
+            href={item.href}
+            className="group flex items-baseline gap-3 py-2.5 transition-colors"
+          >
+            <span className={`w-4 shrink-0 font-display text-sm tabular-nums transition-colors ${toneClasses.rank}`}>
+              {index + 1}
             </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-sm font-semibold text-white/90 transition-colors group-hover:text-white">{item.label}</span>
+              <span className="mt-0.5 block truncate text-xs text-white/40">{item.meta}</span>
+            </span>
+            <ArrowRight className="h-3.5 w-3.5 shrink-0 -translate-x-1 text-white/0 transition-all duration-200 group-hover:translate-x-0 group-hover:text-white/50" />
           </Link>
         )) : (
-          <p className="rounded-lg bg-white/80 px-3 py-3 text-sm font-semibold text-muted ring-1 ring-white/80">No trending data yet</p>
+          <p className="py-3 text-sm text-white/40">No trending data yet</p>
         )}
       </div>
     </div>

@@ -268,7 +268,7 @@ export function AdminCountryManager() {
           </div>
           <div className="mt-6 flex justify-end gap-3">
             <button onClick={resetForm} className="rounded-2xl bg-white/80 px-5 py-3 text-sm font-semibold text-ink shadow-sm">Reset</button>
-            <button onClick={saveCountry} className="rounded-2xl bg-gradient-to-r from-[#ead39a] to-[#d8aa5b] px-5 py-3 text-sm font-semibold text-ink shadow-glow">Save Country</button>
+            <button onClick={saveCountry} className="rounded-2xl bg-gradient-to-r from-[#ead39a] to-[#d8aa5b] px-5 py-3 text-sm font-semibold text-onaccent shadow-glow">Save Country</button>
           </div>
           {notice ? <p className="mt-4 rounded-2xl bg-white/65 px-4 py-3 text-sm font-semibold text-muted">{notice}</p> : null}
         </GlassCard>

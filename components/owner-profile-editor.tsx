@@ -1194,7 +1194,7 @@ function MediaPreview({ src, alt }: { src: string; alt: string }) {
   const preview = mediaPreviewUrl(src);
   if (isVideoMedia(src)) {
     return (
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-ink text-white">
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-shade text-white">
         <video src={preview} className="h-full w-full object-cover" muted playsInline preload="metadata" />
         <span className="absolute left-3 top-3 inline-flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-xs font-bold text-ink shadow-sm">
           <FileVideo className="h-3.5 w-3.5" /> Video
