@@ -296,7 +296,7 @@ export function ProfileDetail({
       <section className="glass relative overflow-hidden rounded-[1.5rem] p-2 sm:rounded-[2.5rem] sm:p-3">
         <div className="relative h-56 overflow-hidden rounded-[1.25rem] sm:h-64 sm:rounded-[2rem] md:h-[27rem]">
           <ManagedImage src={listing.coverImage || listing.image} alt={listing.name} priority className="object-cover" sizes="100vw" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/75 via-ink/15 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-shade/75 via-shade/15 to-transparent" />
         </div>
         <div className="relative mx-auto -mt-16 max-w-6xl px-1.5 pb-3 sm:-mt-24 sm:px-4 sm:pb-5">
           <div className="glass-strong rounded-[1.35rem] p-4 sm:rounded-[2rem] sm:p-5 md:p-7">
@@ -336,7 +336,7 @@ export function ProfileDetail({
                 <SaveProfileButton
                   profileId={listing.id || listing.slug}
                   showLabel
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white/80 px-4 py-3 text-sm font-semibold text-rose-500 shadow-sm md:w-auto"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-white/80 px-4 py-3 text-sm font-semibold text-rose-600 shadow-sm md:w-auto"
                   savedClassName="bg-rose-50 text-rose-600"
                 />
                 <Action icon={<Share2 className="h-4 w-4" />} label="Share" onClick={shareProfile} className="col-span-2 md:col-span-1" />
@@ -481,7 +481,7 @@ export function ProfileDetail({
                 <a
                   href={phoneUrl}
                   onClick={() => trackInsight("PHONE_CLICK")}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-glass transition hover:-translate-y-0.5 hover:bg-blue-700"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-3 text-sm font-semibold text-onaccent shadow-glass transition hover:-translate-y-0.5 hover:bg-blue-700"
                 >
                   <Phone className="h-4 w-4" /> Call Now
                 </a>
@@ -492,7 +492,7 @@ export function ProfileDetail({
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => trackInsight("WHATSAPP_CLICK")}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-glass transition hover:-translate-y-0.5 hover:bg-emerald-800"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-onaccent shadow-glass transition hover:-translate-y-0.5 hover:bg-emerald-800"
                 >
                   <MessageCircle className="h-4 w-4" /> WhatsApp Now
                 </a>
@@ -503,7 +503,7 @@ export function ProfileDetail({
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => trackInsight("WEBSITE_CLICK")}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-glass transition hover:-translate-y-0.5 hover:bg-indigo-700"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-onaccent shadow-glass transition hover:-translate-y-0.5 hover:bg-indigo-700"
                 >
                   <Globe2 className="h-4 w-4" /> Visit Website
                 </a>
@@ -526,14 +526,14 @@ export function ProfileDetail({
       </section>
 
       {lightboxImage ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-ink/80 px-4 py-8 backdrop-blur-md" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-shade/80 px-4 py-8 backdrop-blur-md" role="dialog" aria-modal="true">
           <button className="absolute right-5 top-5 flex h-11 w-11 items-center justify-center rounded-full bg-white text-ink shadow-glass" onClick={() => setLightboxIndex(null)} aria-label="Close gallery media">
             <X className="h-5 w-5" />
           </button>
           <button className="absolute left-4 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-ink shadow-glass md:left-8" onClick={() => moveLightbox(-1)} aria-label="Previous media">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <div className="relative flex max-h-[86vh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.5rem] bg-ink shadow-glass sm:rounded-[2rem]">
+          <div className="relative flex max-h-[86vh] w-full max-w-6xl flex-col overflow-hidden rounded-[1.5rem] bg-shade shadow-glass sm:rounded-[2rem]">
             <div className="flex min-h-0 flex-1 items-center justify-center bg-black p-2 sm:p-4">
               <LightboxMedia src={lightboxImage.imageUrl} alt={lightboxImage.altText || lightboxImage.title || listing.name} />
             </div>
@@ -640,7 +640,7 @@ function StandardProfileDetails({ listing, model, className = "" }: { listing: L
               Key service, location and trust details for visitors before they contact this provider.
             </p>
           </div>
-          <span className={`w-fit rounded-full px-4 py-2 text-sm font-bold shadow-sm ring-1 ${listing.verified ? "bg-blue-600 text-white ring-blue-500" : "bg-emerald-600 text-white ring-emerald-500"}`}>
+          <span className={`w-fit rounded-full px-4 py-2 text-sm font-bold shadow-sm ring-1 ${listing.verified ? "bg-blue-600 text-onaccent ring-blue-500" : "bg-emerald-600 text-onaccent ring-emerald-500"}`}>
             {listing.verified ? "Verified" : "Approved"}
           </span>
         </div>
@@ -709,7 +709,7 @@ function AdultProfileDetails({ listing, model, idVerified, className = "" }: { l
               {idVerified ? "Admin-verified provider details for adult visitors." : "Approved profile with ID verification status shown for visitor trust."}
             </p>
           </div>
-          <span className={`w-fit rounded-full px-4 py-2 text-sm font-bold shadow-sm ring-1 ${idVerified ? "bg-blue-600 text-white ring-blue-500" : "bg-rose-600 text-white ring-rose-500"}`}>
+          <span className={`w-fit rounded-full px-4 py-2 text-sm font-bold shadow-sm ring-1 ${idVerified ? "bg-blue-600 text-onaccent ring-blue-500" : "bg-rose-600 text-onaccent ring-rose-500"}`}>
             {idVerified ? "ID verified" : "ID not verified"}
           </span>
         </div>
@@ -875,15 +875,15 @@ function AdultDetailTile({ label, value, tone }: { label: string; value: string;
 
 function adultToneClass(tone: AdultTone) {
   const tones: Record<AdultTone, { card: string; icon: string }> = {
-    blue: { card: "bg-blue-50/90 ring-blue-100", icon: "bg-blue-600 text-white" },
-    emerald: { card: "bg-emerald-50/90 ring-emerald-100", icon: "bg-emerald-600 text-white" },
+    blue: { card: "bg-blue-50/90 ring-blue-100", icon: "bg-blue-600 text-onaccent" },
+    emerald: { card: "bg-emerald-50/90 ring-emerald-100", icon: "bg-emerald-600 text-onaccent" },
     amber: { card: "bg-amber-50/90 ring-amber-100", icon: "bg-amber-500 text-ink" },
-    rose: { card: "bg-rose-50/90 ring-rose-100", icon: "bg-rose-600 text-white" },
+    rose: { card: "bg-rose-50/90 ring-rose-100", icon: "bg-rose-600 text-onaccent" },
     violet: { card: "bg-violet-50/90 ring-violet-100", icon: "bg-violet-600 text-white" },
-    sky: { card: "bg-sky-50/90 ring-sky-100", icon: "bg-sky-600 text-white" },
-    indigo: { card: "bg-indigo-50/90 ring-indigo-100", icon: "bg-indigo-600 text-white" },
-    teal: { card: "bg-teal-50/90 ring-teal-100", icon: "bg-teal-600 text-white" },
-    orange: { card: "bg-orange-50/90 ring-orange-100", icon: "bg-orange-500 text-white" }
+    sky: { card: "bg-sky-50/90 ring-sky-100", icon: "bg-sky-600 text-onaccent" },
+    indigo: { card: "bg-indigo-50/90 ring-indigo-100", icon: "bg-indigo-600 text-onaccent" },
+    teal: { card: "bg-teal-50/90 ring-teal-100", icon: "bg-teal-600 text-onaccent" },
+    orange: { card: "bg-orange-50/90 ring-orange-100", icon: "bg-orange-500 text-onaccent" }
   };
   return tones[tone];
 }
@@ -1048,8 +1048,8 @@ function GallerySection({
                 onClick={() => onOpen(index)}
                 className="group relative aspect-[3/4] overflow-hidden rounded-[1.25rem] bg-white text-left shadow-sm ring-1 ring-white/80 transition hover:-translate-y-0.5 hover:shadow-glass"
               >
-                <GalleryMedia src={image.imageUrl} alt={image.altText || image.title || "Profile gallery media"} className="object-cover transition duration-500 group-hover:scale-105" />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/72 to-transparent p-3 text-white">
+                <GalleryMedia src={image.imageUrl} alt={image.altText && image.altText !== image.title ? image.altText : ""} className="object-cover transition duration-500 group-hover:scale-105" />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-shade/72 to-transparent p-3 text-white">
                   <p className="truncate text-sm font-semibold">{image.title || "Gallery media"}</p>
                 </div>
               </button>
@@ -1129,7 +1129,7 @@ function GalleryMedia({ src, alt, className, eager = false }: { src: string; alt
 
   if (isVideoMedia(currentSrc)) {
     return (
-      <div className="absolute inset-0 bg-ink">
+      <div className="absolute inset-0 bg-shade">
         <video
           src={currentSrc}
           aria-label={alt}
@@ -1226,10 +1226,10 @@ function Action({
 }) {
   const tones = {
     default: "bg-white/80 text-ink hover:bg-white",
-    call: "bg-blue-600 text-white hover:bg-blue-700",
-    whatsapp: "bg-emerald-600 text-white hover:bg-emerald-700",
-    quote: "bg-amber-500 text-ink hover:bg-amber-400",
-    website: "bg-indigo-600 text-white hover:bg-indigo-700"
+    call: "bg-blue-600 text-onaccent hover:bg-blue-700",
+    whatsapp: "bg-emerald-600 text-onaccent hover:bg-emerald-700",
+    quote: "bg-amber-600 text-onaccent hover:bg-amber-700",
+    website: "bg-indigo-600 text-onaccent hover:bg-indigo-700"
   };
   const classes = `flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold shadow-sm transition hover:-translate-y-0.5 md:w-auto ${tones[tone]} ${className}`;
   if (href) {

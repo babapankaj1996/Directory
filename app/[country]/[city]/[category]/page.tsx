@@ -4,8 +4,9 @@ import { CategoryListingPage } from "@/components/category-listing-page";
 import { buildCategorySeoContent } from "@/lib/category-seo";
 import { getActiveCitiesForCountry, getActiveLocation } from "@/lib/locations";
 import { getPublicCategories, getPublicCategory, getPublicProfiles } from "@/lib/profiles";
-import { breadcrumbJsonLd, categoryCollectionJsonLd, categoryItemListJsonLd, faqJsonLd, serializeJsonLd } from "@/lib/seo-schema";
+import { breadcrumbJsonLd, categoryCollectionJsonLd, categoryItemListJsonLd, faqJsonLd } from "@/lib/seo-schema";
 import { formatRouteName } from "@/lib/utils";
+import { JsonLd } from "@/components/json-ld";
 
 export async function generateMetadata({
   params,
@@ -112,7 +113,7 @@ export default async function CategoryPage({
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <CategoryListingPage
         country={country}
         city={city}

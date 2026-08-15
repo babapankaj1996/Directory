@@ -15,7 +15,8 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { activeCityLinks, getCategorySearchContent, globalCategoryCityLinks } from "@/lib/seo-content";
 import { getActiveCitiesForCountry, getActiveCountries, getActiveCountry, type PublicCity, type PublicCountry } from "@/lib/locations";
 import { getPublicCategories, getPublicCategory, getPublicProfiles, withCategoryCounts } from "@/lib/profiles";
-import { breadcrumbJsonLd, categoryItemListJsonLd, faqJsonLd, serializeJsonLd } from "@/lib/seo-schema";
+import { breadcrumbJsonLd, categoryItemListJsonLd, faqJsonLd } from "@/lib/seo-schema";
+import { JsonLd } from "@/components/json-ld";
 
 type CountryRouteProps = {
   params: Promise<{ country: string }>;
@@ -142,7 +143,7 @@ async function CountryDirectoryPage({ countryData }: { countryData: PublicCountr
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <PageHeading
         eyebrow="Country directory"
         title={`Find trusted service providers in ${countryName}`}
@@ -231,7 +232,7 @@ async function GlobalCategoryPage({
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 md:py-14">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <div className="flex flex-wrap items-center gap-3">

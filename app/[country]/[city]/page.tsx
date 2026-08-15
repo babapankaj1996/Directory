@@ -11,8 +11,9 @@ import { isFeaturedActive, sortByFeaturedVisibility } from "@/lib/data";
 import { buildCitySeoContent, type CitySeoContent } from "@/lib/city-seo";
 import { getActiveLocation } from "@/lib/locations";
 import { getPublicCategories, getPublicProfiles, withCategoryCounts } from "@/lib/profiles";
-import { breadcrumbJsonLd, cityCollectionJsonLd, faqJsonLd, serializeJsonLd } from "@/lib/seo-schema";
+import { breadcrumbJsonLd, cityCollectionJsonLd, faqJsonLd } from "@/lib/seo-schema";
 import { formatRouteName } from "@/lib/utils";
+import { JsonLd } from "@/components/json-ld";
 
 export async function generateMetadata({
   params,
@@ -78,7 +79,7 @@ export default async function CityPage({
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <PageHeading eyebrow="City directory" title={seo.heading} description={seo.description} />
       <div className="mx-auto mt-9 max-w-5xl"><SearchBar categoryOptions={activeCategories} /></div>
       <CitySeoIntro seo={seo} />

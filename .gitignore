@@ -13,3 +13,7 @@ tsconfig.tsbuildinfo
 npm-debug.log*
 AGENTS.md
 CLAUDE.md
+
+# Never commit real environment files.
+.env.production
+.env.production.local

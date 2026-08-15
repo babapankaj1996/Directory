@@ -5,7 +5,8 @@ import { getListingUrl, type Listing } from "@/lib/data";
 import { getActiveCitiesForCountry } from "@/lib/locations";
 import { buildProfileSeoContent } from "@/lib/profile-seo";
 import { getProfileGallery, getPublicProfileByPath } from "@/lib/profiles";
-import { breadcrumbJsonLd, faqJsonLd, profileJsonLd, profileServiceJsonLd, serializeJsonLd } from "@/lib/seo-schema";
+import { breadcrumbJsonLd, faqJsonLd, profileJsonLd, profileServiceJsonLd } from "@/lib/seo-schema";
+import { JsonLd } from "@/components/json-ld";
 
 function profileDescription(listing: Listing, generatedDescription: string) {
   const base = (listing.seoDescription || listing.about || listing.shortDescription || "").trim();
@@ -80,7 +81,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ countr
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <ProfileDetail listing={listing} gallery={gallery} seoContent={seo} />
     </>
   );

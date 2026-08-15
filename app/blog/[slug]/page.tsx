@@ -4,9 +4,11 @@ import type { Metadata } from "next";
 import { blogPosts } from "@/lib/data";
 import { GlassCard } from "@/components/ui/glass-card";
 
-export function generateStaticParams() {
-  return blogPosts.map((post) => ({ slug: post.slug }));
-}
+// Rendered per request so the CSP nonce in the markup matches the response
+// header; see the note in app/layout.tsx. generateStaticParams would win over
+// this and prerender the posts, so it is intentionally absent — the posts come
+// from an in-process array, so there is nothing to fetch at build time anyway.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

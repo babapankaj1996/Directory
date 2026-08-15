@@ -20,34 +20,26 @@ const supabaseUrl = (() => {
     return undefined;
   }
 })();
-const supabaseSource = supabaseUrl ? ` ${supabaseUrl.origin}` : "";
-const backendSource = ` ${apiUrl.origin}`;
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "frame-ancestors 'none'",
-  "form-action 'self'",
-  `connect-src 'self' ${apiOrigin}${backendSource}${supabaseSource} https://api.razorpay.com`,
-  `img-src 'self' data: blob: ${apiOrigin}${backendSource}${supabaseSource} https://images.unsplash.com`,
-  `media-src 'self' blob: ${apiOrigin}${backendSource}${supabaseSource}`,
-  "font-src 'self' data:",
-  `script-src 'self' 'unsafe-inline'${isProduction ? "" : " 'unsafe-eval'"} https://checkout.razorpay.com`,
-  "style-src 'self' 'unsafe-inline'",
-  ...(isProduction ? ["upgrade-insecure-requests"] : [])
-].join("; ");
-
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  // Next streams metadata into the body for anything it does not recognise as a
+  // no-JS crawler, and only relocates it with an inline script. For an SEO-led
+  // directory the title/description/canonical must be in the served <head> for
+  // every client, so streaming metadata is switched off by treating every user
+  // agent as HTML-limited. Metadata here is cheap to resolve, so blocking on it
+  // costs little.
+  htmlLimitedBots: /.*/,
   turbopack: {
     root: process.cwd()
   },
+  // The Content-Security-Policy is set per-request in middleware.ts because it
+  // carries a fresh nonce. Only the static headers live here, so that assets
+  // excluded from the middleware matcher still get them.
   async headers() {
     return [
       {
         source: "/:path*",
         headers: [
-          { key: "Content-Security-Policy", value: contentSecurityPolicy },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
@@ -58,6 +50,12 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // AVIF first: the listing photos are the LCP element on every results page,
+    // and AVIF lands materially smaller than WebP. The long cache TTL keeps the
+    // optimizer from re-fetching and re-encoding from the origin, so only the
+    // first visitor after a deploy pays for the conversion.
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 2592000,
     remotePatterns: [
       {
         protocol: "https",
