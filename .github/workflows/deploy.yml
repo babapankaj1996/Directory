@@ -1,0 +1,93 @@
+name: Deploy frontend to Hostinger
+
+# Hostinger has no git-source deployment for Node.js apps — the only route is
+# uploading a source archive — so this workflow packages the repo and drives the
+# official hostinger-api-mcp tooling to upload it and wait for the remote build.
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**/*.md"
+      - ".gitignore"
+  workflow_dispatch:
+
+# Never let two deploys race for the same site.
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
+env:
+  SITE_DOMAIN: teal-owl-543994.hostingersite.com
+  HOSTINGER_USERNAME: u964901818
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # The production env file is deliberately untracked (it holds the JWT
+      # secret shared with the API). Hostinger reads env from the uploaded
+      # archive, so CI reconstructs it from a secret before packaging.
+      - name: Write .env.production
+        env:
+          # Passed through the environment rather than interpolated into the
+          # script body: inline ${{ }} would break on quotes and is a shell
+          # injection surface.
+          ENV_PRODUCTION: ${{ secrets.ENV_PRODUCTION }}
+        run: |
+          if [ -z "$ENV_PRODUCTION" ]; then
+            echo "::error::ENV_PRODUCTION secret is not set. The build needs BACKEND_API_URL and ADMIN_JWT_SECRET."
+            exit 1
+          fi
+          printf '%s\n' "$ENV_PRODUCTION" > .env.production
+          echo "Wrote .env.production ($(wc -l < .env.production) lines)"
+
+      - name: Install
+        run: npm ci
+
+      # Gate the deploy on the same checks that run locally: a broken build
+      # should fail here, not halfway through a production rollout.
+      - name: Type check
+        run: npm run type-check
+
+      - name: Build
+        run: npx next build
+
+      - name: Package source archive
+        run: |
+          zip -r -q ../frontend.zip . \
+            -x '.git/*' 'node_modules/*' '.next/*' 'test-results/*' '*.log'
+          ls -lh ../frontend.zip
+
+      - name: Deploy to Hostinger
+        env:
+          HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
+        run: |
+          node .github/scripts/hostinger-deploy.mjs \
+            --domain "$SITE_DOMAIN" \
+            --username "$HOSTINGER_USERNAME" \
+            --archive ../frontend.zip
+
+      # A 200 alone can be a stale or placeholder page, so assert on markup the
+      # app actually renders.
+      - name: Verify the deploy is live
+        run: |
+          for attempt in $(seq 1 20); do
+            body=$(curl -s --max-time 30 "https://$SITE_DOMAIN/?ci=$GITHUB_RUN_ID$attempt" || true)
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "https://$SITE_DOMAIN/" || true)
+            if [ "$code" = "200" ] && echo "$body" | grep -q 'http-equiv="Content-Security-Policy"'; then
+              echo "Live: HTTP $code, CSP present."
+              exit 0
+            fi
+            echo "attempt $attempt: http=$code"
+            sleep 15
+          done
+          echo "::error::Site did not come up healthy after the deploy."
+          exit 1
