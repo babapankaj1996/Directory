@@ -17,3 +17,6 @@ CLAUDE.md
 # Never commit real environment files.
 .env.production
 .env.production.local
+
+# Playwright CLI session snapshots
+.playwright-cli
