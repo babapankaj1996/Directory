@@ -868,9 +868,12 @@ export function OwnerDashboard() {
             {leads.length ? leads.slice(0, 8).map((lead) => <LeadRow key={lead.id} lead={lead} onStatus={updateLeadStatus} />) : (
               <EmptyState
                 title="No quote requests yet"
-                text="Requests from public profile pages will appear here with phone, service, preferred time and message."
+                text={needsEmailVerification
+                  ? "Confirm your email to publish a profile — quote requests from your public page will land here."
+                  : "Requests from public profile pages will appear here with phone, service, preferred time and message."}
                 href={primaryListing ? `/${primaryListing.country}/${primaryListing.city}/${primaryListing.categorySlug}/${primaryListing.slug}` : "/dashboard/add-profile"}
                 action={primaryListing ? "Open profile" : "Add profile"}
+                disabled={!primaryListing && needsEmailVerification}
               />
             )}
           </div>
@@ -1300,12 +1303,14 @@ function ReviewRow({ review }: { review: ReviewerReview }) {
   );
 }
 
-function EmptyState({ title, text, href, action }: { title: string; text: string; href: string; action: string }) {
+function EmptyState({ title, text, href, action, disabled = false }: { title: string; text: string; href: string; action: string; disabled?: boolean }) {
   return (
     <div className="rounded-[1.35rem] bg-white p-5 ring-1 ring-slate-200">
       <h3 className="text-lg font-semibold text-ink">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-muted">{text}</p>
-      <Button href={href} variant="ghost" className="mt-4 py-2.5">{action}</Button>
+      {/* Rendered without an href when blocked, so it cannot navigate to an
+          action the account is not allowed to complete yet. */}
+      <Button href={disabled ? undefined : href} variant="ghost" className="mt-4 py-2.5" disabled={disabled}>{action}</Button>
     </div>
   );
 }
