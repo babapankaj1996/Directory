@@ -32,16 +32,18 @@ const displayFont = Fraunces({
 
 export const metadata: Metadata = {
   title: {
-    default: "Luxury Directory | Verified Service Providers Worldwide",
-    template: "%s | Luxury Directory"
+    default: "Profinr | Verified Service Providers Worldwide",
+    template: "%s | Profinr"
   },
   description: "Discover verified service providers worldwide. Compare professionals by location, category, reviews, pricing, availability and profile details before you contact or book.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
   icons: {
-    icon: "/favicon.svg"
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg"
   },
   openGraph: {
-    title: "Luxury Directory",
+    title: "Profinr",
     description: "Find trusted professionals, compare service profiles, read reviews and contact or book providers worldwide.",
     type: "website"
   }

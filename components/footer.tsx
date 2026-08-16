@@ -1,6 +1,14 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
+/**
+ * Footer navigation.
+ *
+ * Deliberately excludes /dashboard and /admin — both redirect straight to login
+ * for the signed-out visitors who make up almost all footer traffic — and the
+ * sitemap/robots files, which are crawler plumbing already declared in
+ * robots.txt rather than anything a person clicks.
+ */
 const columns = [
   {
     title: "Explore",
@@ -11,25 +19,27 @@ const columns = [
     ]
   },
   {
-    title: "Account",
+    title: "Company",
     links: [
-      { href: "/signup", label: "Create account" },
-      { href: "/login", label: "Login" },
-      { href: "/dashboard", label: "Owner dashboard" }
+      { href: "/about", label: "About us" },
+      { href: "/contact", label: "Contact" },
+      { href: "/blog", label: "Blog" }
     ]
   },
   {
-    title: "Resources",
+    title: "Get started",
     links: [
-      { href: "/blog", label: "Blog" },
-      { href: "/blog/how-to-choose-premium-service-provider", label: "How to choose providers" }
+      { href: "/signup", label: "List your business" },
+      { href: "/signup", label: "Create an account" },
+      { href: "/login", label: "Sign in" }
     ]
   },
   {
-    title: "Search access",
+    title: "Legal",
     links: [
-      { href: "/sitemap.xml", label: "Sitemap" },
-      { href: "/robots.txt", label: "Robots" }
+      { href: "/privacy", label: "Privacy policy" },
+      { href: "/terms", label: "Terms of service" },
+      { href: "/disclaimer", label: "Disclaimer" }
     ]
   }
 ];
@@ -47,9 +57,9 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-[0.65rem] bg-ink text-onaccent">
-                <span className="font-display text-xl leading-none" style={{ fontVariationSettings: '"opsz" 144' }}>D</span>
+                <span className="font-display text-xl leading-none" style={{ fontVariationSettings: '"opsz" 144' }}>P</span>
               </span>
-              <p className="font-display text-2xl tracking-[-0.02em]">Luxury Directory</p>
+              <p className="font-display text-2xl tracking-[-0.02em]">Profinr</p>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-7 text-white/60">
               Verified service providers, honest reviews, transparent pricing, real availability and direct booking
@@ -70,7 +80,7 @@ export function Footer() {
                 <p className="text-2xs font-bold uppercase tracking-[0.18em] text-copper-700">{column.title}</p>
                 {column.links.map((link) => (
                   <Link
-                    key={link.href}
+                    key={`${column.title}-${link.label}`}
                     href={link.href}
                     className="-my-0.5 inline-flex w-fit items-center py-1.5 text-sm text-white/65 transition-colors duration-200 hover:text-white"
                   >
@@ -83,7 +93,7 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-7 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} Luxury Directory. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Profinr. All rights reserved.</p>
           <p>Compare providers by rating, verification, availability and price before you book.</p>
         </div>
       </div>

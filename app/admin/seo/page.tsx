@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const seoPages = [
-  { page: "Homepage", url: "/", title: "Luxury Directory | Find Premium Services Near You", status: "Optimized" },
+  { page: "Homepage", url: "/", title: "Profinr | Find Premium Services Near You", status: "Optimized" },
   { page: "Country Page", url: "/in", title: "Best Services in India", status: "Optimized" },
   { page: "City Page", url: "/in/delhi", title: "Best Services in Delhi", status: "Optimized" },
   { page: "Category Page", url: "/in/delhi/astrologer", title: "Best Astrologers in Delhi", status: "Review" },
@@ -29,7 +29,7 @@ export default function AdminSeoPage() {
           <h3 className="text-2xl font-semibold text-ink">SEO editor</h3>
           <div className="mt-6 grid gap-5">
             <AdminField label="Page URL" placeholder="/in/delhi/astrologer" />
-            <AdminField label="Meta Title" placeholder="Best Astrologer in Delhi | Luxury Directory" />
+            <AdminField label="Meta Title" placeholder="Best Astrologer in Delhi | Profinr" />
             <label>
               <span className="mb-2 block text-sm font-semibold text-ink">Meta Description</span>
               <textarea rows={4} placeholder="Write SEO description under 160 characters..." className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100" />

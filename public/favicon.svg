@@ -1,6 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="18" fill="#ffffff"/>
-  <rect x="6" y="6" width="52" height="52" rx="15" fill="#f8fafc" stroke="#d6ad60" stroke-width="3"/>
-  <path d="M20 43V21h12c7 0 12 4.5 12 11s-5 11-12 11H20Zm8-7h4c3 0 5-1.5 5-4s-2-4-5-4h-4v8Z" fill="#111827"/>
-  <circle cx="47" cy="17" r="4" fill="#d6ad60"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Profinr">
+  <rect width="64" height="64" rx="16" fill="#f4f0ea"/>
+  <path
+    d="M21 46V18h14a10 10 0 0 1 0 20h-6v8z M29 25v6h6a3 3 0 0 0 0-6z"
+    fill="#16130f"
+    fill-rule="evenodd"
+  />
+  <circle cx="49" cy="47" r="6" fill="#d68f52"/>
 </svg>

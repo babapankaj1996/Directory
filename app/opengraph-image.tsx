@@ -9,7 +9,7 @@ import { ImageResponse } from "next/og";
  * palette and never drifts out of date.
  */
 export const runtime = "nodejs";
-export const alt = "Luxury Directory — verified service providers worldwide";
+export const alt = "Profinr — verified service providers worldwide";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -43,7 +43,7 @@ export default async function OpengraphImage() {
               fontWeight: 700
             }}
           >
-            D
+            P
           </div>
           <div
             style={{

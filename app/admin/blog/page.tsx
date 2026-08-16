@@ -23,7 +23,7 @@ export default function AdminBlogPage() {
           <div className="mt-6 grid gap-5">
             <AdminField label="Post Title" placeholder="Best Astrologer in Delhi" />
             <AdminField label="Post Slug" placeholder="best-astrologer-in-delhi" />
-            <AdminField label="Meta Title" placeholder="Best Astrologer in Delhi | Luxury Directory" />
+            <AdminField label="Meta Title" placeholder="Best Astrologer in Delhi | Profinr" />
             <label>
               <span className="mb-2 block text-sm font-semibold text-ink">Excerpt / Meta Description</span>
               <textarea rows={4} placeholder="Write post summary..." className="w-full rounded-2xl border border-slate-200 bg-white text-ink px-4 py-3 text-sm outline-none focus:border-champagne focus:ring-4 focus:ring-amber-100" />

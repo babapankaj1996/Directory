@@ -54,7 +54,7 @@ export function websiteJsonLd() {
     "@type": "WebSite",
     "@id": `${siteUrl()}#website`,
     url: siteUrl(),
-    name: "Luxury Directory",
+    name: "Profinr",
     description: "Global service provider directory for comparing professionals by country, city, category, reviews, pricing, availability and profile details.",
     potentialAction: {
       "@type": "SearchAction",
@@ -69,7 +69,7 @@ export function organizationJsonLd() {
     "@context": "https://schema.org",
     "@type": "Organization",
     "@id": `${siteUrl()}#organization`,
-    name: "Luxury Directory",
+    name: "Profinr",
     url: siteUrl(),
     sameAs: []
   };
@@ -116,7 +116,7 @@ export function categoryCollectionJsonLd(path: string, seo: CategorySeoContent, 
     isPartOf: {
       "@type": "WebSite",
       url: siteUrl(),
-      name: "Luxury Directory"
+      name: "Profinr"
     },
     about: {
       "@type": "Service",

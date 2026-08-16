@@ -109,11 +109,11 @@ export function Header() {
         <div className="flex h-[4.25rem] items-center justify-between gap-4">
           <Link href="/" onClick={closeMenu} className="group flex min-w-0 items-center gap-3">
             <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.6rem] bg-ink text-onaccent transition-transform duration-300 ease-entrance group-hover:-rotate-6">
-              <span className="font-display text-lg leading-none" style={{ fontVariationSettings: '"opsz" 144' }}>D</span>
+              <span className="font-display text-lg leading-none" style={{ fontVariationSettings: '"opsz" 144' }}>P</span>
               <span aria-hidden="true" className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-copper-500 ring-2 ring-paper" />
             </span>
             <span className="min-w-0 leading-none">
-              <span className="block truncate font-display text-[1.35rem] font-semibold tracking-[-0.02em] text-ink">Directory</span>
+              <span className="block truncate font-display text-[1.35rem] font-semibold tracking-[-0.02em] text-ink">Profinr</span>
               <span className="mt-0.5 hidden text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-ink-muted sm:block">Verified providers</span>
             </span>
           </Link>
