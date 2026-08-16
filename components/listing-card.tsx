@@ -28,7 +28,7 @@ export function ListingCard({
 
   return (
     <article
-      className={`group relative flex flex-col overflow-hidden rounded-xl border bg-surface transition-all duration-300 ease-entrance hover:-translate-y-0.5 hover:shadow-lift ${
+      className={`card-3d group relative flex flex-col overflow-hidden rounded-xl border bg-surface ${
         activeFeatured ? "border-copper-500/45" : "border-line shadow-xs"
       } ${horizontal ? "sm:grid sm:grid-cols-[190px_minmax(0,1fr)] md:grid-cols-[248px_1fr]" : ""}`}
     >

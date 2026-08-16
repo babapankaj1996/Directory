@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, BadgeCheck, CheckCircle2, Compass, MapPin, Route, ShieldCheck, Sparkles, TrendingUp } from "lucide-react";
 import { CategoryGrid } from "@/components/category-card";
+import { Reveal } from "@/components/reveal";
 import { AdultCategoryGate } from "@/components/adult-access";
 import { AddProfileSignupLink } from "@/components/add-profile-signup-link";
 import { ListingCard } from "@/components/listing-card";
@@ -329,7 +330,7 @@ export default async function HomePage() {
 
       <section className="border-b border-line bg-surface py-16 md:py-20">
         <div className="shell">
-          <div className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
+          <Reveal variant="rise" className="mb-9 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div className="max-w-2xl">
               <p className="eyebrow text-copper-700">Popular categories</p>
               <h2 className="mt-4 text-3xl font-semibold tracking-[-0.025em] text-ink md:text-[2.75rem] md:leading-[1.08]">
@@ -340,7 +341,7 @@ export default async function HomePage() {
               View all categories
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
-          </div>
+          </Reveal>
           <CategoryGrid items={standardCategories} hrefForCategory={(category) => `/${category.slug}`} />
           <AdultCategoryGate listings={adultListings} categories={categoryItems} />
         </div>

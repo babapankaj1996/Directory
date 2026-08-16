@@ -122,26 +122,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Semantic tokens (preferred for new work)
-        paper: "#0f0d0b",
-        surface: "#191614",
-        sunken: "#211d1a",
+        // Semantic tokens (preferred for new work).
+        // These resolve through CSS variables so the light/dark themes in
+        // globals.css can swap them; the -rgb pairs exist so Tailwind's opacity
+        // modifiers (bg-paper/80) still work.
+        paper: "rgb(var(--paper-rgb) / <alpha-value>)",
+        surface: "rgb(var(--surface-rgb) / <alpha-value>)",
+        sunken: "var(--sunken)",
         // Always dark, whatever the theme: scrims, modal backdrops, media wells.
         shade: "#0a0806",
-        // Deepest section ground (hero, footer, feature panels).
+        // Deepest section ground (hero, footer, feature panels). Stays dark in
+        // both themes — a dark hero band and footer against a light page is the
+        // intended look, and the white text inside them stays correct.
         deep: "#0a0907",
         // Text colour that sits on a light/accent fill.
-        onaccent: "#1a120b",
+        onaccent: "var(--onaccent)",
         line: {
-          DEFAULT: "#2b2723",
-          strong: "#3a352f"
+          DEFAULT: "rgb(var(--line-rgb) / <alpha-value>)",
+          strong: "var(--line-strong)"
         },
         ink: {
-          DEFAULT: "#f4f0ea",
-          soft: "#c8c0b5",
-          muted: "#9c938a"
+          DEFAULT: "var(--ink)",
+          soft: "var(--ink-soft)",
+          muted: "var(--ink-muted)"
         },
-        muted: "#9c938a",
+        muted: "rgb(var(--ink-muted-rgb) / <alpha-value>)",
 
         // Named accents
         copper,

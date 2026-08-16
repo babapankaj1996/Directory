@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, LogOut, Menu, Plus, UserRound, X } from "lucide-react";
 import { rememberAddProfileSignupIntent } from "@/components/add-profile-signup-link";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { clearAdminSession, getCurrentUser } from "@/lib/admin-auth";
 
 const nav = [
@@ -148,6 +149,7 @@ export function Header() {
                 {dashboardLabel}
               </Link>
             ) : null}
+            <ThemeToggle className="mr-1" />
             {!sessionLoaded ? (
               <span className="skeleton h-9 w-24 rounded-md" aria-hidden="true" />
             ) : user ? (
@@ -224,6 +226,10 @@ export function Header() {
                   {dashboardLabel}
                 </Link>
               ) : null}
+              <div className="flex items-center justify-between gap-3 rounded-lg px-1 py-2">
+                <span className="text-sm font-semibold text-ink-muted">Theme</span>
+                <ThemeToggle />
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {!sessionLoaded ? (
                   <span className="skeleton h-12 rounded-lg" aria-hidden="true" />

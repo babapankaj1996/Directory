@@ -79,6 +79,7 @@ export function AuthCard({
   const [pendingRole, setPendingRole] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -129,6 +130,11 @@ export function AuthCard({
       } finally {
         setLoading(false);
       }
+      return;
+    }
+
+    if (isSignup && !acceptedTerms) {
+      setStatus("Please accept the Terms of Service and Privacy Policy to create an account.");
       return;
     }
 
@@ -302,9 +308,39 @@ export function AuthCard({
               <Link href="/forgot-password" className="inline-flex items-center py-1.5 font-semibold text-champagne">Forgot password?</Link>
             </div>
           )}
-          <Button type="submit" variant="gold" className="w-full" disabled={loading}>
+          {isSignup ? (
+            <label className="flex cursor-pointer items-start gap-3 text-sm leading-6 text-muted">
+              <input
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(event) => setAcceptedTerms(event.target.checked)}
+                aria-describedby="terms-consent-text"
+                className="mt-1 h-[18px] w-[18px] shrink-0 cursor-pointer accent-champagne"
+              />
+              <span id="terms-consent-text">
+                I agree to the{" "}
+                <Link href="/terms" target="_blank" className="font-semibold text-champagne underline underline-offset-2">
+                  Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link href="/privacy" target="_blank" className="font-semibold text-champagne underline underline-offset-2">
+                  Privacy Policy
+                </Link>
+                , and I confirm I am at least 18 years old.
+              </span>
+            </label>
+          ) : null}
+          <Button type="submit" variant="gold" className="w-full" disabled={loading || (isSignup && !acceptedTerms)}>
             {loading ? "Please wait..." : isForgot ? "Send Reset Link" : isSignup ? "Create Account" : "Sign In"}
           </Button>
+          {isLogin ? (
+            <p className="text-center text-xs leading-6 text-muted">
+              By signing in you agree to our{" "}
+              <Link href="/terms" className="font-semibold text-champagne underline underline-offset-2">Terms</Link>
+              {" "}and{" "}
+              <Link href="/privacy" className="font-semibold text-champagne underline underline-offset-2">Privacy Policy</Link>.
+            </p>
+          ) : null}
         </form>
 
         {status ? (

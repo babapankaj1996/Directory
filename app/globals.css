@@ -3,10 +3,22 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Dark is the brand's default. The light palette below is a genuine
+   * counterpart, not an inversion: warm stone grounds, a deeper copper so the
+   * accent still passes contrast on a pale surface, and the same relationships
+   * between ink, surface and line.
+   *
+   * Theme resolution has three states. An explicit choice writes
+   * data-theme="light"|"dark" on <html>; with no choice, prefers-color-scheme
+   * decides. Every colour is defined here on :root so nothing is left undefined
+   * in any state.
+   */
   :root {
     color-scheme: dark;
 
     --paper: #0f0d0b;
+    --paper-rgb: 15 13 11;
     --surface: #191614;
     --surface-rgb: 25 22 20;
     --sunken: #211d1a;
@@ -14,6 +26,7 @@
     --ink: #f4f0ea;
     --ink-soft: #c8c0b5;
     --ink-muted: #9c938a;
+    --ink-muted-rgb: 156 147 138;
     --line: #2b2723;
     --line-rgb: 43 39 35;
     --line-strong: #3a352f;
@@ -25,6 +38,56 @@
 
     --radius-card: 1rem;
     --shell: 80rem;
+  }
+
+  /*
+   * Light palette. Applied when the visitor explicitly chooses light, or when
+   * their system prefers light and they have not chosen dark. The accent
+   * colours are deepened here so they still meet contrast on a pale surface —
+   * the dark palette's copper would fail against white.
+   */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+    --paper: #faf7f2;
+    --paper-rgb: 250 247 242;
+    --surface: #ffffff;
+    --surface-rgb: 255 255 255;
+    --sunken: #f2ece3;
+    --ink: #191512;
+    --ink-soft: #4a423a;
+    --ink-muted: #6c6259;
+    --ink-muted-rgb: 108 98 89;
+    --line: #e5ded3;
+    --line-rgb: 229 222 211;
+    --line-strong: #d2c8ba;
+    --copper: #a05e29;
+    --copper-deep: #8c5024;
+    --jade: #2f7a6c;
+    --gold: #8f6f23;
+    --onaccent: #faf7f2;
+    }
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --paper: #faf7f2;
+    --paper-rgb: 250 247 242;
+    --surface: #ffffff;
+    --surface-rgb: 255 255 255;
+    --sunken: #f2ece3;
+    --ink: #191512;
+    --ink-soft: #4a423a;
+    --ink-muted: #6c6259;
+    --ink-muted-rgb: 108 98 89;
+    --line: #e5ded3;
+    --line-rgb: 229 222 211;
+    --line-strong: #d2c8ba;
+    --copper: #a05e29;
+    --copper-deep: #8c5024;
+    --jade: #2f7a6c;
+    --gold: #8f6f23;
+    --onaccent: #faf7f2;
   }
 
   * {
@@ -362,4 +425,100 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+ * Motion
+ *
+ * Depth without WebGL: everything here is transform/opacity only, so it runs on
+ * the compositor and costs no JavaScript beyond one IntersectionObserver. The
+ * whole layer is disabled under prefers-reduced-motion, which is the first rule
+ * rather than an afterthought.
+ * ------------------------------------------------------------------------- */
+
+@layer utilities {
+  /* Scroll reveals — see components/reveal.tsx */
+  [data-reveal] {
+    transition:
+      opacity 620ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+  }
+  [data-reveal][data-shown="false"] {
+    opacity: 0;
+  }
+  [data-reveal="rise"][data-shown="false"] {
+    transform: translate3d(0, 22px, 0);
+  }
+  [data-reveal="scale"][data-shown="false"] {
+    transform: scale3d(0.96, 0.96, 1);
+  }
+  /* A slight rotation about the X axis reads as depth without a 3D engine. */
+  [data-reveal="tilt"][data-shown="false"] {
+    transform: perspective(1200px) rotateX(7deg) translate3d(0, 26px, 0);
+  }
+  [data-reveal][data-shown="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  /*
+   * Card lift. The parent sets perspective so children can move in Z; the card
+   * itself only translates, which keeps text crisp (a scale transform resamples
+   * the rasterised text and looks soft).
+   */
+  .card-3d {
+    transform-style: preserve-3d;
+    transition:
+      transform 320ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .card-3d:hover {
+      transform: perspective(1000px) translate3d(0, -6px, 0) rotateX(1.5deg);
+      box-shadow: 0 22px 48px -24px rgb(0 0 0 / 0.45);
+    }
+  }
+
+  /* Slow drift for hero background ornaments. */
+  @keyframes profinr-drift {
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    50%      { transform: translate3d(0, -18px, 0) scale(1.04); }
+  }
+  .drift-slow { animation: profinr-drift 14s ease-in-out infinite; }
+  .drift-slower { animation: profinr-drift 22s ease-in-out infinite; }
+
+  /* Sheen that crosses a surface once on hover. */
+  @keyframes profinr-sheen {
+    from { transform: translate3d(-120%, 0, 0); }
+    to   { transform: translate3d(220%, 0, 0); }
+  }
+  .sheen { position: relative; overflow: hidden; }
+  .sheen::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 45%;
+    background: linear-gradient(100deg, transparent, rgb(255 255 255 / 0.10), transparent);
+    transform: translate3d(-120%, 0, 0);
+    pointer-events: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .sheen:hover::after { animation: profinr-sheen 900ms ease-out; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  .card-3d {
+    transition: none !important;
+  }
+  [data-reveal][data-shown="false"] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .card-3d:hover { transform: none !important; }
+  .drift-slow,
+  .drift-slower { animation: none !important; }
+  .sheen:hover::after { animation: none !important; }
 }
