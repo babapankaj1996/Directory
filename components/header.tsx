@@ -101,10 +101,20 @@ export function Header() {
 
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ease-entrance ${
+      /*
+       * The bar always keeps its own ground and a bottom edge. It used to go
+       * transparent with no border until scrolled, which worked over the
+       * homepage hero but made the header indistinguishable from every ordinary
+       * page — listings, categories and the rest share the same `paper` tone,
+       * so bar and content read as one flat block.
+       *
+       * `surface` sits one step off `paper` in both themes, which separates the
+       * two by tone as well as by the hairline.
+       */
+      className={`sticky top-0 z-50 border-b border-line transition-all duration-300 ease-entrance ${
         scrolled
-          ? "border-b border-line bg-paper/80 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-xl"
-          : "border-b border-transparent bg-paper/40 backdrop-blur-sm"
+          ? "bg-surface/95 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.9)] backdrop-blur-xl"
+          : "bg-surface/85 backdrop-blur-md"
       }`}
     >
       <div className="shell">
