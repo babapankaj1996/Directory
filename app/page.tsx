@@ -253,7 +253,7 @@ export default async function HomePage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="group inline-flex items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-copper-700"
+                className="group inline-flex min-h-[44px] items-center gap-2 py-1 text-sm font-semibold text-ink transition-colors hover:text-copper-700"
               >
                 <Route className="h-3.5 w-3.5 text-stone-400 transition-colors group-hover:text-copper-500" />
                 {item.label}
@@ -280,7 +280,7 @@ export default async function HomePage() {
                   rates and direct contact options before opening a profile.
                 </p>
               </div>
-              <Link href="/listings" className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-copper-700">
+              <Link href="/listings" className="group inline-flex min-h-[44px] shrink-0 items-center gap-2 py-1 text-sm font-semibold text-ink transition-colors hover:text-copper-700">
                 View featured listings
                 <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
@@ -313,7 +313,7 @@ export default async function HomePage() {
                 What people are searching this week
               </h2>
             </div>
-            <Link href="/listings" className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-white/70 transition-colors hover:text-white">
+            <Link href="/listings" className="group inline-flex min-h-[44px] shrink-0 items-center gap-2 py-1 text-sm font-semibold text-white/70 transition-colors hover:text-white">
               Browse all listings
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>
@@ -336,7 +336,7 @@ export default async function HomePage() {
                 Browse {categoryCount} active service categories
               </h2>
             </div>
-            <Link href="/categories" className="group inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-ink transition-colors hover:text-copper-700">
+            <Link href="/categories" className="group inline-flex min-h-[44px] shrink-0 items-center gap-2 py-1 text-sm font-semibold text-ink transition-colors hover:text-copper-700">
               View all categories
               <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
             </Link>

@@ -165,7 +165,7 @@ export function ListingsFilterPanel({ filters, total, categories = fallbackCateg
         </p>
         <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-muted">
           <label className="inline-flex items-center gap-2 rounded-2xl bg-white/70 px-4 py-3">
-            <input type="checkbox" checked={featured} onChange={(event) => setFeatured(event.target.checked)} /> Featured only
+            <input type="checkbox" className="h-4 w-4 cursor-pointer accent-champagne" checked={featured} onChange={(event) => setFeatured(event.target.checked)} /> Featured only
           </label>
           <button
             type="button"

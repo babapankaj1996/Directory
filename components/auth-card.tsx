@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Apple, Chrome, Diamond, Eye, EyeOff } from "lucide-react";
+import { Check, Diamond, Eye, EyeOff } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { readApiJson } from "@/lib/api-response";
@@ -203,14 +203,27 @@ export function AuthCard({
     <main className="mx-auto grid min-h-[78vh] max-w-6xl items-center gap-10 px-4 py-12 lg:grid-cols-[1fr_480px]">
       <section>
         <div className="inline-flex items-center gap-3 rounded-full bg-white/60 px-4 py-2 text-sm font-semibold text-champagne shadow-sm backdrop-blur-xl">
-          <Diamond className="h-4 w-4" /> Premium directory access
+          <Diamond className="h-4 w-4" /> For customers and business owners
         </div>
         <h1 className="mt-7 text-4xl font-semibold tracking-tight text-ink md:text-6xl">
-          Manage your profile with luxury-grade UX.
+          {isSignup ? "Join the directory." : "Welcome back."}
         </h1>
         <p className="mt-5 max-w-xl text-lg leading-8 text-muted">
-          Login, create an account, reset your password, add profiles and manage directory listings from a clean responsive dashboard.
+          {isSignup
+            ? "Create a free account to save providers you like and send enquiries. Signing up as a business owner? You can publish your profile straight after."
+            : "Sign in to pick up where you left off — your saved providers, enquiries and, for owners, your listing and its performance."}
         </p>
+        <ul className="mt-8 grid gap-3 text-sm text-muted">
+          {(isSignup
+            ? ["Free to join — no card needed", "Save providers and compare them later", "Owners can publish one profile after a quick review"]
+            : ["Your saved providers stay in one place", "Track enquiries you have sent", "Owners: manage your listing and see its views"]
+          ).map((item) => (
+            <li key={item} className="flex items-start gap-2.5">
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-mint" aria-hidden="true" />
+              {item}
+            </li>
+          ))}
+        </ul>
       </section>
 
       <GlassCard className="mx-auto w-full max-w-md">
@@ -223,17 +236,6 @@ export function AuthCard({
             {isForgot && resetToken ? "Enter a new secure password for your account." : isForgot ? "Enter your email and we will send reset instructions." : isSignup ? "Create an account before submitting a listing." : "Use your registered email to continue."}
           </p>
         </div>
-
-        {!isForgot && (
-          <div className="grid gap-3 sm:grid-cols-2">
-            <button type="button" disabled className="flex items-center justify-center gap-2 rounded-2xl bg-white/85 px-4 py-3 text-sm font-semibold text-muted shadow-sm opacity-70">
-              <Chrome className="h-4 w-4" /> Google
-            </button>
-            <button type="button" disabled className="flex items-center justify-center gap-2 rounded-2xl bg-white/85 px-4 py-3 text-sm font-semibold text-muted shadow-sm opacity-70">
-              <Apple className="h-4 w-4" /> Apple
-            </button>
-          </div>
-        )}
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           {isSignup && (
@@ -296,8 +298,8 @@ export function AuthCard({
           )}
           {isLogin && (
             <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-muted"><input type="checkbox" /> Remember me</label>
-              <Link href="/forgot-password" className="font-semibold text-champagne">Forgot password?</Link>
+              <label className="flex min-h-[44px] cursor-pointer items-center gap-2 py-1.5 text-muted"><input type="checkbox" className="h-[18px] w-[18px] cursor-pointer accent-champagne" /> Remember me</label>
+              <Link href="/forgot-password" className="inline-flex items-center py-1.5 font-semibold text-champagne">Forgot password?</Link>
             </div>
           )}
           <Button type="submit" variant="gold" className="w-full" disabled={loading}>
@@ -331,7 +333,7 @@ export function AuthCard({
 
         <p className="mt-6 text-center text-sm text-muted">
           {isLogin ? "Don't have an account? " : "Already have an account? "}
-          <Link href={isLogin ? signupHref : loginHref} className="font-semibold text-champagne">
+          <Link href={isLogin ? signupHref : loginHref} className="inline-flex min-h-[44px] items-center px-1 font-semibold text-champagne">
             {isLogin ? "Sign up" : "Login"}
           </Link>
         </p>

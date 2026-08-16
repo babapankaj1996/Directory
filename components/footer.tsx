@@ -72,7 +72,7 @@ export function Footer() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="w-fit text-sm text-white/65 transition-colors duration-200 hover:text-white"
+                    className="-my-0.5 inline-flex w-fit items-center py-1.5 text-sm text-white/65 transition-colors duration-200 hover:text-white"
                   >
                     {link.label}
                   </Link>

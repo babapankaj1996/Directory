@@ -309,13 +309,13 @@ export function CategoryListingPage({
           </p>
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-muted">
             <label className="inline-flex items-center gap-2 rounded-2xl bg-white/70 px-4 py-3">
-              <input type="checkbox" checked={featuredOnly} onChange={(event) => {
+              <input type="checkbox" className="h-4 w-4 cursor-pointer accent-champagne" checked={featuredOnly} onChange={(event) => {
                 setFeaturedOnly(event.target.checked);
                 setPage(1);
               }} /> Featured only
             </label>
             <label className="inline-flex items-center gap-2 rounded-2xl bg-white/70 px-4 py-3">
-              <input type="checkbox" checked={verifiedOnly} onChange={(event) => {
+              <input type="checkbox" className="h-4 w-4 cursor-pointer accent-champagne" checked={verifiedOnly} onChange={(event) => {
                 setVerifiedOnly(event.target.checked);
                 setPage(1);
               }} /> Verified only
