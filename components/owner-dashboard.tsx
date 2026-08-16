@@ -10,12 +10,14 @@ import { fallbackPlacementOptions, featuredPageTypeLabel, formatMoney, type Feat
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
+import { VerifyEmailNotice } from "@/components/verify-email-notice";
 
 type SessionUser = {
   id: string;
   name: string;
   email: string;
   role: string;
+  emailVerified?: boolean;
 };
 
 type InsightSummary = {
@@ -238,6 +240,14 @@ export function OwnerDashboard() {
       mounted = false;
     };
   }, []);
+
+  /**
+   * The API refuses every owner-scoped read and write until the address is
+   * confirmed ("Please verify your email before managing listings"), and the
+   * dashboard swallows those 403s. Without this the page renders a complete,
+   * working-looking dashboard of zeroes and every action fails in silence.
+   */
+  const needsEmailVerification = user?.role === "OWNER" && user.emailVerified === false;
 
   const stats = useMemo(() => ({
       total: listings.length,
@@ -594,6 +604,8 @@ export function OwnerDashboard() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 md:py-12">
+      {needsEmailVerification ? <VerifyEmailNotice email={user?.email || ""} /> : null}
+
       <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-end">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-champagne">Listing poster dashboard</p>
@@ -602,7 +614,11 @@ export function OwnerDashboard() {
             Each business owner account can post one profile. Track approval state, views and reviews here; country, city, category and slug stay locked after submission for SEO stability.
           </p>
         </div>
-        {primaryListing ? (
+        {needsEmailVerification ? (
+          <Button variant="gold" disabled aria-describedby="verify-email-notice">
+            <Plus className="mr-2 h-4 w-4" /> Add Profile
+          </Button>
+        ) : primaryListing ? (
           <Button href={`/dashboard/edit-profile?listing=${primaryListing.slug}`} variant="gold">Edit Profile</Button>
         ) : (
           <Button href="/dashboard/add-profile" variant="gold"><Plus className="mr-2 h-4 w-4" /> Add Profile</Button>
@@ -1293,3 +1309,4 @@ function EmptyState({ title, text, href, action }: { title: string; text: string
     </div>
   );
 }
+

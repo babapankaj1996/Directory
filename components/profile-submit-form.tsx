@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
+import { VerifyEmailNotice } from "@/components/verify-email-notice";
 import { UploadField } from "@/components/upload-field";
 import { CategoryProfileAssist } from "@/components/category-profile-assist";
 import { adminFetch, authFetch, getCurrentUser } from "@/lib/admin-auth";
@@ -96,6 +97,7 @@ type SessionUser = {
   name: string;
   email: string;
   role: string;
+  emailVerified?: boolean;
 };
 
 const defaultCover = "Upload a real cover photo. If empty, the public page shows a branded fallback.";
@@ -576,6 +578,10 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
     );
   }
 
+  // Owners must confirm their email before the API will accept a profile, so
+  // say so before the wizard is filled in rather than failing on submit.
+  const needsEmailVerification = !admin && currentUser?.role === "OWNER" && currentUser.emailVerified === false;
+
   async function submitProfile(statusOverride?: string) {
     setNotice("");
     setCreatedSlug("");
@@ -702,7 +708,9 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
   const StepIcon = currentStep.icon;
 
   return (
-    <GlassCard className="p-4 sm:p-6 md:p-7">
+    <>
+      {needsEmailVerification ? <VerifyEmailNotice email={currentUser?.email || ""} className="mb-5" /> : null}
+      <GlassCard className="p-4 sm:p-6 md:p-7">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-champagne shadow-sm ring-1 ring-slate-200">
@@ -949,7 +957,7 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
           ) : (
             <>
               {admin ? <Button variant="ghost" disabled={loading} onClick={() => submitProfile("PENDING")}>Save Pending</Button> : null}
-              <Button variant="gold" disabled={loading} onClick={() => submitProfile(admin ? undefined : "PENDING")}>
+              <Button variant="gold" disabled={loading || needsEmailVerification} onClick={() => submitProfile(admin ? undefined : "PENDING")}>
                 {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                 {admin ? "Create Profile" : "Submit Profile"}
               </Button>
@@ -957,7 +965,8 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
           )}
         </div>
       </div>
-    </GlassCard>
+      </GlassCard>
+    </>
   );
 }
 
