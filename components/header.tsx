@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { LayoutDashboard, LogOut, Menu, Plus, UserRound, X } from "lucide-react";
 import { rememberAddProfileSignupIntent } from "@/components/add-profile-signup-link";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggle, ThemeSegmented } from "@/components/theme-toggle";
+import { NavSearch } from "@/components/nav-search";
 import { clearAdminSession, getCurrentUser } from "@/lib/admin-auth";
 
 const nav = [
@@ -107,19 +108,16 @@ export function Header() {
       }`}
     >
       <div className="shell">
-        <div className="flex h-[4.25rem] items-center justify-between gap-4">
-          <Link href="/" onClick={closeMenu} className="group flex min-w-0 items-center gap-3">
+        <div className="relative flex h-[4.25rem] items-center gap-3">
+          <Link href="/" onClick={closeMenu} className="group flex shrink-0 items-center gap-2.5">
             <span className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[0.6rem] bg-ink text-onaccent transition-transform duration-300 ease-entrance group-hover:-rotate-6">
               <span className="font-display text-lg leading-none" style={{ fontVariationSettings: '"opsz" 144' }}>P</span>
               <span aria-hidden="true" className="absolute -bottom-1 -right-1 h-2 w-2 rounded-full bg-copper-500 ring-2 ring-paper" />
             </span>
-            <span className="min-w-0 leading-none">
-              <span className="block truncate font-display text-[1.35rem] font-semibold tracking-[-0.02em] text-ink">Profinr</span>
-              <span className="mt-0.5 hidden text-[0.6rem] font-semibold uppercase tracking-[0.22em] text-ink-muted sm:block">Verified providers</span>
-            </span>
+            <span className="font-display text-[1.35rem] font-semibold leading-none tracking-[-0.02em] text-ink">Profinr</span>
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex" aria-label="Primary">
+          <nav className="hidden shrink-0 items-center gap-0.5 lg:flex" aria-label="Primary">
             {nav.map((item) => {
               const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
@@ -143,7 +141,9 @@ export function Header() {
             })}
           </nav>
 
-          <div className="hidden items-center gap-1 md:flex">
+          <NavSearch mode="inline" className="mx-auto max-w-md flex-1" />
+
+          <div className="ml-auto hidden items-center gap-1 md:flex lg:ml-0">
             {sessionLoaded && user ? (
               <Link href={dashboardHref} className="rounded-md px-3.5 py-2 text-sm font-semibold text-ink-muted transition-colors hover:text-ink">
                 {dashboardLabel}
@@ -174,6 +174,11 @@ export function Header() {
             >
               <CtaIcon className="h-4 w-4 text-copper-400" /> {ctaLabel}
             </Link>
+          </div>
+
+          <div className="ml-auto flex items-center gap-1 md:hidden">
+            <NavSearch mode="compact" />
+            <ThemeToggle />
           </div>
 
           <button
@@ -228,7 +233,7 @@ export function Header() {
               ) : null}
               <div className="flex items-center justify-between gap-3 rounded-lg px-1 py-2">
                 <span className="text-sm font-semibold text-ink-muted">Theme</span>
-                <ThemeToggle />
+                <ThemeSegmented />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {!sessionLoaded ? (
