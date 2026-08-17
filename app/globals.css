@@ -36,6 +36,88 @@
     --gold: #d6ab4a;
     --onaccent: #1a120b;
 
+    /* Accent ramps. Dark-first: 50 sits closest to the ground, 950 furthest.
+       The light theme mirrors them so a given step keeps that meaning. */
+    --copper-50: #2a1a10;
+    --copper-100: #38220f;
+    --copper-200: #4b2d15;
+    --copper-300: #633c1c;
+    --copper-400: #8a5b2d;
+    --copper-500: #b8763c;
+    --copper-600: #d68f52;
+    --copper-700: #e8ad78;
+    --copper-800: #f2cba4;
+    --copper-900: #f9e5d0;
+    --copper-950: #fdf6ee;
+    --jade-50: #0f2320;
+    --jade-100: #133029;
+    --jade-200: #1a4239;
+    --jade-300: #23594e;
+    --jade-400: #35796c;
+    --jade-500: #499b8c;
+    --jade-600: #6cb8a9;
+    --jade-700: #90d0c1;
+    --jade-800: #b9e3d9;
+    --jade-900: #dcf1ec;
+    --jade-950: #f0faf7;
+    --gold-50: #2a2010;
+    --gold-100: #382a11;
+    --gold-200: #4b3916;
+    --gold-300: #644c1c;
+    --gold-400: #8d6c26;
+    --gold-500: #b78c30;
+    --gold-600: #d6ab4a;
+    --gold-700: #e8c877;
+    --gold-800: #f2dfa8;
+    --gold-900: #f9eed2;
+    --gold-950: #fdf9ef;
+    --moss-50: #12261a;
+    --moss-100: #163220;
+    --moss-200: #1d452c;
+    --moss-300: #275c3a;
+    --moss-400: #3a7d53;
+    --moss-500: #4f9f6d;
+    --moss-600: #6fbb89;
+    --moss-700: #96d2a9;
+    --moss-800: #bfe4cb;
+    --moss-900: #e0f2e6;
+    --moss-950: #f2faf4;
+    --clay-50: #2c1512;
+    --clay-100: #3a1b16;
+    --clay-200: #4e241d;
+    --clay-300: #683027;
+    --clay-400: #8f473a;
+    --clay-500: #b85f4c;
+    --clay-600: #d47f6b;
+    --clay-700: #e8a493;
+    --clay-800: #f2c8bd;
+    --clay-900: #f9e3dc;
+    --clay-950: #fdf4f1;
+    --stone-50: #1b1815;
+    --stone-100: #211d1a;
+    --stone-200: #2b2723;
+    --stone-300: #3a352f;
+    --stone-400: #6d655c;
+    --stone-500: #8b8277;
+    --stone-600: #9c938a;
+    --stone-700: #c3baae;
+    --stone-800: #ded5ca;
+    --stone-900: #f0ebe4;
+    --stone-950: #faf7f3;
+    /* Canonical copies the always-dark scope below never overrides, so a light
+       surface nested inside a dark section can restore the active theme. */
+    --theme-ink: #f4f0ea;
+    --theme-ink-soft: #c8c0b5;
+    --theme-ink-muted: #9c938a;
+    --theme-ink-muted-rgb: 156 147 138;
+    --theme-line: #2b2723;
+    --theme-line-rgb: 43 39 35;
+    --theme-copper-700: #e8ad78;
+    --theme-onaccent: #1a120b;
+    --glass-inset: inset 0 1px 0 rgb(255 255 255 / 0.04);
+    --glass-shadow: 0.5;
+    --glass-shadow-strong: 0.55;
+
     --radius-card: 1rem;
     --shell: 80rem;
   }
@@ -62,10 +144,87 @@
     --line-rgb: 229 222 211;
     --line-strong: #d2c8ba;
     --copper: #a05e29;
+    --theme-ink: #191512;
+    --theme-ink-soft: #4a423a;
+    --theme-ink-muted: #6c6259;
+    --theme-ink-muted-rgb: 108 98 89;
+    --theme-line: #e5ded3;
+    --theme-line-rgb: 229 222 211;
+    --theme-copper-700: #633c1c;
+    --theme-onaccent: #faf7f2;
+    --glass-inset: inset 0 1px 0 rgb(255 255 255 / 0.6);
+    --glass-shadow: 0.10;
+    --glass-shadow-strong: 0.14;
+    --stone-50: #faf7f3;
+    --stone-100: #f0ebe4;
+    --stone-200: #ded5ca;
+    --stone-300: #c3baae;
+    --stone-400: #9c938a;
+    --stone-500: #8b8277;
+    --stone-600: #6d655c;
+    --stone-700: #3a352f;
+    --stone-800: #2b2723;
+    --stone-900: #211d1a;
+    --stone-950: #1b1815;
     --copper-deep: #8c5024;
     --jade: #2f7a6c;
     --gold: #8f6f23;
     --onaccent: #faf7f2;
+    --copper-50: #fdf6ee;
+    --copper-100: #f9e5d0;
+    --copper-200: #f2cba4;
+    --copper-300: #e8ad78;
+    --copper-400: #d68f52;
+    --copper-500: #b8763c;
+    --copper-600: #8a5b2d;
+    --copper-700: #633c1c;
+    --copper-800: #4b2d15;
+    --copper-900: #38220f;
+    --copper-950: #2a1a10;
+    --jade-50: #f0faf7;
+    --jade-100: #dcf1ec;
+    --jade-200: #b9e3d9;
+    --jade-300: #90d0c1;
+    --jade-400: #6cb8a9;
+    --jade-500: #499b8c;
+    --jade-600: #35796c;
+    --jade-700: #23594e;
+    --jade-800: #1a4239;
+    --jade-900: #133029;
+    --jade-950: #0f2320;
+    --gold-50: #fdf9ef;
+    --gold-100: #f9eed2;
+    --gold-200: #f2dfa8;
+    --gold-300: #e8c877;
+    --gold-400: #d6ab4a;
+    --gold-500: #b78c30;
+    --gold-600: #8d6c26;
+    --gold-700: #644c1c;
+    --gold-800: #4b3916;
+    --gold-900: #382a11;
+    --gold-950: #2a2010;
+    --moss-50: #f2faf4;
+    --moss-100: #e0f2e6;
+    --moss-200: #bfe4cb;
+    --moss-300: #96d2a9;
+    --moss-400: #6fbb89;
+    --moss-500: #4f9f6d;
+    --moss-600: #3a7d53;
+    --moss-700: #275c3a;
+    --moss-800: #1d452c;
+    --moss-900: #163220;
+    --moss-950: #12261a;
+    --clay-50: #fdf4f1;
+    --clay-100: #f9e3dc;
+    --clay-200: #f2c8bd;
+    --clay-300: #e8a493;
+    --clay-400: #d47f6b;
+    --clay-500: #b85f4c;
+    --clay-600: #8f473a;
+    --clay-700: #683027;
+    --clay-800: #4e241d;
+    --clay-900: #3a1b16;
+    --clay-950: #2c1512;
     }
   }
 
@@ -84,10 +243,87 @@
     --line-rgb: 229 222 211;
     --line-strong: #d2c8ba;
     --copper: #a05e29;
+    --theme-ink: #191512;
+    --theme-ink-soft: #4a423a;
+    --theme-ink-muted: #6c6259;
+    --theme-ink-muted-rgb: 108 98 89;
+    --theme-line: #e5ded3;
+    --theme-line-rgb: 229 222 211;
+    --theme-copper-700: #633c1c;
+    --theme-onaccent: #faf7f2;
+    --glass-inset: inset 0 1px 0 rgb(255 255 255 / 0.6);
+    --glass-shadow: 0.10;
+    --glass-shadow-strong: 0.14;
+    --stone-50: #faf7f3;
+    --stone-100: #f0ebe4;
+    --stone-200: #ded5ca;
+    --stone-300: #c3baae;
+    --stone-400: #9c938a;
+    --stone-500: #8b8277;
+    --stone-600: #6d655c;
+    --stone-700: #3a352f;
+    --stone-800: #2b2723;
+    --stone-900: #211d1a;
+    --stone-950: #1b1815;
     --copper-deep: #8c5024;
     --jade: #2f7a6c;
     --gold: #8f6f23;
     --onaccent: #faf7f2;
+    --copper-50: #fdf6ee;
+    --copper-100: #f9e5d0;
+    --copper-200: #f2cba4;
+    --copper-300: #e8ad78;
+    --copper-400: #d68f52;
+    --copper-500: #b8763c;
+    --copper-600: #8a5b2d;
+    --copper-700: #633c1c;
+    --copper-800: #4b2d15;
+    --copper-900: #38220f;
+    --copper-950: #2a1a10;
+    --jade-50: #f0faf7;
+    --jade-100: #dcf1ec;
+    --jade-200: #b9e3d9;
+    --jade-300: #90d0c1;
+    --jade-400: #6cb8a9;
+    --jade-500: #499b8c;
+    --jade-600: #35796c;
+    --jade-700: #23594e;
+    --jade-800: #1a4239;
+    --jade-900: #133029;
+    --jade-950: #0f2320;
+    --gold-50: #fdf9ef;
+    --gold-100: #f9eed2;
+    --gold-200: #f2dfa8;
+    --gold-300: #e8c877;
+    --gold-400: #d6ab4a;
+    --gold-500: #b78c30;
+    --gold-600: #8d6c26;
+    --gold-700: #644c1c;
+    --gold-800: #4b3916;
+    --gold-900: #382a11;
+    --gold-950: #2a2010;
+    --moss-50: #f2faf4;
+    --moss-100: #e0f2e6;
+    --moss-200: #bfe4cb;
+    --moss-300: #96d2a9;
+    --moss-400: #6fbb89;
+    --moss-500: #4f9f6d;
+    --moss-600: #3a7d53;
+    --moss-700: #275c3a;
+    --moss-800: #1d452c;
+    --moss-900: #163220;
+    --moss-950: #12261a;
+    --clay-50: #fdf4f1;
+    --clay-100: #f9e3dc;
+    --clay-200: #f2c8bd;
+    --clay-300: #e8a493;
+    --clay-400: #d47f6b;
+    --clay-500: #b85f4c;
+    --clay-600: #8f473a;
+    --clay-700: #683027;
+    --clay-800: #4e241d;
+    --clay-900: #3a1b16;
+    --clay-950: #2c1512;
   }
 
   * {
@@ -179,8 +415,8 @@
 
   /* Native dropdown popups follow the OS, so keep the options legible there. */
   option {
-    background-color: #211d1a;
-    color: #f4f0ea;
+    background-color: var(--sunken);
+    color: var(--ink);
   }
 
   input::placeholder,
@@ -198,7 +434,7 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #3a352f;
+    background: var(--line-strong);
     border: 3px solid var(--paper);
     border-radius: 999px;
   }
@@ -224,17 +460,17 @@
   }
 
   .glass {
-    background: rgba(25, 22, 20, 0.7);
+    background: rgb(var(--surface-rgb) / 0.72);
     border: 1px solid var(--line);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04), 0 16px 44px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--glass-inset), 0 16px 44px rgb(0 0 0 / var(--glass-shadow));
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
   }
 
   .glass-strong {
-    background: rgba(33, 29, 26, 0.9);
+    background: rgb(var(--surface-rgb) / 0.93);
     border: 1px solid var(--line-strong);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 20px 52px rgba(0, 0, 0, 0.55);
+    box-shadow: var(--glass-inset), 0 20px 52px rgb(0 0 0 / var(--glass-shadow-strong));
     backdrop-filter: blur(24px) saturate(160%);
     -webkit-backdrop-filter: blur(24px) saturate(160%);
   }
@@ -521,4 +757,117 @@
   .drift-slow,
   .drift-slower { animation: none !important; }
   .sheen:hover::after { animation: none !important; }
+}
+
+@layer base {
+  /*
+   * Always-dark grounds.
+   *
+   * `deep` and `shade` stay dark in both themes — the hero band, the footer and
+   * media wells are meant to read that way. The light theme darkens the accent
+   * ramps so they contrast with a pale page, which is right everywhere except
+   * inside these sections, where a darkened accent lands on near-black.
+   *
+   * Re-declaring the ramps here restores the dark-theme values for anything
+   * nested inside, so `text-copper-700` keeps meaning "reads clearly against
+   * this ground" no matter which theme is active.
+   */
+  [class~="bg-deep"],
+  [class*="bg-deep/"],
+  [class~="bg-shade"],
+  [class*="bg-shade/"],
+  [data-ground="deep"] {
+    --copper-50: #2a1a10;
+    --copper-100: #38220f;
+    --copper-200: #4b2d15;
+    --copper-300: #633c1c;
+    --copper-400: #8a5b2d;
+    --copper-500: #b8763c;
+    --copper-600: #d68f52;
+    --copper-700: #e8ad78;
+    --copper-800: #f2cba4;
+    --copper-900: #f9e5d0;
+    --copper-950: #fdf6ee;
+    --jade-50: #0f2320;
+    --jade-100: #133029;
+    --jade-200: #1a4239;
+    --jade-300: #23594e;
+    --jade-400: #35796c;
+    --jade-500: #499b8c;
+    --jade-600: #6cb8a9;
+    --jade-700: #90d0c1;
+    --jade-800: #b9e3d9;
+    --jade-900: #dcf1ec;
+    --jade-950: #f0faf7;
+    --gold-50: #2a2010;
+    --gold-100: #382a11;
+    --gold-200: #4b3916;
+    --gold-300: #644c1c;
+    --gold-400: #8d6c26;
+    --gold-500: #b78c30;
+    --gold-600: #d6ab4a;
+    --gold-700: #e8c877;
+    --gold-800: #f2dfa8;
+    --gold-900: #f9eed2;
+    --gold-950: #fdf9ef;
+    --moss-50: #12261a;
+    --moss-100: #163220;
+    --moss-200: #1d452c;
+    --moss-300: #275c3a;
+    --moss-400: #3a7d53;
+    --moss-500: #4f9f6d;
+    --moss-600: #6fbb89;
+    --moss-700: #96d2a9;
+    --moss-800: #bfe4cb;
+    --moss-900: #e0f2e6;
+    --moss-950: #f2faf4;
+    --clay-50: #2c1512;
+    --clay-100: #3a1b16;
+    --clay-200: #4e241d;
+    --clay-300: #683027;
+    --clay-400: #8f473a;
+    --clay-500: #b85f4c;
+    --clay-600: #d47f6b;
+    --clay-700: #e8a493;
+    --clay-800: #f2c8bd;
+    --clay-900: #f9e3dc;
+    --clay-950: #fdf4f1;
+    --stone-50: #1b1815;
+    --stone-100: #211d1a;
+    --stone-200: #2b2723;
+    --stone-300: #3a352f;
+    --stone-400: #6d655c;
+    --stone-500: #8b8277;
+    --stone-600: #9c938a;
+    --stone-700: #c3baae;
+    --stone-800: #ded5ca;
+    --stone-900: #f0ebe4;
+    --stone-950: #faf7f3;
+    --ink: #f4f0ea;
+    --ink-soft: #c8c0b5;
+    --ink-muted: #9c938a;
+    --ink-muted-rgb: 156 147 138;
+    --line: #2b2723;
+    --line-rgb: 43 39 35;
+    --onaccent: #1a120b;
+  }
+}
+
+@layer base {
+  /*
+   * A pale card sitting inside an always-dark section — the hero's search
+   * panel, for instance — paints its own light ground, so the dark-scope
+   * overrides above would put light text on it. Restore the active theme's
+   * values for anything that establishes a surface of its own.
+   */
+  [data-ground="surface"] {
+    --ink: var(--theme-ink);
+    --ink-soft: var(--theme-ink-soft);
+    --ink-muted: var(--theme-ink-muted);
+    --ink-muted-rgb: var(--theme-ink-muted-rgb);
+    --line: var(--theme-line);
+    --line-rgb: var(--theme-line-rgb);
+    --copper-700: var(--theme-copper-700);
+    --onaccent: var(--theme-onaccent);
+  }
 }

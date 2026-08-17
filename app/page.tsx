@@ -468,12 +468,12 @@ function TrendingPanel({ title, items, tone }: { title: string; items: TrendItem
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold text-white/90 transition-colors group-hover:text-white">{item.label}</span>
-              <span className="mt-0.5 block truncate text-xs text-white/40">{item.meta}</span>
+              <span className="mt-0.5 block truncate text-xs text-white/60">{item.meta}</span>
             </span>
             <ArrowRight className="h-3.5 w-3.5 shrink-0 -translate-x-1 text-white/0 transition-all duration-200 group-hover:translate-x-0 group-hover:text-white/50" />
           </Link>
         )) : (
-          <p className="py-3 text-sm text-white/40">No trending data yet</p>
+          <p className="py-3 text-sm text-white/60">No trending data yet</p>
         )}
       </div>
     </div>

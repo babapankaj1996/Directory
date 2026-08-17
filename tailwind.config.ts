@@ -16,87 +16,87 @@ import defaultTheme from "tailwindcss/defaultTheme";
  */
 
 const stone = {
-  50: "#1b1815",
-  100: "#211d1a",
-  200: "#2b2723",
-  300: "#3a352f",
-  400: "#6d655c",
-  500: "#8b8277",
-  600: "#9c938a",
-  700: "#c3baae",
-  800: "#ded5ca",
-  900: "#f0ebe4",
-  950: "#faf7f3"
+  50: "var(--stone-50)",
+  100: "var(--stone-100)",
+  200: "var(--stone-200)",
+  300: "var(--stone-300)",
+  400: "var(--stone-400)",
+  500: "var(--stone-500)",
+  600: "var(--stone-600)",
+  700: "var(--stone-700)",
+  800: "var(--stone-800)",
+  900: "var(--stone-900)",
+  950: "var(--stone-950)"
 };
 
 const copper = {
-  50: "#2a1a10",
-  100: "#38220f",
-  200: "#4b2d15",
-  300: "#633c1c",
-  400: "#8a5b2d",
-  500: "#b8763c",
-  600: "#d68f52",
-  700: "#e8ad78",
-  800: "#f2cba4",
-  900: "#f9e5d0",
-  950: "#fdf6ee"
+  50: "var(--copper-50)",
+  100: "var(--copper-100)",
+  200: "var(--copper-200)",
+  300: "var(--copper-300)",
+  400: "var(--copper-400)",
+  500: "var(--copper-500)",
+  600: "var(--copper-600)",
+  700: "var(--copper-700)",
+  800: "var(--copper-800)",
+  900: "var(--copper-900)",
+  950: "var(--copper-950)"
 };
 
 const jade = {
-  50: "#0f2320",
-  100: "#133029",
-  200: "#1a4239",
-  300: "#23594e",
-  400: "#35796c",
-  500: "#499b8c",
-  600: "#6cb8a9",
-  700: "#90d0c1",
-  800: "#b9e3d9",
-  900: "#dcf1ec",
-  950: "#f0faf7"
+  50: "var(--jade-50)",
+  100: "var(--jade-100)",
+  200: "var(--jade-200)",
+  300: "var(--jade-300)",
+  400: "var(--jade-400)",
+  500: "var(--jade-500)",
+  600: "var(--jade-600)",
+  700: "var(--jade-700)",
+  800: "var(--jade-800)",
+  900: "var(--jade-900)",
+  950: "var(--jade-950)"
 };
 
 const gold = {
-  50: "#2a2010",
-  100: "#382a11",
-  200: "#4b3916",
-  300: "#644c1c",
-  400: "#8d6c26",
-  500: "#b78c30",
-  600: "#d6ab4a",
-  700: "#e8c877",
-  800: "#f2dfa8",
-  900: "#f9eed2",
-  950: "#fdf9ef"
+  50: "var(--gold-50)",
+  100: "var(--gold-100)",
+  200: "var(--gold-200)",
+  300: "var(--gold-300)",
+  400: "var(--gold-400)",
+  500: "var(--gold-500)",
+  600: "var(--gold-600)",
+  700: "var(--gold-700)",
+  800: "var(--gold-800)",
+  900: "var(--gold-900)",
+  950: "var(--gold-950)"
 };
 
 const clay = {
-  50: "#2c1512",
-  100: "#3a1b16",
-  200: "#4e241d",
-  300: "#683027",
-  400: "#8f473a",
-  500: "#b85f4c",
-  600: "#d47f6b",
-  700: "#e8a493",
-  800: "#f2c8bd",
-  900: "#f9e3dc",
-  950: "#fdf4f1"
+  50: "var(--clay-50)",
+  100: "var(--clay-100)",
+  200: "var(--clay-200)",
+  300: "var(--clay-300)",
+  400: "var(--clay-400)",
+  500: "var(--clay-500)",
+  600: "var(--clay-600)",
+  700: "var(--clay-700)",
+  800: "var(--clay-800)",
+  900: "var(--clay-900)",
+  950: "var(--clay-950)"
 };
 
 const moss = {
-  50: "#12261a",
-  100: "#163220",
-  200: "#1d452c",
-  300: "#275c3a",
-  400: "#3a7d53",
-  500: "#4f9f6d",
-  600: "#6fbb89",
-  700: "#96d2a9",
-  800: "#bfe4cb",
-  900: "#e0f2e6",
-  950: "#f2faf4"
+  50: "var(--moss-50)",
+  100: "var(--moss-100)",
+  200: "var(--moss-200)",
+  300: "var(--moss-300)",
+  400: "var(--moss-400)",
+  500: "var(--moss-500)",
+  600: "var(--moss-600)",
+  700: "var(--moss-700)",
+  800: "var(--moss-800)",
+  900: "var(--moss-900)",
+  950: "var(--moss-950)"
 };
 
 const denim = {
@@ -155,9 +155,11 @@ const config: Config = {
         clay,
         moss,
 
-        // Legacy aliases kept so existing markup inherits the new palette
-        pearl: "#0f0d0b",
-        cloud: "#211d1a",
+        // Legacy aliases kept so existing markup inherits the new palette.
+        // These were frozen at the dark palette's hex, so any surface using them
+        // stayed dark in the light theme and put dark text on a dark ground.
+        pearl: "rgb(var(--paper-rgb) / <alpha-value>)",
+        cloud: "var(--sunken)",
         aqua: jade[600],
         coral: copper[600],
         champagne: copper[700],

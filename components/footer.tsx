@@ -92,7 +92,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-7 text-xs text-white/45 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-7 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
           <p>&copy; {new Date().getFullYear()} Profinr. All rights reserved.</p>
           <p>Compare providers by rating, verification, availability and price before you book.</p>
         </div>

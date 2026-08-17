@@ -87,6 +87,7 @@ export function SearchBar({ compact = false, categoryOptions = categories }: { c
 
   return (
     <form
+      data-ground="surface"
       onSubmit={submitSearch}
       className={`rounded-2xl border border-line bg-surface/95 backdrop-blur-xl ${compact ? "p-2 shadow-xl md:p-2.5" : "p-2.5 shadow-lg md:p-3"}`}
     >
