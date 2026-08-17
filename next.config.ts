@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const isProduction = process.env.NODE_ENV === "production";
-const apiOrigin = process.env.NEXT_PUBLIC_API_URL ||
+// NEXT_PUBLIC_API_URL may be a site-relative path (the browser reaches the API
+// through a same-origin proxy), which is not a parseable URL. Only an absolute
+// value can contribute an image remote pattern, so fall back for that purpose.
+const rawApiOrigin = process.env.NEXT_PUBLIC_API_URL || "";
+const apiOrigin = (rawApiOrigin.startsWith("http") ? rawApiOrigin : "") ||
   process.env.NEXT_PUBLIC_APP_URL ||
   process.env.NEXT_PUBLIC_SITE_URL ||
   "http://localhost:3000";
