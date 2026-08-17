@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 
 /**
  * Footer navigation.
@@ -9,9 +10,10 @@ import { ArrowUpRight } from "lucide-react";
  * sitemap/robots files, which are crawler plumbing already declared in
  * robots.txt rather than anything a person clicks.
  */
-const columns = [
+function buildColumns(t: Dictionary) {
+  return [
   {
-    title: "Explore",
+      title: t.footer.explore,
     links: [
       { href: "/listings", label: "Latest listings" },
       { href: "/categories", label: "All categories" },
@@ -19,15 +21,15 @@ const columns = [
     ]
   },
   {
-    title: "Company",
+      title: t.footer.company,
     links: [
-      { href: "/about", label: "About us" },
-      { href: "/contact", label: "Contact" },
+      { href: "/about", label: t.footer.about },
+      { href: "/contact", label: t.footer.contact },
       { href: "/blog", label: "Blog" }
     ]
   },
   {
-    title: "Get started",
+      title: t.footer.getStarted,
     links: [
       { href: "/signup", label: "List your business" },
       { href: "/signup", label: "Create an account" },
@@ -35,16 +37,18 @@ const columns = [
     ]
   },
   {
-    title: "Legal",
+      title: t.footer.legal,
     links: [
-      { href: "/privacy", label: "Privacy policy" },
-      { href: "/terms", label: "Terms of service" },
-      { href: "/disclaimer", label: "Disclaimer" }
+      { href: "/privacy", label: t.footer.privacy },
+      { href: "/terms", label: t.footer.terms },
+      { href: "/disclaimer", label: t.footer.disclaimer }
     ]
   }
-];
+  ];
+}
 
-export function Footer() {
+export function Footer({ t }: { t: Dictionary }) {
+  const columns = buildColumns(t);
   return (
     <footer className="relative mt-20 overflow-hidden border-t border-line bg-deep text-white">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-grid opacity-60" />
@@ -93,7 +97,7 @@ export function Footer() {
         </div>
 
         <div className="mt-14 flex flex-col gap-4 border-t border-white/10 pt-7 text-xs text-white/60 sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} Profinr. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Profinr. {t.footer.rights}</p>
           <p>Compare providers by rating, verification, availability and price before you book.</p>
         </div>
       </div>

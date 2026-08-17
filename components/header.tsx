@@ -8,17 +8,21 @@ import { LayoutDashboard, LogOut, Menu, Plus, UserRound, X } from "lucide-react"
 import { rememberAddProfileSignupIntent } from "@/components/add-profile-signup-link";
 import { ThemeToggle, ThemeSegmented } from "@/components/theme-toggle";
 import { NavSearch } from "@/components/nav-search";
+import { LanguageSwitcher } from "@/components/language-switcher";
+import type { Locale } from "@/lib/i18n/config";
+import type { Dictionary } from "@/lib/i18n/dictionaries";
 import { clearAdminSession, getCurrentUser } from "@/lib/admin-auth";
 
-const nav = [
-  { href: "/listings", label: "Listings" },
-  { href: "/categories", label: "Categories" },
-  { href: "/blog", label: "Blog" }
-];
+
 
 const addProfileSignupHref = "/signup";
 
-export function Header() {
+export function Header({ locale, t }: { locale: Locale; t: Dictionary }) {
+  const nav = [
+    { href: "/listings", label: t.nav.listings },
+    { href: "/categories", label: t.nav.categories },
+    { href: "/blog", label: t.nav.blog }
+  ];
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -159,6 +163,7 @@ export function Header() {
                 {dashboardLabel}
               </Link>
             ) : null}
+            <LanguageSwitcher current={locale} />
             <ThemeToggle className="mr-1" />
             {!sessionLoaded ? (
               <span className="skeleton h-9 w-24 rounded-md" aria-hidden="true" />
@@ -174,7 +179,7 @@ export function Header() {
               </button>
             ) : (
               <Link href="/login" className="rounded-md px-3.5 py-2 text-sm font-semibold text-ink-muted transition-colors hover:text-ink">
-                Login
+                {t.nav.login}
               </Link>
             )}
             <Link
@@ -242,8 +247,12 @@ export function Header() {
                 </Link>
               ) : null}
               <div className="flex items-center justify-between gap-3 rounded-lg px-1 py-2">
-                <span className="text-sm font-semibold text-ink-muted">Theme</span>
+                <span className="text-sm font-semibold text-ink-muted">{t.nav.theme}</span>
                 <ThemeSegmented />
+              </div>
+              <div className="flex items-center justify-between gap-3 rounded-lg px-1 py-2">
+                <span className="text-sm font-semibold text-ink-muted">{t.nav.language}</span>
+                <LanguageSwitcher current={locale} />
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {!sessionLoaded ? (

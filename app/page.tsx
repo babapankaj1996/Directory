@@ -16,7 +16,7 @@ import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "Verified Global Service Provider Directory | Profinr",
-  description: "Discover verified service providers worldwide. Compare local experts by category, location, rating, experience, pricing, availability, reviews and profile details before you contact or book.",
+  description: "Find verified service providers worldwide. Compare local experts by category, city, rating, price and availability before you contact or book.",
   alternates: { canonical: "/" },
   openGraph: {
     title: "Verified Global Service Provider Directory",

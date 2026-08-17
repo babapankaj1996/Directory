@@ -75,7 +75,7 @@ export function listingsMetadata(page: number, filters: ListingsFilters): Metada
 
   return {
     title,
-    description: "Browse recently approved service provider profiles. Compare professionals by location, category, rating, reviews, pricing notes, availability, gallery media and contact options.",
+    description: "Browse recently approved provider profiles. Compare by location, category, rating, reviews, pricing and availability before you get in touch.",
     alternates: {
       canonical: "/listings"
     },

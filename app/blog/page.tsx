@@ -7,7 +7,8 @@ import { PageHeading } from "@/components/page-heading";
 
 export const metadata: Metadata = {
   title: "Service Provider Guides",
-  description: "Practical guides for comparing local professionals, checking reviews, understanding pricing, booking consultations and choosing trusted service providers."
+  description: "Practical guides for comparing local professionals, checking reviews, understanding pricing, booking consultations and choosing trusted service providers.",
+  alternates: { canonical: "/blog" }
 };
 
 export default function BlogPage() {

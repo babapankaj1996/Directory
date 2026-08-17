@@ -319,11 +319,11 @@ export function AuthCard({
               />
               <span id="terms-consent-text">
                 I agree to the{" "}
-                <Link href="/terms" target="_blank" className="font-semibold text-champagne underline underline-offset-2">
+                <Link href="/terms" target="_blank" className="-my-1.5 inline-block py-1.5 font-semibold text-champagne underline underline-offset-2">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link href="/privacy" target="_blank" className="font-semibold text-champagne underline underline-offset-2">
+                <Link href="/privacy" target="_blank" className="-my-1.5 inline-block py-1.5 font-semibold text-champagne underline underline-offset-2">
                   Privacy Policy
                 </Link>
                 , and I confirm I am at least 18 years old.
@@ -336,9 +336,9 @@ export function AuthCard({
           {isLogin ? (
             <p className="text-center text-xs leading-6 text-muted">
               By signing in you agree to our{" "}
-              <Link href="/terms" className="font-semibold text-champagne underline underline-offset-2">Terms</Link>
+              <Link href="/terms" className="-my-1.5 inline-block py-1.5 font-semibold text-champagne underline underline-offset-2">Terms</Link>
               {" "}and{" "}
-              <Link href="/privacy" className="font-semibold text-champagne underline underline-offset-2">Privacy Policy</Link>.
+              <Link href="/privacy" className="-my-1.5 inline-block py-1.5 font-semibold text-champagne underline underline-offset-2">Privacy Policy</Link>.
             </p>
           ) : null}
         </form>

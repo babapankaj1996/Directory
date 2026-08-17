@@ -4,6 +4,7 @@ import { Fraunces, Manrope } from "next/font/google";
 import "./globals.css";
 import { SiteShell } from "@/components/site-shell";
 import { getSiteSettings } from "@/lib/site-settings";
+import { getTranslations } from "@/lib/i18n/server";
 
 /**
  * `display: "optional"` rather than "swap".
@@ -91,6 +92,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const requestHeaders = await headers();
+  const { tag: localeTag, dir: localeDir } = await getTranslations();
   // Hostinger's CDN rewrites the Content-Security-Policy response header down to
   // a single directive, so the policy is repeated in a meta tag where the edge
   // cannot touch it. `frame-ancestors` is omitted because browsers ignore it in
@@ -106,7 +108,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   const nonce = (requestHeaders.get("content-security-policy") || "").match(/'nonce-([^']+)'/)?.[1];
 
   return (
-    <html lang="en" className={`${bodyFont.variable} ${displayFont.variable}`}>
+    <html lang={localeTag} dir={localeDir} className={`${bodyFont.variable} ${displayFont.variable}`}>
       {/* Rendered without a wrapping <head>: declaring one here takes the head
           away from Next's Metadata API, which then emitted <meta name="
           description"> into the <body> where crawlers do not count it. React
