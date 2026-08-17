@@ -30,7 +30,10 @@ function route(url: string, priority: number, changeFrequency: MetadataRoute.Sit
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [countries, cities, categories, profiles, adultProfiles] = await Promise.all([
     apiList<Country>("/api/countries?status=ACTIVE"),
-    apiList<City>("/api/cities?status=ACTIVE&limit=500"),
+    // Only cities that actually have an approved listing. Every city in the
+    // world is browsable, but a page with nothing on it does not belong in a
+    // sitemap — search engines read a mass of those as thin content.
+    apiList<City>("/api/cities?status=ACTIVE&withListings=true&limit=500"),
     apiList<Category>("/api/categories"),
     apiList<unknown>("/api/profiles"),
     apiList<unknown>("/api/profiles?adult=true")

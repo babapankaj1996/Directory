@@ -25,7 +25,7 @@ import { CategoryProfileAssist } from "@/components/category-profile-assist";
 import { adminFetch, authFetch, getCurrentUser } from "@/lib/admin-auth";
 import { categories, type Category, type Listing } from "@/lib/data";
 import { getApiBase, normalizeProfile } from "@/lib/profiles";
-import { useActiveLocationOptions } from "@/lib/use-active-locations";
+import { useAllCountries, useCitySearch } from "@/lib/use-city-search";
 
 type ProfileFormState = {
   name: string;
@@ -338,15 +338,22 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
   const [draftListing, setDraftListing] = useState<Listing | null>(null);
   const [notice, setNotice] = useState("");
   const [createdSlug, setCreatedSlug] = useState("");
-  const { countries, cities: activeCities, loadingCountries, loadingCities } = useActiveLocationOptions(form.countryId);
+  // Owners register anywhere, so both selectors span every country and city,
+  // not just the ones that already have listings.
+  const { countries, loading: loadingCountries } = useAllCountries();
 
   const countryOptions = useMemo<Option[]>(
     () => countries.map((item) => ({ value: item.code, label: item.name, meta: item.code.toUpperCase() })),
     [countries]
   );
+  // An owner must be able to register a business in any city, including one
+  // with no listings yet, so these come from a search across every city rather
+  // than from the ACTIVE-only list the public filters use.
+  const [citySearch, setCitySearch] = useState("");
+  const { cities: searchedCities, loading: searchingCities } = useCitySearch(form.countryId, citySearch);
   const cityOptions = useMemo<Option[]>(
-    () => activeCities.map((item) => ({ value: item.slug, label: item.name, meta: item.slug })),
-    [activeCities]
+    () => searchedCities.map((item) => ({ value: item.slug, label: item.name, meta: item.slug })),
+    [searchedCities]
   );
   const categoryOptions = useMemo<Option[]>(
     () => availableCategories.map((item) => ({ value: item.slug, label: item.name, meta: `${item.isAdult ? "18+ category - " : ""}${item.description}` })),
@@ -368,17 +375,12 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
   useEffect(() => {
     if (loadingCountries) return;
     if (!form.countryId) return;
-    if (!countries.length || !countries.some((item) => item.code === form.countryId)) {
+    // Only clear an unknown country once the list has actually loaded; a
+    // country with no listings yet is still a valid place to register.
+    if (countries.length && !countries.some((item) => item.code === form.countryId)) {
       setForm((current) => current.countryId === form.countryId ? { ...current, countryId: "", citySlug: "" } : current);
     }
   }, [countries, form.countryId, loadingCountries]);
-
-  useEffect(() => {
-    if (!form.citySlug || loadingCities) return;
-    if (!activeCities.some((item) => item.slug === form.citySlug)) {
-      setForm((current) => current.citySlug === form.citySlug ? { ...current, citySlug: "" } : current);
-    }
-  }, [activeCities, form.citySlug, loadingCities]);
 
   useEffect(() => {
     let mounted = true;
@@ -800,7 +802,16 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
         {step === 1 ? (
           <div className="grid gap-5 md:grid-cols-2">
             <AutocompleteField label="Country" value={form.countryId} onChange={(value) => update("countryId", value)} options={countryOptions} placeholder="Select country" />
-            <AutocompleteField label="City" value={form.citySlug} onChange={(value) => update("citySlug", value)} options={cityOptions} placeholder={form.countryId ? "Select city" : "Select country first"} disabled={!form.countryId} />
+            <AutocompleteField
+              label="City"
+              value={form.citySlug}
+              onChange={(value) => update("citySlug", value)}
+              options={cityOptions}
+              onQueryChange={setCitySearch}
+              loading={searchingCities}
+              placeholder={form.countryId ? "Type to search your city" : "Select country first"}
+              disabled={!form.countryId}
+            />
             <AutocompleteField label="Category" value={form.categoryId} onChange={(value) => update("categoryId", value)} options={categoryOptions} placeholder="Select category" />
             {admin ? <AutocompleteField label="Initial Status" value={form.status} onChange={(value) => update("status", value)} options={statusOptions} placeholder="Search status" /> : null}
             {isAdultCategory ? (
@@ -1293,7 +1304,9 @@ function AutocompleteField({
   onChange,
   options,
   placeholder,
-  disabled = false
+  disabled = false,
+  onQueryChange,
+  loading = false
 }: {
   label: string;
   value: string;
@@ -1301,6 +1314,9 @@ function AutocompleteField({
   options: Option[];
   placeholder: string;
   disabled?: boolean;
+  /** Called as the user types, for fields whose options are fetched. */
+  onQueryChange?: (query: string) => void;
+  loading?: boolean;
 }) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -1310,12 +1326,15 @@ function AutocompleteField({
   }, [options, value]);
 
   const filtered = useMemo(() => {
+    // When options are fetched they are already scoped to the query; filtering
+    // again would hide valid server results.
+    if (onQueryChange) return options.slice(0, 80);
     const normalized = query.toLowerCase().trim();
     const result = normalized
       ? options.filter((option) => `${option.label} ${option.value} ${option.meta || ""}`.toLowerCase().includes(normalized))
       : options;
     return result.slice(0, 80);
-  }, [options, query]);
+  }, [options, query, onQueryChange]);
 
   function select(option: Option) {
     onChange(option.value);
@@ -1333,6 +1352,7 @@ function AutocompleteField({
           onChange={(event) => {
             setQuery(event.target.value);
             setOpen(true);
+            onQueryChange?.(event.target.value);
           }}
           onFocus={() => setOpen(true)}
           onBlur={() => window.setTimeout(() => setOpen(false), 120)}

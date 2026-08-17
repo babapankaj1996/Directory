@@ -42,7 +42,14 @@ export async function generateMetadata({
     alternates: { canonical: path },
     openGraph: { title: seo.title, description: seo.description, url: path, type: "website" },
     twitter: { card: "summary_large_image", title: seo.title, description: seo.description },
-    robots: query.search?.trim() ? { index: false, follow: true, noarchive: true } : { index: true, follow: true }
+    // Every city in the world is browsable, so a city page can legitimately be
+    // reached with nothing on it yet. Those must not be indexed: a mass of
+    // empty pages is read as thin content and drags the whole site down. Links
+    // are still followed so the crawler can reach anything that appears later.
+    robots:
+      query.search?.trim() || listings.length === 0
+        ? { index: false, follow: true, noarchive: true }
+        : { index: true, follow: true }
   };
 }
 
