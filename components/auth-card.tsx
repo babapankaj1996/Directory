@@ -81,6 +81,7 @@ export function AuthCard({
   const [resending, setResending] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [inviteSent, setInviteSent] = useState("");
+  const [emailInUse, setEmailInUse] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -144,15 +145,25 @@ export function AuthCard({
      * account itself is created behind the emailed link, so a mistyped or
      * someone else's address never becomes an account.
      */
+    if (isSignup && (form.password.length < 10 || form.password.length > 128)) {
+      setStatus("Password must be between 10 and 128 characters.");
+      return;
+    }
+
     if (isSignup) {
       setLoading(true);
       try {
         const response = await fetch(`${getApiBase()}/api/auth/request-signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: form.email, role: form.role })
+          body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role })
         });
-        const payload = await readApiJson<{ message?: string; error?: string; verificationLink?: string; mail?: MailStatus }>(response, "signup");
+        const payload = await readApiJson<{ message?: string; error?: string; code?: string; verificationLink?: string; mail?: MailStatus }>(response, "signup");
+        if (payload.code === "EMAIL_IN_USE") {
+          setEmailInUse(true);
+          setStatus("");
+          return;
+        }
         if (!response.ok) throw new Error(payload.error || "Could not send the confirmation link.");
         setMailStatus(payload.mail || null);
         if (payload.verificationLink) setVerificationLink(payload.verificationLink);
@@ -270,7 +281,25 @@ export function AuthCard({
           </p>
         </div>
 
-        {inviteSent ? (
+        {emailInUse ? (
+          <div className="mt-6 rounded-2xl border border-line bg-surface p-6 text-center">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-gold-600/10 text-gold-700">
+              <Diamond className="h-6 w-6" />
+            </span>
+            <h2 className="mt-4 text-xl font-semibold tracking-[-0.02em] text-ink">This email is already registered</h2>
+            <p className="mt-2 text-sm leading-7 text-muted">
+              <span className="font-semibold text-ink">{form.email}</span> already has an account. Sign in to continue,
+              or reset your password if you have forgotten it.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <Button href={`/login?email=${encodeURIComponent(form.email)}`} variant="gold">Sign in</Button>
+              <Button href="/forgot-password" variant="ghost">Forgot password</Button>
+              <Button type="button" variant="ghost" onClick={() => { setEmailInUse(false); setForm((c) => ({ ...c, email: "" })); }}>
+                Use another email
+              </Button>
+            </div>
+          </div>
+        ) : inviteSent ? (
           <div className="mt-6 rounded-2xl border border-line bg-surface p-6 text-center">
             <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-jade-600/10 text-jade-600">
               <Check className="h-6 w-6" />
@@ -295,8 +324,18 @@ export function AuthCard({
           </div>
         ) : (
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-                    {isSignup && (
-<label className="block">
+          {isSignup && (
+            <>
+              <Input
+                label="Full Name"
+                placeholder="Your name"
+                value={form.name}
+                onChange={(value) => setForm((current) => ({ ...current, name: value }))}
+                autoComplete="name"
+                minLength={2}
+                maxLength={100}
+              />
+              <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-ink">Account Type</span>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {[
@@ -317,6 +356,7 @@ export function AuthCard({
                   ))}
                 </div>
               </label>
+            </>
           )}
           {!(isForgot && resetToken) ? (
             <Input
@@ -329,7 +369,7 @@ export function AuthCard({
               maxLength={254}
             />
           ) : null}
-          {(!isForgot || resetToken) && !isSignup && (
+          {(!isForgot || resetToken) && (
             <Input
               label="Password"
               placeholder={resetToken ? "New password" : "Password"}
