@@ -80,6 +80,7 @@ export function AuthCard({
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [inviteSent, setInviteSent] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -135,6 +136,32 @@ export function AuthCard({
 
     if (isSignup && !acceptedTerms) {
       setStatus("Please accept the Terms of Service and Privacy Policy to create an account.");
+      return;
+    }
+
+    /*
+     * Registration is email-first: this step only proves the address. The
+     * account itself is created behind the emailed link, so a mistyped or
+     * someone else's address never becomes an account.
+     */
+    if (isSignup) {
+      setLoading(true);
+      try {
+        const response = await fetch(`${getApiBase()}/api/auth/request-signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: form.email, role: form.role })
+        });
+        const payload = await readApiJson<{ message?: string; error?: string; verificationLink?: string; mail?: MailStatus }>(response, "signup");
+        if (!response.ok) throw new Error(payload.error || "Could not send the confirmation link.");
+        setMailStatus(payload.mail || null);
+        if (payload.verificationLink) setVerificationLink(payload.verificationLink);
+        setInviteSent(form.email);
+      } catch (error) {
+        setStatus(error instanceof Error ? error.message : "Could not send the confirmation link.");
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -243,19 +270,33 @@ export function AuthCard({
           </p>
         </div>
 
+        {inviteSent ? (
+          <div className="mt-6 rounded-2xl border border-line bg-surface p-6 text-center">
+            <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-jade-600/10 text-jade-600">
+              <Check className="h-6 w-6" />
+            </span>
+            <h2 className="mt-4 text-xl font-semibold tracking-[-0.02em] text-ink">Check your inbox</h2>
+            <p className="mt-2 text-sm leading-7 text-muted">
+              If <span className="font-semibold text-ink">{inviteSent}</span> can be registered, a confirmation link is
+              on its way. Open it to finish creating your account. The link expires in 24 hours.
+            </p>
+            {verificationLink ? (
+              <a href={verificationLink} className="mt-4 block break-all rounded-xl bg-gold-50 px-3 py-2 text-xs font-bold text-gold-800 ring-1 ring-gold-300">
+                Open link: {verificationLink}
+              </a>
+            ) : null}
+            {mailStatus?.reason ? <p className="mt-3 text-xs leading-5 text-muted">{mailStatus.reason}</p> : null}
+            <div className="mt-5 flex flex-wrap justify-center gap-3">
+              <Button type="button" variant="ghost" onClick={() => { setInviteSent(""); setVerificationLink(""); }}>
+                Use a different address
+              </Button>
+              <Button href="/login" variant="ghost">Sign in</Button>
+            </div>
+          </div>
+        ) : (
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          {isSignup && (
-            <>
-              <Input
-                label="Full Name"
-                placeholder="Your name"
-                value={form.name}
-                onChange={(value) => setForm((current) => ({ ...current, name: value }))}
-                autoComplete="name"
-                minLength={2}
-                maxLength={100}
-              />
-              <label className="block">
+                    {isSignup && (
+<label className="block">
                 <span className="mb-2 block text-sm font-semibold text-ink">Account Type</span>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {[
@@ -276,7 +317,6 @@ export function AuthCard({
                   ))}
                 </div>
               </label>
-            </>
           )}
           {!(isForgot && resetToken) ? (
             <Input
@@ -289,7 +329,7 @@ export function AuthCard({
               maxLength={254}
             />
           ) : null}
-          {(!isForgot || resetToken) && (
+          {(!isForgot || resetToken) && !isSignup && (
             <Input
               label="Password"
               placeholder={resetToken ? "New password" : "Password"}
@@ -342,6 +382,7 @@ export function AuthCard({
             </p>
           ) : null}
         </form>
+        )}
 
         {status ? (
           <div className="mt-4 rounded-2xl bg-white/90 p-4 text-sm font-semibold text-ink ring-1 ring-slate-200">
