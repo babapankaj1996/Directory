@@ -539,7 +539,7 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
           Service profiles must be submitted from a Business Owner account. This keeps public reviews separate from profile ownership and improves trust signals for SEO pages.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button href="/signup" variant="gold">Create Owner Account</Button>
+          <Button href="/signup?role=OWNER" variant="gold">Create Owner Account</Button>
           <Button href="/categories" variant="ghost">Browse Listings</Button>
         </div>
       </GlassCard>

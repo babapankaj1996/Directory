@@ -99,7 +99,7 @@ export default function AboutPage() {
               placement does not buy a verification badge or a better rating.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Button href="/signup" variant="gold" size="sm">List your business</Button>
+              <Button href="/signup?role=OWNER" variant="gold" size="sm">List your business</Button>
               <Button href="/listings" variant="ghost" size="sm">Browse providers</Button>
             </div>
           </div>

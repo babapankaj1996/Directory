@@ -520,7 +520,7 @@ export function OwnerDashboard() {
           </div>
           <div className="flex flex-wrap gap-3">
             <Button href="/listings" variant="gold"><MessageSquareText className="mr-2 h-4 w-4" /> Explore Listings</Button>
-            <Button href="/signup" variant="ghost">Create Owner Account</Button>
+            <Button href="/signup?role=OWNER" variant="ghost">Create Owner Account</Button>
           </div>
         </div>
 

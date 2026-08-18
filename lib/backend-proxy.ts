@@ -43,6 +43,23 @@ export async function proxyBackendRequest(request: Request, pathname: string) {
   headers.set("x-forwarded-host", requestUrl.host);
   headers.set("x-forwarded-proto", requestUrl.protocol.replace(":", ""));
 
+  /*
+   * Pass the visitor's address through.
+   *
+   * Every browser call reaches the API via this proxy, so without an explicit
+   * X-Forwarded-For the backend sees this server's address for everyone and the
+   * rate limits collapse into one shared bucket — eight signups an hour for the
+   * entire site, after which nobody can register. The incoming request already
+   * carries the client address from the edge; forward the first entry, which is
+   * the original client rather than an intermediary.
+   */
+  const forwardedFor = request.headers.get("x-forwarded-for") || "";
+  const clientIp = forwardedFor.split(",")[0].trim() || request.headers.get("x-real-ip") || "";
+  if (clientIp) {
+    headers.set("x-forwarded-for", clientIp);
+    headers.set("x-real-ip", clientIp);
+  }
+
   try {
     const method = request.method.toUpperCase();
     const upstream = await fetch(upstreamUrl, {

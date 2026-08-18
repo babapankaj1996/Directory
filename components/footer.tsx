@@ -31,7 +31,7 @@ function buildColumns(t: Dictionary) {
   {
       title: t.footer.getStarted,
     links: [
-      { href: "/signup", label: "List your business" },
+      { href: "/signup?role=OWNER", label: "List your business" },
       { href: "/signup", label: "Create an account" },
       { href: "/login", label: "Sign in" }
     ]
@@ -70,7 +70,7 @@ export function Footer({ t }: { t: Dictionary }) {
               enquiries — in one calm place to compare.
             </p>
             <Link
-              href="/signup"
+              href="/signup?role=OWNER"
               className="group mt-7 inline-flex items-center gap-2 rounded-lg bg-ink px-5 py-3 text-sm font-semibold text-onaccent transition-transform duration-200 ease-entrance hover:-translate-y-0.5"
             >
               List your business
