@@ -55,74 +55,11 @@ function securityHeaders(response: NextResponse, csp?: string) {
   return response;
 }
 
-function adminSecret() {
-  const value = process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET;
-  if (value) return value;
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("ADMIN_JWT_SECRET or JWT_SECRET must be configured in production.");
-  }
-  return "local-development-admin-secret";
-}
 
-function decodeBase64Url(value: string) {
-  const base64 = value.replace(/-/g, "+").replace(/_/g, "/");
-  const padded = `${base64}${"=".repeat((4 - base64.length % 4) % 4)}`;
-  return atob(padded);
-}
 
-function encodeBase64Url(bytes: Uint8Array) {
-  let raw = "";
-  bytes.forEach((byte) => {
-    raw += String.fromCharCode(byte);
-  });
-  return btoa(raw).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-}
 
-async function signPayload(encodedPayload: string) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(adminSecret()),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(encodedPayload));
-  return encodeBase64Url(new Uint8Array(signature));
-}
 
-function timingSafeEqual(a: string, b: string) {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let index = 0; index < a.length; index += 1) {
-    result |= a.charCodeAt(index) ^ b.charCodeAt(index);
-  }
-  return result === 0;
-}
 
-async function getUsableTokenPayload(token?: string, requiredRole?: "ADMIN") {
-  if (!token) return null;
-  try {
-    const rawToken = decodeURIComponent(token);
-    const parts = rawToken.split(".");
-    if (parts.length !== 2) return null;
-    const [payloadPart, signaturePart] = parts;
-    if (!payloadPart || !signaturePart) return null;
-    if (!timingSafeEqual(await signPayload(payloadPart), signaturePart)) return null;
-
-    const payload = JSON.parse(decodeBase64Url(payloadPart)) as {
-      role?: string;
-      status?: string;
-      exp?: number;
-    };
-    const valid = (!requiredRole || payload.role === requiredRole) &&
-      payload.status === "ACTIVE" &&
-      typeof payload.exp === "number" &&
-      payload.exp > Math.floor(Date.now() / 1000);
-    return valid ? payload : null;
-  } catch {
-    return null;
-  }
-}
 
 function attachOwnerSignupIntent(response: NextResponse) {
   response.cookies.set("signup_intent", "OWNER_ADD_PROFILE", {
@@ -160,16 +97,26 @@ export async function middleware(request: NextRequest) {
     return securityHeaders(forward(), csp);
   }
 
-  const adminToken = request.cookies.get("admin_token")?.value;
-  const sessionToken = request.cookies.get("session_token")?.value || adminToken;
-  const payload = isAdminRoute
-    ? await getUsableTokenPayload(adminToken, "ADMIN")
-    : await getUsableTokenPayload(sessionToken);
+  /*
+   * Authorisation is NOT decided here.
+   *
+   * Middleware runs in an edge sandbox whose access to non-public environment
+   * variables is unreliable when self-hosted. Verifying the session signature
+   * here meant a correctly signed-in administrator could be told their token
+   * was forged, with no way to tell the two cases apart — the symptom was an
+   * endless bounce back to /login?next=/admin.
+   *
+   * The guard now lives in the route layouts, which run in the Node runtime
+   * where the signing secret is reliably present. See lib/session-guard.ts.
+   * A visitor with no session cookie at all is still sent to the login page
+   * here, since that needs no secret and saves rendering a shell nobody will
+   * see.
+   */
+  const hasAnySession = Boolean(
+    request.cookies.get("admin_token")?.value || request.cookies.get("session_token")?.value
+  );
 
-  if (payload) {
-    if (pathname.startsWith("/dashboard") && payload.role === "ADMIN") {
-      return securityHeaders(NextResponse.redirect(new URL("/admin", request.url)), csp);
-    }
+  if (hasAnySession) {
     return securityHeaders(forward(), csp);
   }
 
