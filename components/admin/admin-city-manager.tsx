@@ -7,7 +7,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { adminCities } from "@/lib/data";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 type CityRow = {
   id?: string;
@@ -100,7 +100,7 @@ export function AdminCityManager() {
 
   const loadCountries = useCallback(async () => {
     try {
-      const response = await fetch(`${getApiBase()}/api/countries`, { cache: "no-store" });
+      const response = await fetch(apiUrl(`/api/countries`), { cache: "no-store" });
       const payload = await response.json() as { data?: Record<string, unknown>[] };
       if (response.ok && Array.isArray(payload.data)) setCountries(payload.data.map(normalizeCountry).filter((country) => country.code));
     } catch {
@@ -114,7 +114,7 @@ export function AdminCityManager() {
       if (countryFilter !== "ALL") params.set("countryCode", countryFilter);
       if (statusFilter !== "ALL") params.set("status", statusFilter);
       if (search.trim()) params.set("search", search.trim());
-      const response = await fetch(`${getApiBase()}/api/cities?${params.toString()}`, { cache: "no-store" });
+      const response = await fetch(apiUrl(`/api/cities?${params.toString()}`), { cache: "no-store" });
       const payload = await response.json() as { data?: Record<string, unknown>[]; meta?: CityMeta };
       if (response.ok && Array.isArray(payload.data)) {
         setCities(payload.data.map(normalizeCity));
@@ -223,7 +223,7 @@ export function AdminCityManager() {
       return;
     }
     const method = form.id ? "PUT" : "POST";
-    const url = form.id ? `${getApiBase()}/api/cities/${form.id}` : `${getApiBase()}/api/cities`;
+    const url = form.id ? apiUrl(`/api/cities/${form.id}`) : apiUrl(`/api/cities`);
 
     try {
       const response = await adminFetch(url, {
@@ -249,7 +249,7 @@ export function AdminCityManager() {
       return;
     }
     try {
-      await adminFetch(`${getApiBase()}/api/cities/${city.id}`, {
+      await adminFetch(apiUrl(`/api/cities/${city.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -270,7 +270,7 @@ export function AdminCityManager() {
     }
     setCities((current) => current.map((city) => city.id && ids.includes(city.id) ? { ...city, status } : city));
     try {
-      const response = await adminFetch(`${getApiBase()}/api/cities/status`, {
+      const response = await adminFetch(apiUrl(`/api/cities/status`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ids, status })
@@ -298,7 +298,7 @@ export function AdminCityManager() {
       return;
     }
     try {
-      const response = await adminFetch(`${getApiBase()}/api/cities/${city.id}`, { method: "DELETE" });
+      const response = await adminFetch(apiUrl(`/api/cities/${city.id}`), { method: "DELETE" });
       const json = await response.json().catch(() => ({})) as { error?: string };
       if (!response.ok) throw new Error(json.error || "City delete failed.");
       setCities((current) => current.filter((item) => item.id !== city.id));

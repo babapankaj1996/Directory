@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Send, ShieldCheck } from "lucide-react";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 /**
  * Shown when an owner account has not confirmed its email address yet.
@@ -24,7 +24,7 @@ export function VerifyEmailNotice({ email, className = "" }: { email: string; cl
     setSending(true);
     setNotice("");
     try {
-      const response = await fetch(`${getApiBase()}/api/auth/resend-verification`, {
+      const response = await fetch(apiUrl(`/api/auth/resend-verification`), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

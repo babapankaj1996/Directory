@@ -148,6 +148,29 @@ export function getApiBase() {
     "http://localhost:4000").replace(/\/$/, "");
 }
 
+/**
+ * Build the URL for an API call.
+ *
+ * The host's edge returns a 403 HTML page for any request whose path contains
+ * an "api" segment — it caught /api/... first, and later /gateway/api/... too,
+ * so simply renaming the prefix is not a durable answer. Browser-visible URLs
+ * therefore carry no "api" segment at all: the browser asks for
+ * /gateway/auth/login and the proxy route restores the /api prefix before
+ * forwarding.
+ *
+ * Server-side rendering talks to the backend directly and is unaffected by the
+ * edge, so there the path is passed through unchanged.
+ *
+ * Call sites keep writing the real API path — apiUrl("/api/auth/login") — so
+ * the backend's routes remain obvious at every call site.
+ */
+export function apiUrl(path: string) {
+  const base = getApiBase();
+  const clean = path.startsWith("/") ? path : `/${path}`;
+  if (typeof window === "undefined") return `${base}${clean}`;
+  return `${base}${clean.replace(/^\/api(?=\/|$)/, "")}`;
+}
+
 export async function getPublicCategories(filters: CategoryFilters = {}) {
   const payload = await fetchPayload("/api/categories");
   if (Array.isArray(payload?.data)) {

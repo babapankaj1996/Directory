@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { BarChart3, BookmarkCheck, CheckCircle2, Clock3, CreditCard, Eye, FileText, Flame, Globe2, LockKeyhole, Megaphone, MessageCircle, MessageSquareText, Phone, Plus, Send, ShieldCheck, Star, Timer, TrendingUp, Wallet, XCircle } from "lucide-react";
 import { authFetch, getCurrentUser } from "@/lib/admin-auth";
-import { getApiBase, normalizeProfile } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile } from "@/lib/profiles";
 import { activeFeaturedCampaign, featuredDaysRemaining, isFeaturedActive, isFeaturedExpired, type FeaturedPlacementRequest, type Listing } from "@/lib/data";
 import { fallbackPlacementOptions, featuredPageTypeLabel, formatMoney, type FeaturedPlacementOption } from "@/lib/featured-placement";
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
@@ -202,9 +202,9 @@ export function OwnerDashboard() {
 
       if (nextUser?.role === "USER") {
         const [reviewPayload, savedPayload, quotePayload] = await Promise.all([
-          authFetch(`${getApiBase()}/api/dashboard/reviews`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-          authFetch(`${getApiBase()}/api/dashboard/saved-profiles`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-          authFetch(`${getApiBase()}/api/dashboard/quote-requests`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
+          authFetch(apiUrl(`/api/dashboard/reviews`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+          authFetch(apiUrl(`/api/dashboard/saved-profiles`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+          authFetch(apiUrl(`/api/dashboard/quote-requests`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
         ]);
         if (!mounted) return;
         if (Array.isArray(reviewPayload?.data)) setReviews(reviewPayload.data as ReviewerReview[]);
@@ -212,11 +212,11 @@ export function OwnerDashboard() {
         if (Array.isArray(quotePayload?.data)) setLeads(quotePayload.data as ProfileLead[]);
       } else {
         const [listingPayload, insightPayload, leadPayload, qualityPayload, walletPayload] = await Promise.all([
-          authFetch(`${getApiBase()}/api/dashboard/listings`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-          authFetch(`${getApiBase()}/api/dashboard/insights`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-          authFetch(`${getApiBase()}/api/dashboard/leads`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-          authFetch(`${getApiBase()}/api/dashboard/leads/quality`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-          authFetch(`${getApiBase()}/api/dashboard/wallet`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
+          authFetch(apiUrl(`/api/dashboard/listings`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+          authFetch(apiUrl(`/api/dashboard/insights`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+          authFetch(apiUrl(`/api/dashboard/leads`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+          authFetch(apiUrl(`/api/dashboard/leads/quality`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+          authFetch(apiUrl(`/api/dashboard/wallet`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
         ]);
         if (!mounted) return;
         if (Array.isArray(listingPayload?.data)) setListings(listingPayload.data.map(normalizeProfile));
@@ -271,7 +271,7 @@ export function OwnerDashboard() {
         return;
       }
       setFeaturedOptionsLoading(true);
-      const response = await authFetch(`${getApiBase()}/api/dashboard/listings/${primaryListing.id || primaryListing.slug}/featured-options`).catch(() => undefined);
+      const response = await authFetch(apiUrl(`/api/dashboard/listings/${primaryListing.id || primaryListing.slug}/featured-options`)).catch(() => undefined);
       if (!mounted) return;
       if (response?.ok) {
         const payload = await response.json() as { data?: { options?: FeaturedPlacementOption[] } };
@@ -317,7 +317,7 @@ export function OwnerDashboard() {
 
   async function updateLeadStatus(lead: ProfileLead, status: ProfileLead["status"]) {
     setLeads((current) => current.map((item) => item.id === lead.id ? { ...item, status } : item));
-    const response = await authFetch(`${getApiBase()}/api/dashboard/leads/${lead.id}/status`, {
+    const response = await authFetch(apiUrl(`/api/dashboard/leads/${lead.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status })
@@ -329,7 +329,7 @@ export function OwnerDashboard() {
   }
 
   async function refreshWalletSummary() {
-    const response = await authFetch(`${getApiBase()}/api/dashboard/wallet`).catch(() => undefined);
+    const response = await authFetch(apiUrl(`/api/dashboard/wallet`)).catch(() => undefined);
     if (!response?.ok) return;
     const payload = await response.json() as { data?: { wallet?: WalletSummary; transactions?: WalletTransactionSummary[]; paymentSettings?: PaymentSettings } };
     if (payload.data?.wallet) setWallet(payload.data.wallet);
@@ -341,7 +341,7 @@ export function OwnerDashboard() {
     setWalletTopUpLoading(true);
     setWalletTopUpNotice("");
     try {
-      const response = await authFetch(`${getApiBase()}/api/dashboard/wallet/topups`, {
+      const response = await authFetch(apiUrl(`/api/dashboard/wallet/topups`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -363,7 +363,7 @@ export function OwnerDashboard() {
     setWalletTopUpLoading(true);
     setWalletTopUpNotice("");
     try {
-      const response = await authFetch(`${getApiBase()}/api/dashboard/wallet/topups/razorpay-order`, {
+      const response = await authFetch(apiUrl(`/api/dashboard/wallet/topups/razorpay-order`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: Number(walletTopUpAmount) })
@@ -405,7 +405,7 @@ export function OwnerDashboard() {
           ondismiss: () => setWalletTopUpNotice("Razorpay wallet top-up was not completed.")
         },
         handler: async (checkoutResponse) => {
-          const verifyResponse = await authFetch(`${getApiBase()}/api/dashboard/wallet/topups/razorpay-verify`, {
+          const verifyResponse = await authFetch(apiUrl(`/api/dashboard/wallet/topups/razorpay-verify`), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(checkoutResponse)
@@ -431,7 +431,7 @@ export function OwnerDashboard() {
         setFeaturedRequestNotice("Insufficient wallet balance. Ask admin to add balance or switch to Razorpay when it is enabled.");
         return;
       }
-      const response = await authFetch(`${getApiBase()}/api/dashboard/listings/${listing.id || listing.slug}/featured-request`, {
+      const response = await authFetch(apiUrl(`/api/dashboard/listings/${listing.id || listing.slug}/featured-request`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -484,7 +484,7 @@ export function OwnerDashboard() {
             ondismiss: () => setFeaturedRequestNotice("Razorpay payment was not completed.")
           },
           handler: async (checkoutResponse) => {
-            const verifyResponse = await authFetch(`${getApiBase()}/api/dashboard/featured-requests/${requestId}/razorpay/verify`, {
+            const verifyResponse = await authFetch(apiUrl(`/api/dashboard/featured-requests/${requestId}/razorpay/verify`), {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(checkoutResponse)

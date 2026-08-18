@@ -7,7 +7,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase, normalizeProfile } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile } from "@/lib/profiles";
 import type { FeaturedPlacementPrice, FeaturedPlacementRequest, Listing } from "@/lib/data";
 import { featuredDurations, featuredPageTypeLabel, formatMoney, type FeaturedPageType } from "@/lib/featured-placement";
 
@@ -125,11 +125,11 @@ export function AdminFeaturedRequestsManager() {
 
   async function load() {
     const [requestPayload, pricePayload, countryPayload, cityPayload, categoryPayload] = await Promise.all([
-      adminFetch(`${getApiBase()}/api/admin/listings/featured-requests`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      adminFetch(`${getApiBase()}/api/admin/listings/featured-prices`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      fetch(`${getApiBase()}/api/countries`, { cache: "no-store" }).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      fetch(`${getApiBase()}/api/cities`, { cache: "no-store" }).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      fetch(`${getApiBase()}/api/categories`, { cache: "no-store" }).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
+      adminFetch(apiUrl(`/api/admin/listings/featured-requests`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      adminFetch(apiUrl(`/api/admin/listings/featured-prices`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      fetch(apiUrl(`/api/countries`), { cache: "no-store" }).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      fetch(apiUrl(`/api/cities`), { cache: "no-store" }).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      fetch(apiUrl(`/api/categories`), { cache: "no-store" }).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
     ]);
     if (Array.isArray(requestPayload?.data)) setRequests(requestPayload.data.map(asRequest));
     if (Array.isArray(pricePayload?.data)) setPrices(pricePayload.data as FeaturedPlacementPrice[]);
@@ -162,7 +162,7 @@ export function AdminFeaturedRequestsManager() {
 
   async function updateRequestStatus(request: AdminFeaturedRequest, status: "APPROVED" | "REJECTED") {
     const override = priceOverrides[request.id || ""];
-    const response = await adminFetch(`${getApiBase()}/api/admin/listings/featured-requests/${request.id}/status`, {
+    const response = await adminFetch(apiUrl(`/api/admin/listings/featured-requests/${request.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -181,7 +181,7 @@ export function AdminFeaturedRequestsManager() {
   }
 
   async function savePriceRule() {
-    const response = await adminFetch(`${getApiBase()}/api/admin/listings/featured-prices`, {
+    const response = await adminFetch(apiUrl(`/api/admin/listings/featured-prices`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

@@ -19,7 +19,7 @@ import {
   UserRound
 } from "lucide-react";
 import { adminFetch, authFetch, getCurrentUser } from "@/lib/admin-auth";
-import { getApiBase, normalizeProfile } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile } from "@/lib/profiles";
 import type { Listing, ProfileVerificationDocument } from "@/lib/data";
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
 import { GlassCard } from "@/components/ui/glass-card";
@@ -299,7 +299,7 @@ export function OwnerProfileEditor({ admin = false, listingId }: { admin?: boole
       setNotice("");
       if (admin) {
         const response = requestedListing
-          ? await adminFetch(`${getApiBase()}/api/admin/listings/${requestedListing}`).catch(() => undefined)
+          ? await adminFetch(apiUrl(`/api/admin/listings/${requestedListing}`)).catch(() => undefined)
           : undefined;
         if (!mounted) return;
         if (response?.ok) {
@@ -321,7 +321,7 @@ export function OwnerProfileEditor({ admin = false, listingId }: { admin?: boole
       if (sessionUser && typeof sessionUser === "object" && "role" in sessionUser) {
         setUser(sessionUser as SessionUser);
       }
-      const response = await authFetch(`${getApiBase()}/api/dashboard/listings`).catch(() => undefined);
+      const response = await authFetch(apiUrl(`/api/dashboard/listings`)).catch(() => undefined);
       if (!mounted) return;
       if (response?.ok) {
         const payload = await response.json() as { data?: unknown };
@@ -434,8 +434,8 @@ export function OwnerProfileEditor({ admin = false, listingId }: { admin?: boole
     const pricing = isAdultListing ? mergeUnique(toList(form.pricing), adultPricingLines(form)) : toList(form.pricing);
     const businessHours = isAdultListing ? mergeUnique(toList(form.businessHours), adultAvailabilityLines(form)) : toList(form.businessHours);
     const saveUrl = admin
-      ? `${getApiBase()}/api/admin/listings/${listing.id || listing.slug}`
-      : `${getApiBase()}/api/dashboard/listings/${listing.id || listing.slug}`;
+      ? apiUrl(`/api/admin/listings/${listing.id || listing.slug}`)
+      : apiUrl(`/api/dashboard/listings/${listing.id || listing.slug}`);
     const saveFetcher = admin ? adminFetch : authFetch;
     const response = await saveFetcher(saveUrl, {
       method: "PUT",
@@ -485,8 +485,8 @@ export function OwnerProfileEditor({ admin = false, listingId }: { admin?: boole
     }
     const video = isVideoMedia(url);
     const galleryUrl = admin
-      ? `${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/gallery`
-      : `${getApiBase()}/api/dashboard/listings/${listing.id || listing.slug}/gallery`;
+      ? apiUrl(`/api/admin/listings/${listing.id || listing.slug}/gallery`)
+      : apiUrl(`/api/dashboard/listings/${listing.id || listing.slug}/gallery`);
     const galleryFetcher = admin ? adminFetch : authFetch;
     const response = await galleryFetcher(galleryUrl, {
       method: "POST",
@@ -525,8 +525,8 @@ export function OwnerProfileEditor({ admin = false, listingId }: { admin?: boole
     setNotice("Verification document uploaded. Admin will review it from the Verification tab.");
 
     const documentUrl = admin
-      ? `${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/verification-documents`
-      : `${getApiBase()}/api/dashboard/listings/${listing.id || listing.slug}/verification-documents`;
+      ? apiUrl(`/api/admin/listings/${listing.id || listing.slug}/verification-documents`)
+      : apiUrl(`/api/dashboard/listings/${listing.id || listing.slug}/verification-documents`);
     const documentFetcher = admin ? adminFetch : authFetch;
     const response = await documentFetcher(documentUrl, {
       method: "POST",

@@ -7,7 +7,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 type BillingSettings = {
   mode: "WALLET" | "RAZORPAY" | "BOTH" | string;
@@ -32,7 +32,7 @@ export function AdminBillingSettings() {
   const [notice, setNotice] = useState("");
 
   async function load() {
-    const response = await adminFetch(`${getApiBase()}/api/admin/billing/settings`).catch(() => undefined);
+    const response = await adminFetch(apiUrl(`/api/admin/billing/settings`)).catch(() => undefined);
     if (!response?.ok) return;
     const payload = await response.json() as { data?: BillingSettings };
     if (payload.data) setSettings(payload.data);
@@ -43,7 +43,7 @@ export function AdminBillingSettings() {
   }, []);
 
   async function saveSettings() {
-    const response = await adminFetch(`${getApiBase()}/api/admin/billing/settings`, {
+    const response = await adminFetch(apiUrl(`/api/admin/billing/settings`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

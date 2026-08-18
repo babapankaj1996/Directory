@@ -5,7 +5,7 @@ import { CheckCircle2, Search, Trash2, XCircle } from "lucide-react";
 import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 type Review = {
   id: string;
@@ -35,7 +35,7 @@ export function AdminReviewsManager() {
 
   useEffect(() => {
     let mounted = true;
-    adminFetch(`${getApiBase()}/api/admin/reviews`)
+    adminFetch(apiUrl(`/api/admin/reviews`))
       .then((response) => response.ok ? response.json() : undefined)
       .then((payload: { data?: Review[] } | undefined) => {
         if (mounted && Array.isArray(payload?.data)) setReviews(payload.data);
@@ -67,7 +67,7 @@ export function AdminReviewsManager() {
     const moderationNote = status === "REJECTED" ? window.prompt("Rejection reason", review.moderationNote || "") || "Rejected by admin" : review.moderationNote;
     setReviews((current) => current.map((item) => item.id === review.id ? { ...item, status, moderationNote } : item));
     setNotice(`Review ${status.toLowerCase()}.`);
-    const response = await adminFetch(`${getApiBase()}/api/admin/reviews/${review.id}/status`, {
+    const response = await adminFetch(apiUrl(`/api/admin/reviews/${review.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status, moderationNote })
@@ -81,7 +81,7 @@ export function AdminReviewsManager() {
   async function deleteReview(review: Review) {
     if (!window.confirm("Delete this review permanently?")) return;
     setReviews((current) => current.filter((item) => item.id !== review.id));
-    await adminFetch(`${getApiBase()}/api/admin/reviews/${review.id}`, { method: "DELETE" }).catch(() => undefined);
+    await adminFetch(apiUrl(`/api/admin/reviews/${review.id}`), { method: "DELETE" }).catch(() => undefined);
   }
 
   return (

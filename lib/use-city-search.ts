@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 export type CityOption = { slug: string; name: string; country: string };
 
@@ -30,7 +30,7 @@ export function useCitySearch(countryCode: string | undefined, query: string) {
       try {
         const params = new URLSearchParams({ countryCode, status: "ALL", limit: "60" });
         if (query.trim()) params.set("search", query.trim());
-        const response = await fetch(`${getApiBase()}/api/cities?${params.toString()}`, {
+        const response = await fetch(apiUrl(`/api/cities?${params.toString()}`), {
           cache: "no-store",
           signal: controller.signal
         });
@@ -74,7 +74,7 @@ export function useAllCountries() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`${getApiBase()}/api/countries?status=ALL`, { cache: "no-store" })
+    fetch(apiUrl(`/api/countries?status=ALL`), { cache: "no-store" })
       .then((response) => (response.ok ? response.json() : Promise.reject(new Error("country lookup failed"))))
       .then((payload: { data?: { code?: string; name?: string }[] }) => {
         if (cancelled) return;

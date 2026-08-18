@@ -6,7 +6,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase, normalizeProfile } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile } from "@/lib/profiles";
 import type { Listing } from "@/lib/data";
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
 
@@ -93,7 +93,7 @@ export function AdminVerificationManager() {
     if (search.trim()) params.set("search", search.trim());
 
     const timer = window.setTimeout(() => {
-      adminFetch(`${getApiBase()}/api/admin/listings/verification-documents?${params.toString()}`)
+      adminFetch(apiUrl(`/api/admin/listings/verification-documents?${params.toString()}`))
         .then((response) => response.ok ? response.json() : undefined)
         .then((payload: { data?: VerificationDocument[] } | undefined) => {
           if (!mounted) return;
@@ -178,7 +178,7 @@ export function AdminVerificationManager() {
     setBusyId(document.id);
     setDocuments((current) => current.map((item) => item.id === document.id ? { ...item, status, adminNotes } : item));
 
-    const response = await adminFetch(`${getApiBase()}/api/admin/listings/verification-documents/${document.id}/status`, {
+    const response = await adminFetch(apiUrl(`/api/admin/listings/verification-documents/${document.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status, adminNotes })
@@ -228,7 +228,7 @@ export function AdminVerificationManager() {
 
     try {
       const results = await Promise.all(targets.map(async (document) => {
-        const response = await adminFetch(`${getApiBase()}/api/admin/listings/verification-documents/${document.id}/status`, {
+        const response = await adminFetch(apiUrl(`/api/admin/listings/verification-documents/${document.id}/status`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status, adminNotes: status === "REJECTED" ? adminNotes : notes[document.id] || "" })

@@ -1,7 +1,7 @@
 "use client";
 
 import { readApiJson } from "@/lib/api-response";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 const ADMIN_TOKEN_KEY = "admin_token";
 const ADMIN_USER_KEY = "admin_user";
@@ -61,7 +61,7 @@ export function clearAdminSession() {
   window.localStorage.removeItem(SESSION_USER_KEY);
   document.cookie = `${ADMIN_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
   document.cookie = `${SESSION_TOKEN_KEY}=; path=/; max-age=0; SameSite=Lax`;
-  fetch(`${getApiBase()}/api/auth/logout`, {
+  fetch(apiUrl(`/api/auth/logout`), {
     method: "POST",
     credentials: "include"
   }).catch(() => undefined);
@@ -69,7 +69,7 @@ export function clearAdminSession() {
 
 export async function getCurrentAdmin() {
   try {
-    const response = await adminFetch(`${getApiBase()}/api/auth/me`, { cache: "no-store" });
+    const response = await adminFetch(apiUrl(`/api/auth/me`), { cache: "no-store" });
     if (!response.ok) return undefined;
     const payload = await readApiJson<{ data?: unknown }>(response, "admin session check");
     return payload.data;
@@ -80,7 +80,7 @@ export async function getCurrentAdmin() {
 
 export async function getCurrentUser() {
   try {
-    const response = await authFetch(`${getApiBase()}/api/auth/me`, { cache: "no-store" });
+    const response = await authFetch(apiUrl(`/api/auth/me`), { cache: "no-store" });
     if (!response.ok) return undefined;
     const payload = await readApiJson<{ authenticated?: boolean; data?: unknown }>(response, "session check");
     if (payload.authenticated === false || !payload.data) {

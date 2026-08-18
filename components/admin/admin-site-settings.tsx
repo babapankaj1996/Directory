@@ -5,7 +5,7 @@ import { Check, Globe, Image as ImageIcon, LineChart, Loader2, Search, Share2 } 
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { readApiJson } from "@/lib/api-response";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 /**
  * Site-wide settings an operator can change without a deploy: identity, search
@@ -140,7 +140,7 @@ export function AdminSiteSettings() {
 
   useEffect(() => {
     let active = true;
-    fetch(`${getApiBase()}/api/admin/site-settings`, { credentials: "include" })
+    fetch(apiUrl(`/api/admin/site-settings`), { credentials: "include" })
       .then((response) => readApiJson<{ data?: SiteSettings; error?: string }>(response, "settings"))
       .then((payload) => {
         if (!active) return;
@@ -164,7 +164,7 @@ export function AdminSiteSettings() {
     setSaving(true);
     setStatus("");
     try {
-      const response = await fetch(`${getApiBase()}/api/admin/site-settings`, {
+      const response = await fetch(apiUrl(`/api/admin/site-settings`), {
         method: "PUT",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

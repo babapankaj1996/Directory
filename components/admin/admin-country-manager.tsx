@@ -7,7 +7,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { adminCountries } from "@/lib/data";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 type CountryRow = {
   code: string;
@@ -71,7 +71,7 @@ export function AdminCountryManager() {
 
   const loadCountries = useCallback(async () => {
     try {
-      const response = await fetch(`${getApiBase()}/api/countries`, { cache: "no-store" });
+      const response = await fetch(apiUrl(`/api/countries`), { cache: "no-store" });
       const payload = await response.json() as { data?: Record<string, unknown>[] };
       if (response.ok && Array.isArray(payload.data)) setCountries(payload.data.map(normalizeCountry));
     } catch {
@@ -157,7 +157,7 @@ export function AdminCountryManager() {
     }
 
     const method = editingCode ? "PUT" : "POST";
-    const url = editingCode ? `${getApiBase()}/api/countries/${editingCode}` : `${getApiBase()}/api/countries`;
+    const url = editingCode ? apiUrl(`/api/countries/${editingCode}`) : apiUrl(`/api/countries`);
 
     try {
       const response = await adminFetch(url, {
@@ -179,7 +179,7 @@ export function AdminCountryManager() {
     if (country.status === status) return;
     setCountries((current) => current.map((item) => item.code === country.code ? { ...item, status } : item));
     try {
-      await adminFetch(`${getApiBase()}/api/countries/${country.code}`, {
+      await adminFetch(apiUrl(`/api/countries/${country.code}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -200,7 +200,7 @@ export function AdminCountryManager() {
     }
     setCountries((current) => current.map((country) => codes.includes(country.code) ? { ...country, status } : country));
     try {
-      const response = await adminFetch(`${getApiBase()}/api/countries/status`, {
+      const response = await adminFetch(apiUrl(`/api/countries/status`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ codes, status })
@@ -223,7 +223,7 @@ export function AdminCountryManager() {
   async function deleteCountry(country: CountryRow) {
     if (!window.confirm(`Delete ${country.name}? Countries with linked cities/profiles may be blocked by the database.`)) return;
     try {
-      const response = await adminFetch(`${getApiBase()}/api/countries/${country.code}`, { method: "DELETE" });
+      const response = await adminFetch(apiUrl(`/api/countries/${country.code}`), { method: "DELETE" });
       const json = await response.json().catch(() => ({})) as { error?: string };
       if (!response.ok) throw new Error(json.error || "Country delete failed.");
       setCountries((current) => current.filter((item) => item.code !== country.code));

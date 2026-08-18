@@ -37,7 +37,7 @@ import { featuredDaysRemaining, isFeaturedActive, isIdVerifiedListing, type List
 import { buildProfileSeoContent, type ProfileSeoContent } from "@/lib/profile-seo";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
-import { getApiBase, normalizeGalleryImage } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeGalleryImage } from "@/lib/profiles";
 import { authFetch, getCurrentUser } from "@/lib/admin-auth";
 import { SaveProfileButton } from "@/components/save-profile-button";
 
@@ -141,7 +141,7 @@ export function ProfileDetail({
 
   useEffect(() => {
     const profileId = listing.id || listing.slug;
-    fetch(`${getApiBase()}/api/profiles/${profileId}/gallery`, { cache: "no-store" })
+    fetch(apiUrl(`/api/profiles/${profileId}/gallery`), { cache: "no-store" })
       .then((response) => response.ok ? response.json() : undefined)
       .then((payload: { data?: unknown[] } | undefined) => {
         if (!Array.isArray(payload?.data)) return;
@@ -156,7 +156,7 @@ export function ProfileDetail({
     const storageKey = `profile-viewed:${profileId}`;
     if (typeof window !== "undefined" && sessionStorage.getItem(storageKey)) return;
 
-    fetch(`${getApiBase()}/api/profiles/${profileId}/view`, { method: "POST" })
+    fetch(apiUrl(`/api/profiles/${profileId}/view`), { method: "POST" })
       .then((response) => response.ok ? response.json() : undefined)
       .then((payload: { data?: { viewCount?: number } } | undefined) => {
         if (typeof payload?.data?.viewCount === "number") {
@@ -169,7 +169,7 @@ export function ProfileDetail({
 
   useEffect(() => {
     const profileId = listing.id || listing.slug;
-    fetch(`${getApiBase()}/api/profiles/${profileId}/reviews`, { cache: "no-store" })
+    fetch(apiUrl(`/api/profiles/${profileId}/reviews`), { cache: "no-store" })
       .then((response) => response.ok ? response.json() : undefined)
       .then((payload: { data?: ProfileReview[] } | undefined) => {
         if (Array.isArray(payload?.data)) setReviews(payload.data);
@@ -192,7 +192,7 @@ export function ProfileDetail({
       return;
     }
     try {
-      const response = await authFetch(`${getApiBase()}/api/profiles/${profileId}/reviews`, {
+      const response = await authFetch(apiUrl(`/api/profiles/${profileId}/reviews`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rating: reviewRating, title: reviewTitle, comment: reviewComment })
@@ -217,7 +217,7 @@ export function ProfileDetail({
 
   function trackInsight(type: "WHATSAPP_CLICK" | "PHONE_CLICK" | "WEBSITE_CLICK" | "CONTACT_CLICK") {
     const profileId = listing.id || listing.slug;
-    fetch(`${getApiBase()}/api/profiles/${profileId}/insights`, {
+    fetch(apiUrl(`/api/profiles/${profileId}/insights`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ type })
@@ -246,7 +246,7 @@ export function ProfileDetail({
     setLeadLoading(true);
     try {
       const profileId = listing.id || listing.slug;
-      const response = await authFetch(`${getApiBase()}/api/profiles/${profileId}/leads`, {
+      const response = await authFetch(apiUrl(`/api/profiles/${profileId}/leads`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...leadForm, source: "PROFILE_QUOTE", sourcePath: window.location.pathname })

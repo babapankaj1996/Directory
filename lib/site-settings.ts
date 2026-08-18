@@ -1,4 +1,4 @@
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 /**
  * Reads the operator-controlled site settings for use in page metadata.
@@ -61,7 +61,7 @@ export const SITE_SETTINGS_FALLBACK: SiteSettings = {
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   try {
-    const response = await fetch(`${getApiBase()}/api/site-settings`, {
+    const response = await fetch(apiUrl(`/api/site-settings`), {
       next: { revalidate: 60, tags: ["site-settings"] }
     });
     if (!response.ok) return SITE_SETTINGS_FALLBACK;

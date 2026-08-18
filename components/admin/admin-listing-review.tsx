@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { UploadField } from "@/components/upload-field";
 import { activeFeaturedCampaign, featuredDaysRemaining, isFeaturedActive, isFeaturedExpired, type FeaturedPlacementRequest, type Listing, type ListingStatus, type ProfileGalleryImage, type ProfileVerificationDocument } from "@/lib/data";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase, normalizeGalleryImage, normalizeProfile, toApiStatus } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeGalleryImage, normalizeProfile, toApiStatus } from "@/lib/profiles";
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
 
 const MAX_PROFILE_GALLERY_IMAGES = 10;
@@ -144,7 +144,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
     setNotice(`${listing.name} moved to ${formatStatus(status)}.`);
 
     try {
-      const response = await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/status`, {
+      const response = await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/status`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: toApiStatus(status), rejectionReason: reason, adminNotes })
@@ -167,7 +167,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
     setNotice(nextFeatured ? `Listing featured until ${formatDate(featuredUntil)}.` : "Listing removed from featured.");
 
     try {
-      const response = await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/featured`, {
+      const response = await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/featured`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFeatured: nextFeatured, featuredUntil })
@@ -182,7 +182,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
   }
 
   async function updateFeaturedRequest(request: FeaturedPlacementRequest, status: "APPROVED" | "REJECTED") {
-    const response = await adminFetch(`${getApiBase()}/api/admin/listings/featured-requests/${request.id}/status`, {
+    const response = await adminFetch(apiUrl(`/api/admin/listings/featured-requests/${request.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status })
@@ -219,7 +219,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
     setNewImage({ imageUrl: "", title: "", altText: "" });
 
     try {
-      const response = await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/gallery`, {
+      const response = await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/gallery`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(optimistic)
@@ -239,7 +239,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
     setGallery((current) => current.map((item) => item.id === image.id ? updated : item));
 
     try {
-      const response = await adminFetch(`${getApiBase()}/api/admin/gallery/${image.id}`, {
+      const response = await adminFetch(apiUrl(`/api/admin/gallery/${image.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updated)
@@ -257,7 +257,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
     if (!window.confirm("Delete this gallery media?")) return;
     setGallery((current) => current.filter((item) => item.id !== image.id));
     try {
-      await adminFetch(`${getApiBase()}/api/admin/gallery/${image.id}`, { method: "DELETE" });
+      await adminFetch(apiUrl(`/api/admin/gallery/${image.id}`), { method: "DELETE" });
     } catch {
       undefined;
     }
@@ -289,7 +289,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
     setNewDocument({ type: "GOV_ID", fileUrl: "", originalName: "", adminNotes: "" });
 
     try {
-      const response = await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/verification-documents`, {
+      const response = await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/verification-documents`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(optimistic)
@@ -310,7 +310,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
     if (!document.id || !window.confirm("Delete this verification document?")) return;
     setVerificationDocuments((current) => current.filter((item) => item.id !== document.id));
     try {
-      await adminFetch(`${getApiBase()}/api/admin/listings/verification-documents/${document.id}`, { method: "DELETE" });
+      await adminFetch(apiUrl(`/api/admin/listings/verification-documents/${document.id}`), { method: "DELETE" });
       setNotice("Verification document deleted.");
     } catch {
       setNotice("Verification document removed locally, but backend delete failed.");
@@ -323,7 +323,7 @@ export function AdminListingReview({ listing: initialListing, gallery: initialGa
       status: status === "VERIFIED" ? "VERIFIED" : status === "REJECTED" ? "REJECTED" : document.status || "PENDING"
     }));
     if (status === "VERIFIED" || status === "REJECTED") setVerificationDocuments(nextDocuments);
-    const response = await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/verification`, {
+    const response = await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/verification`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

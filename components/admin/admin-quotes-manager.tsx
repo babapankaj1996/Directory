@@ -6,7 +6,7 @@ import { BarChart3, CalendarDays, CheckCircle2, Clock3, Flame, Mail, MessageCirc
 import { AdminSectionHeader, AdminStatCard, AdminTable, StatusPill } from "@/components/admin/admin-ui";
 import { Button } from "@/components/ui/button";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase, normalizeProfile } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile } from "@/lib/profiles";
 import type { Listing } from "@/lib/data";
 
 type LeadStatus = "NEW" | "CONTACTED" | "CONVERTED" | "LOST" | "SPAM";
@@ -86,8 +86,8 @@ export function AdminQuotesManager() {
       if (search.trim()) params.set("search", search.trim());
 
       Promise.all([
-        adminFetch(`${getApiBase()}/api/admin/quotes?${params.toString()}`).then((response) => response.ok ? response.json() : undefined),
-        adminFetch(`${getApiBase()}/api/admin/quotes/quality`).then((response) => response.ok ? response.json() : undefined)
+        adminFetch(apiUrl(`/api/admin/quotes?${params.toString()}`)).then((response) => response.ok ? response.json() : undefined),
+        adminFetch(apiUrl(`/api/admin/quotes/quality`)).then((response) => response.ok ? response.json() : undefined)
       ])
         .then(([payload, qualityPayload]: [{ data?: QuoteLead[] } | undefined, { data?: { summary?: Partial<LeadQualitySummary> } } | undefined]) => {
           if (!mounted) return;
@@ -119,7 +119,7 @@ export function AdminQuotesManager() {
   async function updateStatus(lead: QuoteLead, nextStatus: LeadStatus) {
     setNotice("");
     setLeads((current) => current.map((item) => item.id === lead.id ? { ...item, status: nextStatus } : item));
-    const response = await adminFetch(`${getApiBase()}/api/admin/quotes/${lead.id}/status`, {
+    const response = await adminFetch(apiUrl(`/api/admin/quotes/${lead.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: nextStatus, adminNote: lead.adminNote })

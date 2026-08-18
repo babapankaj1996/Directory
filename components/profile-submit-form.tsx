@@ -24,7 +24,7 @@ import { UploadField } from "@/components/upload-field";
 import { CategoryProfileAssist } from "@/components/category-profile-assist";
 import { adminFetch, authFetch, getCurrentUser } from "@/lib/admin-auth";
 import { categories, type Category, type Listing } from "@/lib/data";
-import { getApiBase, normalizeProfile } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile } from "@/lib/profiles";
 import { useAllCountries, useCitySearch } from "@/lib/use-city-search";
 
 type ProfileFormState = {
@@ -384,7 +384,7 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
 
   useEffect(() => {
     let mounted = true;
-    fetch(`${getApiBase()}/api/categories`, { cache: "no-store" })
+    fetch(apiUrl(`/api/categories`), { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) return;
         const payload = await response.json() as { data?: Array<Record<string, unknown>> };
@@ -421,7 +421,7 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
           const sessionUser = user as SessionUser;
           setCurrentUser(sessionUser);
           if (sessionUser.role === "OWNER") {
-            const response = await authFetch(`${getApiBase()}/api/dashboard/listings`).catch(() => undefined);
+            const response = await authFetch(apiUrl(`/api/dashboard/listings`)).catch(() => undefined);
             if (response?.ok) {
               const payload = await response.json() as { data?: unknown };
               if (mounted && Array.isArray(payload.data) && payload.data.length > 0) {
@@ -672,8 +672,8 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
     setLoading(true);
     try {
       const url = draftListing && !admin
-        ? `${getApiBase()}/api/dashboard/listings/${draftListing.id || draftListing.slug}`
-        : admin ? `${getApiBase()}/api/admin/listings` : `${getApiBase()}/api/profiles`;
+        ? apiUrl(`/api/dashboard/listings/${draftListing.id || draftListing.slug}`)
+        : admin ? apiUrl(`/api/admin/listings`) : apiUrl(`/api/profiles`);
       const response = await (admin ? adminFetch : authFetch)(url, {
         method: draftListing && !admin ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },

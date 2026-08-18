@@ -4,7 +4,7 @@ import { MouseEvent, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Heart, Loader2 } from "lucide-react";
 import { authFetch, clearAdminSession } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 export function SaveProfileButton({
   profileId,
@@ -28,7 +28,7 @@ export function SaveProfileButton({
     if (!profileId) return;
 
     let mounted = true;
-    authFetch(`${getApiBase()}/api/dashboard/saved-profiles/${profileId}/status`)
+    authFetch(apiUrl(`/api/dashboard/saved-profiles/${profileId}/status`))
       .then((response) => response.ok ? response.json() : undefined)
       .then((payload: { data?: { authenticated?: boolean; saved?: boolean } } | undefined) => {
         if (!mounted) return;
@@ -57,7 +57,7 @@ export function SaveProfileButton({
     const nextSaved = !saved;
     setSaved(nextSaved);
     setLoading(true);
-    const response = await authFetch(`${getApiBase()}/api/dashboard/saved-profiles/${profileId}`, {
+    const response = await authFetch(apiUrl(`/api/dashboard/saved-profiles/${profileId}`), {
       method: nextSaved ? "POST" : "DELETE"
     }).catch(() => undefined);
     if (!response?.ok) setSaved(!nextSaved);

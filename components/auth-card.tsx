@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { readApiJson } from "@/lib/api-response";
 import { saveAuthSession } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 type AuthUser = {
   id: string;
@@ -95,7 +95,7 @@ export function AuthCard({
     }
     if (nextResetToken) setResetToken(nextResetToken);
     if (verifyToken) {
-      fetch(`${getApiBase()}/api/auth/verify-email`, {
+      fetch(apiUrl(`/api/auth/verify-email`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: verifyToken })
@@ -118,7 +118,7 @@ export function AuthCard({
       const endpoint = resetToken ? "reset-password" : "forgot-password";
       setLoading(true);
       try {
-        const response = await fetch(`${getApiBase()}/api/auth/${endpoint}`, {
+        const response = await fetch(apiUrl(`/api/auth/${endpoint}`), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(resetToken ? { token: resetToken, password: form.password } : { email: form.email })
@@ -153,7 +153,7 @@ export function AuthCard({
     if (isSignup) {
       setLoading(true);
       try {
-        const response = await fetch(`${getApiBase()}/api/auth/request-signup`, {
+        const response = await fetch(apiUrl(`/api/auth/request-signup`), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: form.name, email: form.email, password: form.password, role: form.role })
@@ -184,7 +184,7 @@ export function AuthCard({
     setLoading(true);
     try {
       const addProfileIntent = hasOwnerAddProfileIntent();
-      const response = await fetch(`${getApiBase()}/api/auth/${isSignup ? "signup" : "login"}`, {
+      const response = await fetch(apiUrl(`/api/auth/${isSignup ? "signup" : "login"}`), {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json", "X-Auth-Mode": "cookie" },
@@ -227,7 +227,7 @@ export function AuthCard({
     setVerificationLink("");
     setMailStatus(null);
     try {
-      const response = await fetch(`${getApiBase()}/api/auth/resend-verification`, {
+      const response = await fetch(apiUrl(`/api/auth/resend-verification`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })

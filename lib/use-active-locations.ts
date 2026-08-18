@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getCitiesForCountry, publicCountries } from "@/lib/data";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 export type ActiveCountryOption = {
   code: string;
@@ -43,7 +43,7 @@ function normalizeCity(value: Record<string, unknown>): ActiveCityOption | undef
 }
 
 async function fetchActiveCountries() {
-  const response = await fetch(`${getApiBase()}/api/countries?status=ACTIVE`, { cache: "no-store" });
+  const response = await fetch(apiUrl(`/api/countries?status=ACTIVE`), { cache: "no-store" });
   if (!response.ok) return undefined;
   const payload = await response.json() as { data?: Record<string, unknown>[] };
   return Array.isArray(payload.data)
@@ -53,14 +53,14 @@ async function fetchActiveCountries() {
 
 async function fetchActiveCities(countryCode: string) {
   const perPage = 500;
-  const first = await fetch(`${getApiBase()}/api/cities?countryCode=${encodeURIComponent(countryCode)}&status=ACTIVE&limit=${perPage}&page=1`, { cache: "no-store" });
+  const first = await fetch(apiUrl(`/api/cities?countryCode=${encodeURIComponent(countryCode)}&status=ACTIVE&limit=${perPage}&page=1`), { cache: "no-store" });
   if (!first.ok) return undefined;
   const firstPayload = await first.json() as { data?: Record<string, unknown>[]; meta?: { totalPages?: number } };
   const rows = Array.isArray(firstPayload.data) ? [...firstPayload.data] : [];
   const totalPages = Math.max(Number(firstPayload.meta?.totalPages || 1), 1);
 
   for (let page = 2; page <= totalPages; page += 1) {
-    const response = await fetch(`${getApiBase()}/api/cities?countryCode=${encodeURIComponent(countryCode)}&status=ACTIVE&limit=${perPage}&page=${page}`, { cache: "no-store" });
+    const response = await fetch(apiUrl(`/api/cities?countryCode=${encodeURIComponent(countryCode)}&status=ACTIVE&limit=${perPage}&page=${page}`), { cache: "no-store" });
     if (!response.ok) break;
     const payload = await response.json() as { data?: Record<string, unknown>[] };
     if (Array.isArray(payload.data)) rows.push(...payload.data);

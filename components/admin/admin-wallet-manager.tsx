@@ -7,7 +7,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 import { formatMoney } from "@/lib/featured-placement";
 
 type WalletTransaction = {
@@ -72,9 +72,9 @@ export function AdminWalletManager() {
   async function load() {
     setLoading(true);
     const [settingsPayload, walletPayload, topupPayload] = await Promise.all([
-      adminFetch(`${getApiBase()}/api/admin/billing/settings`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      adminFetch(`${getApiBase()}/api/admin/billing/wallets${search ? `?search=${encodeURIComponent(search)}` : ""}`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      adminFetch(`${getApiBase()}/api/admin/billing/topups?status=${encodeURIComponent(topupFilter)}`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
+      adminFetch(apiUrl(`/api/admin/billing/settings`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      adminFetch(apiUrl(`/api/admin/billing/wallets${search ? `?search=${encodeURIComponent(search)}` : ""}`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      adminFetch(apiUrl(`/api/admin/billing/topups?status=${encodeURIComponent(topupFilter)}`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
     ]);
     if (settingsPayload?.data) setSettings(settingsPayload.data as BillingSettings);
     if (Array.isArray(walletPayload?.data)) {
@@ -96,7 +96,7 @@ export function AdminWalletManager() {
       setNotice("Select an owner before adding wallet balance.");
       return;
     }
-    const response = await adminFetch(`${getApiBase()}/api/admin/billing/wallets/${selectedUserId}/credit`, {
+    const response = await adminFetch(apiUrl(`/api/admin/billing/wallets/${selectedUserId}/credit`), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -115,7 +115,7 @@ export function AdminWalletManager() {
   }
 
   async function updateTopup(transaction: WalletTransaction, status: "APPROVED" | "REJECTED") {
-    const response = await adminFetch(`${getApiBase()}/api/admin/billing/topups/${transaction.id}/status`, {
+    const response = await adminFetch(apiUrl(`/api/admin/billing/topups/${transaction.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status })

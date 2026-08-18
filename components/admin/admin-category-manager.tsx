@@ -7,7 +7,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { categories as fallbackCategories } from "@/lib/data";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 type CategoryRow = {
   slug: string;
@@ -101,7 +101,7 @@ export function AdminCategoryManager() {
 
   async function loadCategories() {
     try {
-      const response = await fetch(`${getApiBase()}/api/categories`, { cache: "no-store" });
+      const response = await fetch(apiUrl(`/api/categories`), { cache: "no-store" });
       const payload = await response.json() as { data?: Record<string, unknown>[] };
       if (response.ok && Array.isArray(payload.data)) setCategories(payload.data.map(normalizeCategory));
     } catch {
@@ -172,7 +172,7 @@ export function AdminCategoryManager() {
     }
 
     const method = editingSlug ? "PUT" : "POST";
-    const url = editingSlug ? `${getApiBase()}/api/categories/${editingSlug}` : `${getApiBase()}/api/categories`;
+    const url = editingSlug ? apiUrl(`/api/categories/${editingSlug}`) : apiUrl(`/api/categories`);
 
     try {
       const response = await adminFetch(url, {
@@ -193,7 +193,7 @@ export function AdminCategoryManager() {
   async function updateStatus(category: CategoryRow, status: "ACTIVE" | "DRAFT") {
     setCategories((current) => current.map((item) => item.slug === category.slug ? { ...item, status } : item));
     try {
-      await adminFetch(`${getApiBase()}/api/categories/${category.slug}`, {
+      await adminFetch(apiUrl(`/api/categories/${category.slug}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status })
@@ -207,7 +207,7 @@ export function AdminCategoryManager() {
   async function deleteCategory(category: CategoryRow) {
     if (!window.confirm(`Delete ${category.name}? This will also delete ${category.profiles} linked profile${category.profiles === 1 ? "" : "s"} and remove the category from public pages.`)) return;
     try {
-      const response = await adminFetch(`${getApiBase()}/api/categories/${category.slug}`, { method: "DELETE" });
+      const response = await adminFetch(apiUrl(`/api/categories/${category.slug}`), { method: "DELETE" });
       const json = await response.json().catch(() => ({})) as { error?: string; deletedProfiles?: number };
       if (!response.ok) throw new Error(json.error || "Category delete failed.");
       setCategories((current) => current.filter((item) => item.slug !== category.slug));

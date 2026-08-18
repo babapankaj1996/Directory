@@ -6,7 +6,7 @@ import { AdminSectionHeader, AdminStatCard, AdminTable, StatusPill } from "@/com
 import { GlassCard } from "@/components/ui/glass-card";
 import { isFeaturedActive, isFeaturedExpired, listings as fallbackListings, type Listing, type ListingStatus } from "@/lib/data";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase, normalizeProfile, toApiStatus } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile, toApiStatus } from "@/lib/profiles";
 
 type ProfileLead = {
   id: string;
@@ -34,9 +34,9 @@ export function AdminDashboard() {
   useEffect(() => {
     let mounted = true;
     Promise.all([
-      adminFetch(`${getApiBase()}/api/admin/listings`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      adminFetch(`${getApiBase()}/api/admin/insights`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
-      adminFetch(`${getApiBase()}/api/admin/quotes?limit=8`).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
+      adminFetch(apiUrl(`/api/admin/listings`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      adminFetch(apiUrl(`/api/admin/insights`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined),
+      adminFetch(apiUrl(`/api/admin/quotes?limit=8`)).then((response) => response.ok ? response.json() : undefined).catch(() => undefined)
     ])
       .then(([listingPayload, insightPayload, leadPayload]: [{ data?: unknown[] } | undefined, { data?: { summary?: Partial<typeof insights> } } | undefined, { data?: ProfileLead[] } | undefined]) => {
         if (!mounted) return;
@@ -66,7 +66,7 @@ export function AdminDashboard() {
   async function updateStatus(listing: Listing, status: ListingStatus, reason?: string) {
     setItems((current) => current.map((item) => item.slug === listing.slug ? { ...item, status, verified: status === "approved", rejectionReason: reason } : item));
     try {
-      await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/status`, {
+      await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/status`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: toApiStatus(status), rejectionReason: reason, adminNotes: reason })

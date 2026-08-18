@@ -8,7 +8,7 @@ import { AdminSectionHeader, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { activeFeaturedCampaign, featuredDaysRemaining, isFeaturedActive, isFeaturedExpired, listings as fallbackListings, type FeaturedPlacementRequest, type Listing, type ListingStatus } from "@/lib/data";
 import { adminFetch } from "@/lib/admin-auth";
-import { getApiBase, normalizeProfile, toApiStatus } from "@/lib/profiles";
+import { apiUrl, getApiBase, normalizeProfile, toApiStatus } from "@/lib/profiles";
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
 
 type ModalAction = "reject" | "suspend" | "delete";
@@ -125,7 +125,7 @@ export function AdminListingsManager({ initialStatus = "ALL", mode = "listings" 
 
   useEffect(() => {
     let mounted = true;
-    adminFetch(`${getApiBase()}/api/admin/listings`)
+    adminFetch(apiUrl(`/api/admin/listings`))
       .then((response) => response.ok ? response.json() : undefined)
       .then((payload: { data?: unknown[] } | undefined) => {
         if (mounted && Array.isArray(payload?.data)) setItems(payload.data.map(normalizeProfile));
@@ -184,7 +184,7 @@ export function AdminListingsManager({ initialStatus = "ALL", mode = "listings" 
     setNotice(`${listing.name} moved to ${formatStatus(status)}.`);
 
     try {
-      const response = await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/status`, {
+      const response = await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/status`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: toApiStatus(status), rejectionReason: reason, adminNotes: notes })
@@ -207,7 +207,7 @@ export function AdminListingsManager({ initialStatus = "ALL", mode = "listings" 
     setNotice(featured ? `${listing.name} featured until ${formatDate(featuredUntil)}.` : `${listing.name} removed from featured.`);
 
     try {
-      const response = await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}/featured`, {
+      const response = await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}/featured`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isFeatured: featured, featuredUntil })
@@ -223,7 +223,7 @@ export function AdminListingsManager({ initialStatus = "ALL", mode = "listings" 
 
   async function updateFeaturedRequest(listing: Listing, request: FeaturedPlacementRequest, status: "APPROVED" | "REJECTED") {
     setNotice(status === "APPROVED" ? `${listing.name} featured for ${request.requestedDays} days.` : `${listing.name} featured request rejected.`);
-    const response = await adminFetch(`${getApiBase()}/api/admin/listings/featured-requests/${request.id}/status`, {
+    const response = await adminFetch(apiUrl(`/api/admin/listings/featured-requests/${request.id}/status`), {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status })
@@ -249,7 +249,7 @@ export function AdminListingsManager({ initialStatus = "ALL", mode = "listings" 
     setItems((current) => current.filter((item) => item.slug !== listing.slug));
     setNotice(`${listing.name} deleted.`);
     try {
-      await adminFetch(`${getApiBase()}/api/admin/listings/${listing.id || listing.slug}`, { method: "DELETE" });
+      await adminFetch(apiUrl(`/api/admin/listings/${listing.id || listing.slug}`), { method: "DELETE" });
     } catch {
       undefined;
     }

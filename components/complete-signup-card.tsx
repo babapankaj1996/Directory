@@ -7,7 +7,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { readApiJson } from "@/lib/api-response";
 import { saveAuthSession } from "@/lib/admin-auth";
-import { getApiBase } from "@/lib/profiles";
+import { apiUrl, getApiBase } from "@/lib/profiles";
 
 /**
  * The page behind the confirmation link.
@@ -39,7 +39,7 @@ export function CompleteSignupCard() {
     let active = true;
     (async () => {
       try {
-        const check = await fetch(`${getApiBase()}/api/auth/signup-invite?token=${encodeURIComponent(token)}`, { cache: "no-store" });
+        const check = await fetch(apiUrl(`/api/auth/signup-invite?token=${encodeURIComponent(token)}`), { cache: "no-store" });
         const invitePayload = await readApiJson<{ data?: Invite; error?: string }>(check, "signup link");
         if (!active) return;
         if (!invitePayload.data) {
@@ -48,7 +48,7 @@ export function CompleteSignupCard() {
         }
         setInvite(invitePayload.data);
 
-        const response = await fetch(`${getApiBase()}/api/auth/complete-signup`, {
+        const response = await fetch(apiUrl(`/api/auth/complete-signup`), {
           method: "POST",
           credentials: "include",
           headers: { "Content-Type": "application/json", "X-Auth-Mode": "cookie" },
