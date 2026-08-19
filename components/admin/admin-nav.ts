@@ -4,6 +4,7 @@ import {
   Globe2,
   LayoutDashboard,
   MapPin,
+  FileDiff,
   Megaphone,
   MessageSquareText,
   Send,
@@ -17,6 +18,7 @@ import {
 export const adminNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/listings", label: "Listings", icon: Users },
+  { href: "/admin/changes", label: "Changes", icon: FileDiff },
   { href: "/admin/featured-requests", label: "Featured", icon: Megaphone },
   { href: "/admin/wallet", label: "Wallet", icon: Wallet },
   { href: "/admin/verification", label: "Verification", icon: ShieldCheck },

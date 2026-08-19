@@ -9,6 +9,7 @@ import { activeFeaturedCampaign, featuredDaysRemaining, isFeaturedActive, isFeat
 import { fallbackPlacementOptions, featuredPageTypeLabel, formatMoney, type FeaturedPlacementOption } from "@/lib/featured-placement";
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
 import { GlassCard } from "@/components/ui/glass-card";
+import { OwnerListingControls } from "@/components/owner-listing-controls";
 import { Button } from "@/components/ui/button";
 import { VerifyEmailNotice } from "@/components/verify-email-notice";
 
@@ -639,6 +640,18 @@ export function OwnerDashboard() {
         <Stat label="30d Calls" value={insights.PHONE_CLICK} icon={<Phone className="h-5 w-5" />} />
         <Stat label="30d Website" value={insights.WEBSITE_CLICK} icon={<Globe2 className="h-5 w-5" />} />
       </div>
+
+      {primaryListing ? (
+        <section className="mt-6">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] text-champagne">Your listing</p>
+          <h2 className="mt-2 mb-4 text-2xl font-semibold text-ink">Visibility and account</h2>
+          <OwnerListingControls
+            profileId={String(primaryListing.id)}
+            isPaused={Boolean((primaryListing as { pausedAt?: string | null }).pausedAt)}
+            status={String(primaryListing.status || "").toUpperCase()}
+          />
+        </section>
+      ) : null}
 
       <section className="mt-6">
         <GlassCard className="p-5 md:p-6">
