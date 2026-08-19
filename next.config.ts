@@ -54,6 +54,19 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    /*
+     * Our own uploads are not sent through the optimizer.
+     *
+     * The optimizer fetches the source server-side, and the host's edge answers
+     * that fetch with a 403, so every listing photo rendered as a broken image
+     * while the file itself served perfectly over HTTPS. There is little to gain
+     * anyway: the upload pipeline already writes WebP and AVIF at sensible
+     * dimensions, so the optimizer was re-encoding work that was already done.
+     *
+     * Third-party images (Unsplash placeholders) still go through it, since
+     * those arrive at whatever size the source feels like.
+     */
+    unoptimized: true,
     // AVIF first: the listing photos are the LCP element on every results page,
     // and AVIF lands materially smaller than WebP. The long cache TTL keeps the
     // optimizer from re-fetching and re-encoding from the origin, so only the

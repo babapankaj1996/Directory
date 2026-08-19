@@ -151,24 +151,21 @@ export function getApiBase() {
 /**
  * Build the URL for an API call.
  *
- * The host's edge returns a 403 HTML page for any request whose path contains
- * an "api" segment — it caught /api/... first, and later /gateway/api/... too,
- * so simply renaming the prefix is not a durable answer. Browser-visible URLs
- * therefore carry no "api" segment at all: the browser asks for
- * /gateway/auth/login and the proxy route restores the /api prefix before
- * forwarding.
+ * The browser talks to the API host directly. Routing browser calls through the
+ * site instead meant inventing a path the host's edge would tolerate, and it
+ * kept withdrawing that tolerance: /api/... was blocked, then /gateway/api/...,
+ * then /gateway/... itself, each time returning an HTML 403 in place of JSON and
+ * breaking sign-in. Calling api.profinr.com leaves that vhost's rules out of the
+ * picture entirely, so there is no prefix left to be blocked.
  *
- * Server-side rendering talks to the backend directly and is unaffected by the
- * edge, so there the path is passed through unchanged.
- *
- * Call sites keep writing the real API path — apiUrl("/api/auth/login") — so
- * the backend's routes remain obvious at every call site.
+ * Server-side rendering already reached the backend directly and is unchanged.
+ * Call sites keep naming the real endpoint, so the path is passed through as
+ * written in both cases.
  */
 export function apiUrl(path: string) {
   const base = getApiBase();
   const clean = path.startsWith("/") ? path : `/${path}`;
-  if (typeof window === "undefined") return `${base}${clean}`;
-  return `${base}${clean.replace(/^\/api(?=\/|$)/, "")}`;
+  return `${base}${clean}`;
 }
 
 export async function getPublicCategories(filters: CategoryFilters = {}) {
