@@ -612,33 +612,85 @@ export function OwnerDashboard() {
           <p className="text-sm font-bold uppercase tracking-[0.22em] text-champagne">Listing poster dashboard</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-ink md:text-5xl">Manage your business profile</h1>
           <p className="mt-4 max-w-3xl leading-7 text-muted">
-            Each business owner account can post one profile. Track approval state, views and reviews here; country, city, category and slug stay locked after submission for SEO stability.
+            See how your listing is performing, keep its details current, and control whether it appears in the directory.
           </p>
         </div>
         {needsEmailVerification ? (
           <Button variant="gold" disabled aria-describedby="verify-email-notice">
             <Plus className="mr-2 h-4 w-4" /> Add Profile
           </Button>
-        ) : primaryListing ? (
-          <Button href={`/dashboard/edit-profile?listing=${primaryListing.slug}`} variant="gold">Edit Profile</Button>
-        ) : (
+        ) : primaryListing ? null : (
           <Button href="/dashboard/add-profile" variant="gold"><Plus className="mr-2 h-4 w-4" /> Add Profile</Button>
         )}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-5">
-        <Stat label="Total listings" value={stats.total} icon={<FileText className="h-5 w-5" />} />
-        <Stat label="Drafts" value={stats.drafts} icon={<Clock3 className="h-5 w-5" />} />
-        <Stat label="Pending" value={stats.pending} icon={<LockKeyhole className="h-5 w-5" />} />
-        <Stat label="Approved" value={stats.approved} icon={<Star className="h-5 w-5" />} />
-        <Stat label="Reviews" value={stats.reviews} icon={<MessageSquareText className="h-5 w-5" />} />
-      </div>
+      {/*
+        * An owner has exactly one listing, so counting listings by status was
+        * four tiles restating a single fact. What they actually want to know is
+        * how the listing is doing and whether anyone contacted them.
+        */}
+      {loading && !primaryListing ? (
+        <GlassCard className="p-5 md:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-5">
+            <div className="w-full max-w-sm">
+              <span className="skeleton block h-8 w-56 rounded-lg" aria-hidden="true" />
+              <span className="skeleton mt-3 block h-4 w-40 rounded" aria-hidden="true" />
+              <span className="skeleton mt-5 block h-10 w-48 rounded-lg" aria-hidden="true" />
+            </div>
+            <div className="grid grid-cols-3 gap-6">
+              {[0, 1, 2].map((index) => (
+                <span key={index} className="skeleton block h-12 w-16 rounded" aria-hidden="true" />
+              ))}
+            </div>
+          </div>
+          <span className="sr-only">Loading your listing…</span>
+        </GlassCard>
+      ) : null}
 
-      <div className="mt-4 grid gap-4 md:grid-cols-4">
-        <Stat label="Total views" value={insights.TOTAL_VIEW_COUNT || listings.reduce((sum, listing) => sum + listing.viewCount, 0)} icon={<Eye className="h-5 w-5" />} />
-        <Stat label="30d WhatsApp" value={insights.WHATSAPP_CLICK} icon={<MessageCircle className="h-5 w-5" />} />
-        <Stat label="30d Calls" value={insights.PHONE_CLICK} icon={<Phone className="h-5 w-5" />} />
-        <Stat label="30d Website" value={insights.WEBSITE_CLICK} icon={<Globe2 className="h-5 w-5" />} />
+      {primaryListing ? (
+        <GlassCard className="p-5 md:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-5">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <h2 className="text-2xl font-semibold tracking-[-0.02em] text-ink">{primaryListing.name}</h2>
+                <span className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ring-1 ${statusTone(primaryListing.status)}`}>
+                  {String(primaryListing.status || "").toLowerCase()}
+                </span>
+              </div>
+              <p className="mt-1.5 text-sm text-muted">
+                {[primaryListing.category, primaryListing.cityName].filter(Boolean).join(" · ")}
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button href={`/dashboard/edit-profile?listing=${primaryListing.slug}`} variant="gold" className="py-2.5">Edit listing</Button>
+                {String(primaryListing.status).toLowerCase() === "approved" ? (
+                  <Button href={profileHref(primaryListing)} variant="ghost" className="py-2.5">View it live</Button>
+                ) : null}
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-6">
+              <div>
+                <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted">Views</p>
+                <p className="mt-1 text-2xl font-semibold text-ink">{insights.TOTAL_VIEW_COUNT || primaryListing.viewCount || 0}</p>
+              </div>
+              <div>
+                <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted">Reviews</p>
+                <p className="mt-1 text-2xl font-semibold text-ink">{stats.reviews}</p>
+              </div>
+              <div>
+                <p className="text-2xs font-bold uppercase tracking-[0.14em] text-muted">Rating</p>
+                <p className="mt-1 text-2xl font-semibold text-ink">{primaryListing.rating ? Number(primaryListing.rating).toFixed(1) : "—"}</p>
+              </div>
+            </div>
+          </div>
+        </GlassCard>
+      ) : null}
+
+      {/* How people actually reached out, over the last 30 days. */}
+      <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Stat label="Profile views" value={insights.PROFILE_VIEW ?? (insights.TOTAL_VIEW_COUNT || 0)} icon={<Eye className="h-5 w-5" />} />
+        <Stat label="WhatsApp taps" value={insights.WHATSAPP_CLICK} icon={<MessageCircle className="h-5 w-5" />} />
+        <Stat label="Calls" value={insights.PHONE_CLICK} icon={<Phone className="h-5 w-5" />} />
+        <Stat label="Website taps" value={insights.WEBSITE_CLICK} icon={<Globe2 className="h-5 w-5" />} />
       </div>
 
       {primaryListing ? (

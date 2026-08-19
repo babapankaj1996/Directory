@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Clock3, Eye, FileText, Globe2, MessageCircle, Phone, Send, Star, Users, XCircle } from "lucide-react";
+import { AdminAttention } from "@/components/admin/admin-attention";
 import { AdminSectionHeader, AdminStatCard, AdminTable, StatusPill } from "@/components/admin/admin-ui";
 import { GlassCard } from "@/components/ui/glass-card";
 import { isFeaturedActive, isFeaturedExpired, listings as fallbackListings, type Listing, type ListingStatus } from "@/lib/data";
@@ -82,25 +83,23 @@ export function AdminDashboard() {
     <div>
       <AdminSectionHeader
         eyebrow="Dashboard"
-        title="Website control overview"
-        description="Review listing approvals, featured inventory and directory health from one glass dashboard."
+        title="Directory overview"
+        description="What needs reviewing, and how the directory is performing."
       />
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        <AdminStatCard label="Total listings" value={String(counts.total)} note="All statuses" icon={<Users className="h-5 w-5" />} />
-        <AdminStatCard label="Pending approvals" value={String(counts.pending)} note="Needs review" icon={<Clock3 className="h-5 w-5" />} />
-        <AdminStatCard label="Approved listings" value={String(counts.approved)} note="Publicly visible" icon={<CheckCircle2 className="h-5 w-5" />} />
-        <AdminStatCard label="Rejected listings" value={String(counts.rejected)} note="Hidden from public" icon={<XCircle className="h-5 w-5" />} />
-        <AdminStatCard label="Active featured" value={String(counts.featured)} note={counts.expiredFeatured ? `${counts.expiredFeatured} expired` : "Premium placement"} icon={<Star className="h-5 w-5" />} />
-        <AdminStatCard label="New listings this week" value={String(counts.newThisWeek)} note="Recent submissions" icon={<FileText className="h-5 w-5" />} />
-      </div>
+      <AdminAttention />
 
-      <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-        <AdminStatCard label="Total views" value={String(insights.TOTAL_VIEW_COUNT || items.reduce((sum, listing) => sum + listing.viewCount, 0))} note="Synced profile counter" icon={<Eye className="h-5 w-5" />} />
-        <AdminStatCard label="30d profile views" value={String(insights.PROFILE_VIEW)} note="Tracked page opens" icon={<Eye className="h-5 w-5" />} />
-        <AdminStatCard label="30d WhatsApp clicks" value={String(insights.WHATSAPP_CLICK)} note="Direct owner leads" icon={<MessageCircle className="h-5 w-5" />} />
-        <AdminStatCard label="30d call / web clicks" value={String(insights.PHONE_CLICK + insights.WEBSITE_CLICK)} note="Phone and website actions" icon={insights.PHONE_CLICK >= insights.WEBSITE_CLICK ? <Phone className="h-5 w-5" /> : <Globe2 className="h-5 w-5" />} />
-        <AdminStatCard label="30d quote requests" value={String(insights.LEAD_SUBMITTED)} note="Profile lead forms" icon={<Send className="h-5 w-5" />} />
+      {/*
+        * Eleven tiles, most of them reading zero on a young directory, taught
+        * the eye to skip the row entirely. These are the four that describe the
+        * directory's actual state; the rest were either restating each other or
+        * counting things that have not happened yet.
+        */}
+      <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+        <AdminStatCard label="Live listings" value={String(counts.approved)} note={`${counts.total} in total`} icon={<CheckCircle2 className="h-5 w-5" />} />
+        <AdminStatCard label="New this week" value={String(counts.newThisWeek)} note="Recent submissions" icon={<FileText className="h-5 w-5" />} />
+        <AdminStatCard label="Profile views" value={String(insights.TOTAL_VIEW_COUNT || items.reduce((sum, listing) => sum + listing.viewCount, 0))} note="All time" icon={<Eye className="h-5 w-5" />} />
+        <AdminStatCard label="Enquiries (30d)" value={String(insights.LEAD_SUBMITTED + insights.WHATSAPP_CLICK + insights.PHONE_CLICK)} note="Forms, WhatsApp and calls" icon={<Send className="h-5 w-5" />} />
       </div>
 
       <div className="mt-6">

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, Clock, Eye, EyeOff, Loader2, RotateCcw, Trash2 } from "lucide-react";
+import { AlertTriangle, Clock, Eye, EyeOff, RotateCcw, Trash2 } from "lucide-react";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { readApiJson } from "@/lib/api-response";
@@ -32,7 +32,6 @@ export function OwnerListingControls({
   const [revision, setRevision] = useState<PendingRevision>(null);
   const [deletion, setDeletion] = useState<DeletionRequest>(null);
   const [paused, setPaused] = useState(isPaused);
-  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -51,8 +50,6 @@ export function OwnerListingControls({
     } catch {
       // A control panel that cannot read its own state should stay quiet rather
       // than shout; the actions below still report their own failures.
-    } finally {
-      setLoading(false);
     }
   }, [profileId]);
 
@@ -139,10 +136,6 @@ export function OwnerListingControls({
   return (
     <div className="grid gap-4">
       {message ? <p className="rounded-xl border border-line bg-surface px-4 py-3 text-sm font-semibold text-ink">{message}</p> : null}
-
-      {loading ? (
-        <p className="flex items-center gap-2 text-sm text-muted"><Loader2 className="h-4 w-4 animate-spin" /> Checking your listing…</p>
-      ) : null}
 
       {revision ? (
         <GlassCard className="p-5">

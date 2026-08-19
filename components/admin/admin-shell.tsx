@@ -13,9 +13,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
           <div className="inline-flex items-center gap-2 rounded-full bg-white/75 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-champagne shadow-sm md:tracking-[0.25em]">
             <ShieldCheck className="h-4 w-4" /> Admin Control Panel
           </div>
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink md:text-5xl">Manage complete directory</h1>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-ink md:text-5xl">Directory administration</h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-muted md:text-base md:leading-7">
-            Control countries, cities, categories, profiles, quote requests, blog posts, SEO metadata and website settings from one premium glass dashboard.
+            Listings, locations, categories, enquiries and site settings.
           </p>
         </div>
         <Link href="/" className="inline-flex w-fit items-center justify-center rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white shadow-glass transition hover:-translate-y-0.5">
