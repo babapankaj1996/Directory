@@ -110,7 +110,9 @@ export function UploadDropzone({
       }
 
       const body = new FormData();
-      body.append("file", file);
+      // The API's multer instance is configured for a field called "image";
+      // anything else is rejected with "Unexpected field".
+      body.append("image", file);
       body.append("type", type);
 
       try {

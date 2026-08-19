@@ -20,7 +20,6 @@ import {
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { VerifyEmailNotice } from "@/components/verify-email-notice";
-import { UploadField } from "@/components/upload-field";
 import { UploadDropzone } from "@/components/upload-dropzone";
 import { CategoryProfileAssist } from "@/components/category-profile-assist";
 import { adminFetch, authFetch, getCurrentUser } from "@/lib/admin-auth";
@@ -873,8 +872,6 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
         {step === 3 ? (
           <div className="grid gap-5 md:grid-cols-2">
             <Field label="Website" value={form.website} onChange={(value) => update("website", value)} placeholder="https://example.com" />
-            <Field label="Cover Image URL" value={form.coverImage} onChange={(value) => update("coverImage", value)} placeholder={defaultCover} />
-            <Field label="Avatar / Logo URL" value={form.avatarImage} onChange={(value) => update("avatarImage", value)} placeholder="https://..." className="md:col-span-2" />
             <div className="md:col-span-2 grid gap-4">
               <UploadDropzone
                 admin={admin}
@@ -922,13 +919,10 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
                 </div>
               ) : null}
             </div>
-            <div className="flex min-h-44 items-center justify-center rounded-[1.5rem] border border-dashed border-champagne/70 bg-white text-center md:col-span-2">
-              <div>
-                <ImagePlus className="mx-auto h-8 w-8 text-champagne" />
-                <p className="mt-2 text-sm font-semibold text-ink">Paste public URLs or upload local files</p>
-                <p className="text-xs text-muted">Gallery supports up to {maxProfileGalleryItems} public images or videos per profile.</p>
-              </div>
-            </div>
+            <p className="text-xs leading-5 text-muted md:col-span-2">
+              Images are uploaded to Profinr and served from here, so they cannot break or change later. The gallery
+              takes up to {maxProfileGalleryItems} images or videos.
+            </p>
           </div>
         ) : null}
 
@@ -1211,7 +1205,6 @@ function GalleryManager({
   onAdd: (item: GalleryFormItem) => void;
   onRemove: (index: number) => void;
 }) {
-  const [mediaUrl, setMediaUrl] = useState("");
   const [title, setTitle] = useState("");
   const limitReached = items.length >= maxProfileGalleryItems;
 
@@ -1227,7 +1220,6 @@ function GalleryManager({
       sortOrder: items.length + 1,
       isActive: true
     });
-    setMediaUrl("");
     setTitle("");
   }
 
@@ -1240,28 +1232,16 @@ function GalleryManager({
         </div>
         <span className="w-fit rounded-full bg-cloud px-3 py-1 text-xs font-bold text-muted">{items.length}/{maxProfileGalleryItems}</span>
       </div>
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <Field label="Media URL" value={mediaUrl} onChange={setMediaUrl} placeholder="https://..." />
-        <Field label="Title" value={title} onChange={setTitle} placeholder="Gallery title" />
-        <div className="flex items-end">
-          <button
-            type="button"
-            onClick={() => addFromUrl(mediaUrl)}
-            disabled={limitReached || !mediaUrl.trim()}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <ImagePlus className="h-4 w-4" /> Add URL
-          </button>
-        </div>
-      </div>
-      <div className="mt-4">
-        <UploadField
+      <div className="mt-4 grid gap-3">
+        <Field label="Title for the next upload" value={title} onChange={setTitle} placeholder="Optional caption" />
+        <UploadDropzone
           admin={admin}
-          label="Upload Gallery Image or Video"
+          label="Add a photo or video"
           type="gallery"
-          helper={`Best photo size: 1200 x 1600 px (3:4). The preview below uses the same portrait frame visitors will see. ${items.length}/${maxProfileGalleryItems} used.`}
+          requirement={`${items.length}/${maxProfileGalleryItems} used`}
+          helper="Best at 1200 x 1600 px (3:4) — the same portrait frame visitors see. Photos and short videos are both fine."
           disabled={limitReached}
-          disabledMessage={`Gallery limit reached: ${maxProfileGalleryItems}/${maxProfileGalleryItems} media items used.`}
+          disabledMessage={`Gallery is full — ${maxProfileGalleryItems} items maximum.`}
           onUploaded={(url) => addFromUrl(url)}
         />
       </div>

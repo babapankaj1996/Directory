@@ -24,7 +24,8 @@ import type { Listing, ProfileVerificationDocument } from "@/lib/data";
 import { effectiveVerificationStatus as resolveEffectiveVerificationStatus } from "@/lib/verification-status";
 import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
-import { UploadField } from "@/components/upload-field";
+import Link from "next/link";
+import { UploadDropzone } from "@/components/upload-dropzone";
 import { CategoryProfileAssist } from "@/components/category-profile-assist";
 
 type SessionUser = {
@@ -734,29 +735,32 @@ export function OwnerProfileEditor({ admin = false, listingId }: { admin?: boole
 
           {step === 3 ? (
             <div className="grid gap-5 md:grid-cols-2">
-              <Field label="Cover Image URL" value={form.coverImage} onChange={(value) => update("coverImage", value)} placeholder="https://..." />
-              <Field label="Avatar / Logo URL" value={form.avatarImage} onChange={(value) => update("avatarImage", value)} placeholder="https://..." className="md:col-span-2" />
               <div className="grid gap-4 md:col-span-2">
-                <UploadField
-                  label="Upload Cover Image"
+                <UploadDropzone
+                  label="Cover image"
                   type="cover"
                   value={form.coverImage}
-                  helper="Local images are resized to a fixed 16:9 LCP-friendly WebP/AVIF asset."
+                  requirement="Landscape, JPG or PNG"
+                  helper="The wide banner at the top of your profile. A 16:9 photo works best."
                   onUploaded={(url) => update("coverImage", url)}
+                  onCleared={() => update("coverImage", "")}
                 />
-                <UploadField
-                  label="Upload Avatar / Logo"
+                <UploadDropzone
+                  label="Profile picture or logo"
                   type="avatar"
                   value={form.avatarImage}
-                  helper="Square business logo or profile avatar."
+                  requirement="Square, JPG or PNG"
+                  helper="Shown beside your name in search results."
                   onUploaded={(url) => update("avatarImage", url)}
+                  onCleared={() => update("avatarImage", "")}
                 />
-                <UploadField
-                  label="Upload Gallery Image or Video"
+                <UploadDropzone
+                  label="Add a photo or video"
                   type="gallery"
-                  helper={`Best photo size: 1200 x 1600 px (3:4). The preview below uses the same portrait frame visitors will see. ${galleryCount}/${MAX_PROFILE_GALLERY_IMAGES} used.`}
+                  requirement={`${galleryCount}/${MAX_PROFILE_GALLERY_IMAGES} used`}
+                  helper="Best at 1200 x 1600 px (3:4) — the same portrait frame visitors see."
                   disabled={galleryLimitReached}
-                  disabledMessage={`Gallery limit reached: ${MAX_PROFILE_GALLERY_IMAGES}/${MAX_PROFILE_GALLERY_IMAGES} media items used.`}
+                  disabledMessage={`Gallery is full — ${MAX_PROFILE_GALLERY_IMAGES} items maximum.`}
                   onUploaded={addGalleryImage}
                 />
                 <div id="verification" className="scroll-mt-24 rounded-[1.5rem] bg-white p-4 ring-1 ring-slate-200">
@@ -774,18 +778,15 @@ export function OwnerProfileEditor({ admin = false, listingId }: { admin?: boole
 
                   <div className="mt-4 grid gap-3">
                     <VerificationStatusBox listing={listing} documents={verificationDocuments} />
-                    <UploadField
-                      label="Upload Government ID"
-                      type="document"
-                      helper="Private upload for admin verification only. Public users cannot see this file."
-                      onUploaded={(url, payload) => addVerificationDocument(url, "GOV_ID", payload?.originalName)}
-                    />
-                    <UploadField
-                      label="Upload DOB Selfie / Latest Photo"
-                      type="document"
-                      helper="Upload the latest photo holding a paper with DOB details when required."
-                      onUploaded={(url, payload) => addVerificationDocument(url, "AGE_SELFIE", payload?.originalName)}
-                    />
+                    {/* Identity documents are handled on their own page, so
+                        private ID is never mixed into the form used for public
+                        marketing content. */}
+                    <Link
+                      href="/dashboard/verification"
+                      className="inline-flex min-h-[44px] w-fit items-center gap-2 rounded-lg border border-line bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:border-copper-600"
+                    >
+                      Manage verification documents
+                    </Link>
                   </div>
                 </div>
               </div>
