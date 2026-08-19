@@ -21,6 +21,7 @@ import { GlassCard } from "@/components/ui/glass-card";
 import { Button } from "@/components/ui/button";
 import { VerifyEmailNotice } from "@/components/verify-email-notice";
 import { UploadField } from "@/components/upload-field";
+import { UploadDropzone } from "@/components/upload-dropzone";
 import { CategoryProfileAssist } from "@/components/category-profile-assist";
 import { adminFetch, authFetch, getCurrentUser } from "@/lib/admin-auth";
 import { categories, type Category, type Listing } from "@/lib/data";
@@ -875,21 +876,25 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
             <Field label="Cover Image URL" value={form.coverImage} onChange={(value) => update("coverImage", value)} placeholder={defaultCover} />
             <Field label="Avatar / Logo URL" value={form.avatarImage} onChange={(value) => update("avatarImage", value)} placeholder="https://..." className="md:col-span-2" />
             <div className="md:col-span-2 grid gap-4">
-              <UploadField
+              <UploadDropzone
                 admin={admin}
-                label="Upload Cover Image"
+                label="Cover image"
                 type="cover"
                 value={form.coverImage}
-                helper="Recommended 16:9 image. The backend creates optimized WebP and AVIF variants."
+                requirement="Landscape, JPG or PNG"
+                helper="This is the wide banner at the top of your profile. A 16:9 photo works best — the server makes optimised versions automatically."
                 onUploaded={(url) => update("coverImage", url)}
+                onCleared={() => update("coverImage", "")}
               />
-              <UploadField
+              <UploadDropzone
                 admin={admin}
-                label="Upload Avatar / Logo"
+                label="Profile picture or logo"
                 type="avatar"
                 value={form.avatarImage}
-                helper="Square logo or profile photo. It is cropped to a stable aspect ratio."
+                requirement="Square, JPG or PNG"
+                helper="Shown next to your name in search results and on your profile. A square image avoids cropping."
                 onUploaded={(url) => update("avatarImage", url)}
+                onCleared={() => update("avatarImage", "")}
               />
               <GalleryManager
                 admin={admin}
@@ -899,23 +904,21 @@ export function ProfileSubmitForm({ admin = false }: { admin?: boolean }) {
                 onRemove={removeGalleryItem}
               />
               {isAdultCategory ? (
-                <div className="grid gap-4 md:grid-cols-2">
-                  <UploadField
-                    admin={admin}
-                    label="18+ Government ID"
-                    type="document"
-                    value={form.govIdDocument}
-                    helper="Private upload. Admin can view this for verification; it is never shown on public profile pages."
-                    onUploaded={(url) => update("govIdDocument", url)}
-                  />
-                  <UploadField
-                    admin={admin}
-                    label="Latest Photo With DOB Paper"
-                    type="document"
-                    value={form.ageSelfieDocument}
-                    helper="Upload a recent photo holding a paper with date of birth written on it. Private admin-only document."
-                    onUploaded={(url) => update("ageSelfieDocument", url)}
-                  />
+                /* Identity documents live on their own page. Keeping private ID
+                   next to public marketing images made this form feel invasive
+                   and buried the step that actually gates publication. */
+                <div className="rounded-2xl border border-line bg-sunken p-5">
+                  <p className="text-sm font-semibold text-ink">Identity verification is handled separately</p>
+                  <p className="mt-1.5 max-w-xl text-sm leading-6 text-muted">
+                    Your category is age-restricted, so we need a government ID and a dated photo before the listing can
+                    be published. Those go to private storage, never to your public profile.
+                  </p>
+                  <Link
+                    href="/dashboard/verification"
+                    className="mt-3 inline-flex min-h-[40px] items-center gap-2 rounded-lg border border-line bg-surface px-4 text-sm font-semibold text-ink transition-colors hover:border-copper-600"
+                  >
+                    Go to verification
+                  </Link>
                 </div>
               ) : null}
             </div>
